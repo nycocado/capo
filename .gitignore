@@ -1,0 +1,41 @@
+# Node.js
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# React build output
+build/
+
+# Nest.js output and coverage
+dist/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# JetBrains IDE files
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# Database dumps
+*.sql~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
