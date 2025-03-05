@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+  // output removed to use default client location
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @default(autoincrement()) @map("user_id")
+  internalId       String            @unique(map: "user_internal_id") @map("user_internal_id") @db.VarChar(100)
+  password         String            @map("user_password") @db.VarChar(255)
+  name             String            @map("user_name") @db.VarChar(60)
+  birthDate        DateTime          @map("user_bdate") @db.Date
+  gender           String            @map("user_gender") @db.Char(1)
+  photo            String?           @map("user_photo") @db.VarChar(100)
+  cuttingOperators CuttingOperator[]
+  pipeFitters      PipeFitter[]
+  welders          Welder[]
+  admins           Admin[]
+
+  @@map("user")
+}
+
+model CuttingOperator {
+  id          Int          @id @default(autoincrement()) @map("ctop_id")
+  certificate String?      @map("ctop_certificate") @db.VarChar(100)
+  userId      Int          @map("ctop_user_id")
+  user        User         @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "fk_cuttingop_user")
+  pipeLengths PipeLength[]
+
+  @@index([userId], map: "fk_cuttingop_user")
+  @@map("cuttingop")
+}
+
+model PipeFitter {
+  id          Int     @id @default(autoincrement()) @map("pipf_id")
+  certificate String? @map("pipf_certificate") @db.VarChar(100)
+  userId      Int     @map("pipf_user_id")
+  user        User    @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "fk_pipefitter_user")
+  joints      Joint[]
+
+  @@index([userId], map: "fk_pipefitter_user")
+  @@map("pipefitter")
+}
+
+model Welder {
+  id          Int     @id @default(autoincrement()) @map("wdr_id")
+  certificate String? @map("wdr_certificate") @db.VarChar(100)
+  userId      Int     @map("wdr_user_id")
+  user        User    @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "fk_welder_user")
+  welds       Weld[]
+
+  @@index([userId], map: "fk_welder_user")
+  @@map("welder")
+}
+
+model Admin {
+  id          Int     @id @default(autoincrement()) @map("adm_id")
+  certificate String? @map("adm_certificate") @db.VarChar(100)
+  userId      Int     @map("adm_user_id")
+  user        User    @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "fk_admin_user")
+
+  @@index([userId], map: "fk_admin_user")
+  @@map("admin")
+}
+
+model PipeLength {
+  id                Int              @id @default(autoincrement()) @map("pipl_id")
+  internalId        String           @unique(map: "pipl_internal_id") @map("pipl_internal_id") @db.VarChar(100)
+  length            Decimal          @map("pipl_length") @db.Decimal(8, 2)
+  thickness         Decimal          @map("pipl_thickness") @db.Decimal(5, 2)
+  heatNumber        String?          @map("pipl_heatnumber") @db.VarChar(100)
+  materialId        Int              @map("pipl_mat_id")
+  diameterId        Int              @map("pipl_dn_id")
+  partId            Int              @map("pipl_prt_id")
+  cuttingOperatorId Int?             @map("pipl_ctop_id")
+  isometricId       Int              @map("pipl_iso_id")
+  cuttingOperator   CuttingOperator? @relation(fields: [cuttingOperatorId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_pipelength_cuttingop")
+  diameter          Diameter         @relation(fields: [diameterId], references: [id], onUpdate: Restrict, map: "fk_pipelength_diameter")
+  material          Material         @relation(fields: [materialId], references: [id], onUpdate: Restrict, map: "fk_pipelength_material")
+  part              Part             @relation(fields: [partId], references: [id], onUpdate: Restrict, map: "fk_pipelength_part")
+  isometric         Isometric        @relation(fields: [isometricId], references: [id], onUpdate: Restrict, map: "fk_pipelength_isometric")
+
+  @@index([cuttingOperatorId], map: "fk_pipelength_cuttingop")
+  @@index([diameterId], map: "fk_pipelength_diameter")
+  @@index([materialId], map: "fk_pipelength_material")
+  @@index([partId], map: "fk_pipelength_part")
+  @@index([isometricId], map: "fk_pipelength_isometric")
+  @@map("pipelength")
+}
+
+model Fitting {
+  id            Int         @id @default(autoincrement()) @map("fit_id")
+  internalId    String      @unique(map: "fit_internal_id") @map("fit_internal_id") @db.VarChar(100)
+  description   String      @map("fit_description") @db.VarChar(100)
+  length        Decimal     @map("fit_length") @db.Decimal(8, 2)
+  thickness     Decimal     @map("fit_thickness") @db.Decimal(5, 2)
+  heatNumber    String?     @map("fit_heatnumber") @db.VarChar(100)
+  fittingTypeId Int         @map("fit_fty_id")
+  materialId    Int         @map("fit_mat_id")
+  partId        Int         @map("fit_prt_id")
+  isometricId   Int         @map("fit_iso_id")
+  material      Material    @relation(fields: [materialId], references: [id], onUpdate: Restrict, map: "fk_fitting_material")
+  part          Part        @relation(fields: [partId], references: [id], onUpdate: Restrict, map: "fk_fitting_part")
+  fittingType   FittingType @relation(fields: [fittingTypeId], references: [id], onUpdate: Restrict, map: "fk_fitting_type")
+  ports         Port[]
+  isometric     Isometric   @relation(fields: [isometricId], references: [id], onUpdate: Restrict, map: "fk_fitting_isometric")
+
+  @@index([materialId], map: "fk_fitting_material")
+  @@index([partId], map: "fk_fitting_part")
+  @@index([fittingTypeId], map: "fk_fitting_type")
+  @@map("fitting")
+}
+
+model Part {
+  id          Int          @id @default(autoincrement()) @map("prt_id")
+  number      String       @map("prt_number") @db.VarChar(100)
+  fittings    Fitting[]
+  joints1     Joint[]      @relation("joint_jnt_prt1_idTopart")
+  joints2     Joint[]      @relation("joint_jnt_prt2_idTopart")
+  pipeLengths PipeLength[]
+
+  @@map("part")
+}
+
+model Joint {
+  id           Int         @id @default(autoincrement()) @map("jnt_id")
+  part1Id      Int         @map("jnt_prt1_id")
+  part2Id      Int         @map("jnt_prt2_id")
+  spoolId      Int         @map("jnt_spo_id")
+  pipeFitterId Int?        @map("jnt_pipf_id")
+  pipeFitter   PipeFitter? @relation(fields: [pipeFitterId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_joint_pipefitter")
+  part1        Part        @relation("joint_jnt_prt1_idTopart", fields: [part1Id], references: [id], onUpdate: Restrict, map: "fk_joint_prt1")
+  part2        Part        @relation("joint_jnt_prt2_idTopart", fields: [part2Id], references: [id], onUpdate: Restrict, map: "fk_joint_prt2")
+  spool        Spool       @relation(fields: [spoolId], references: [id], onUpdate: Restrict, map: "fk_joint_spool")
+  welds        Weld[]
+
+  @@index([pipeFitterId], map: "fk_joint_pipefitter")
+  @@index([part1Id], map: "fk_joint_prt1")
+  @@index([part2Id], map: "fk_joint_prt2")
+  @@index([spoolId], map: "fk_joint_spool")
+  @@map("joint")
+}
+
+model Weld {
+  id       Int     @id @default(autoincrement()) @map("wld_id")
+  welderId Int?    @map("wld_wdr_id")
+  fillerId Int?    @map("wld_fm_id")
+  jointId  Int     @map("wld_jnt_id")
+  wpsId    Int?    @map("wld_wps_id")
+  filler   Filler? @relation(fields: [fillerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_filler")
+  joint    Joint   @relation(fields: [jointId], references: [id], onUpdate: Restrict, map: "fk_weld_joint")
+  welder   Welder? @relation(fields: [welderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_welder")
+  wps      Wps?    @relation(fields: [wpsId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_wps")
+
+  @@index([fillerId], map: "fk_weld_filler")
+  @@index([jointId], map: "fk_weld_joint")
+  @@index([welderId], map: "fk_weld_welder")
+  @@map("weld")
+}
+
+model Port {
+  id         Int      @id @default(autoincrement()) @map("port_id")
+  number     Int      @map("port_number")
+  fittingId  Int      @map("port_fit_id")
+  diameterId Int      @map("port_dn_id")
+  diameter   Diameter @relation(fields: [diameterId], references: [id], onUpdate: Restrict, map: "fk_port_diameter")
+  fitting    Fitting  @relation(fields: [fittingId], references: [id], onUpdate: Restrict, map: "fk_port_fitting")
+
+  @@index([diameterId], map: "fk_port_diameter")
+  @@index([fittingId], map: "fk_port_fitting")
+  @@map("port")
+}
+
+model Project {
+  id         Int         @id @default(autoincrement()) @map("prj_id")
+  internalId String      @unique(map: "prj_internal_id") @map("prj_internal_id") @db.VarChar(100)
+  name       String      @map("prj_name") @db.VarChar(60)
+  client     String      @map("prj_client") @db.VarChar(60)
+  isometrics Isometric[]
+
+  @@map("project")
+}
+
+model Isometric {
+  id         Int          @id @default(autoincrement()) @map("iso_id")
+  internalId String       @unique(map: "iso_internal_id") @map("iso_internal_id") @db.VarChar(100)
+  projectId  Int          @map("iso_prj_id")
+  project    Project      @relation(fields: [projectId], references: [id], onUpdate: Restrict, map: "fk_iso_project")
+  sheet      Sheet[]
+  PipeLength PipeLength[]
+  Fitting    Fitting[]
+
+  @@index([projectId], map: "fk_iso_project")
+  @@map("isometric")
+}
+
+model Sheet {
+  id          Int       @id @default(autoincrement()) @map("sht_id")
+  number      Int       @map("sht_number")
+  isometricId Int       @map("sht_iso_id")
+  revs        Rev[]
+  isometric   Isometric @relation(fields: [isometricId], references: [id], onUpdate: Restrict, map: "fk_sheet_iso")
+
+  @@index([isometricId], map: "fk_sheet_iso")
+  @@map("sheet")
+}
+
+model Rev {
+  id       Int    @id @default(autoincrement()) @map("rev_id")
+  document String @map("rev_document") @db.VarChar(100)
+  spoolId  Int    @map("rev_spo_id")
+  sheetId  Int    @map("rev_sht_id")
+  sheet    Sheet  @relation(fields: [sheetId], references: [id], onUpdate: Restrict, map: "fk_rev_sheet")
+  spool    Spool  @relation(fields: [spoolId], references: [id], onUpdate: Restrict, map: "fk_rev_spool")
+
+  @@index([sheetId], map: "fk_rev_sheet")
+  @@index([spoolId], map: "fk_rev_spool")
+  @@map("rev")
+}
+
+model Spool {
+  id         Int     @id @default(autoincrement()) @map("spo_id")
+  internalId String  @unique(map: "spo_internal_id") @map("spo_internal_id") @db.VarChar(100)
+  joints     Joint[]
+  revs       Rev[]
+
+  @@map("spool")
+}
+
+model Diameter {
+  id          Int          @id @default(autoincrement()) @map("dn_id")
+  nominalMm   Decimal      @unique(map: "dn_nominal_mm") @map("dn_nominal_mm") @db.Decimal(6, 2)
+  nominalInch Decimal      @map("dn_nominal_inch") @db.Decimal(5, 3)
+  pipeLengths PipeLength[]
+  ports       Port[]
+
+  @@map("diameter")
+}
+
+model Filler {
+  id    Int    @id @default(autoincrement()) @map("flr_id")
+  name  String @unique(map: "flr_name") @map("flr_name") @db.VarChar(60)
+  welds Weld[]
+
+  @@map("filler")
+}
+
+model FittingType {
+  id      Int       @id @default(autoincrement()) @map("fty_id")
+  name    String    @unique(map: "fty_name") @map("fty_name") @db.VarChar(60)
+  fitting Fitting[]
+
+  @@map("fittingtype")
+}
+
+model Material {
+  id         Int          @id @default(autoincrement()) @map("mat_id")
+  name       String       @unique(map: "mat_name") @map("mat_name") @db.VarChar(60)
+  fitting    Fitting[]
+  pipeLength PipeLength[]
+
+  @@map("material")
+}
+
+model Wps {
+  id         Int     @id @default(autoincrement()) @map("wps_id")
+  internalId String  @map("wps_internal_id") @db.VarChar(100)
+  document   String  @map("wps_document") @db.VarChar(100)
+  tpi        Decimal @map("wps_tpi") @db.Decimal(4, 2)
+  Weld       Weld[]
+
+  @@map("wps")
+}
