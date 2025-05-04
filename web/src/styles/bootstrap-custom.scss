@@ -1,0 +1,17 @@
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+
+$custom-theme-colors: (
+        "primary": #ff6600,
+        "secondary": $secondary,
+        "success": $success,
+        "info": $info,
+        "warning": $warning,
+        "danger": $danger,
+        "light": $light,
+        "dark": #242222
+);
+
+$theme-colors: map-merge($theme-colors, $custom-theme-colors);
+
+@import "../../node_modules/bootstrap/scss/bootstrap";

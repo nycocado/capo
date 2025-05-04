@@ -4,7 +4,7 @@ export class PipeLength {
     diameter: number;
     isometric: string;
     sheet: number;
-    section: string;
+    part: string;
     thickness: number;
     material: string;
     working: boolean;
@@ -25,7 +25,7 @@ export class PipeLength {
         this.diameter = diameter;
         this.isometric = isometric;
         this.sheet = sheet;
-        this.section = section;
+        this.part = section;
         this.thickness = thickness;
         this.material = material;
         this.working = working;
