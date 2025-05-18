@@ -5,16 +5,16 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
     return (
         <Card bg="primary" text="light" className="flex-grow-1 rounded-3">
             <Card.Body className="align-baseline justify-content-center text-center">
-                <Card bg="dark" text="light" className="my-2 rounded-3">
+                <Card bg="dark" text="light" className="mb-2 mt-1 rounded-3">
                     <Card.Body>
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">Dimension</h6>
-                                <h1>{selectedItem.dimension}<small className="ms-2 fs-5">mm</small></h1>
+                                <h2>{selectedItem.dimension}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Diameter (DN)</h6>
-                                <h1>{selectedItem.diameter}<small className="ms-2 fs-5">mm</small></h1>
+                                <h2>{selectedItem.diameter}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                         </Row>
                     </Card.Body>
@@ -24,11 +24,11 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">ID</h6>
-                                <h1>PL{selectedItem.id}</h1>
+                                <h2>PL{selectedItem.id}</h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Heat Number</h6>
-                                <h1>-----</h1>
+                                <h2>-----</h2>
                             </Col>
                         </Row>
                     </CardBody>
@@ -38,25 +38,25 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">Isometric</h6>
-                                <h1>{selectedItem.isometric}</h1>
+                                <h2>{selectedItem.isometric}</h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Sheet</h6>
-                                <h1>{selectedItem.sheet}</h1>
+                                <h2>{selectedItem.sheet}</h2>
                             </Col>
                         </Row>
                     </CardBody>
                 </Card>
-                <Card bg="dark" text="light" className="my-2 rounded-3">
+                <Card bg="dark" text="light" className="mt-2 mb-1 rounded-3">
                     <CardBody>
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">Thickness</h6>
-                                <h1>{selectedItem.thickness}<small className="ms-2 fs-5">mm</small></h1>
+                                <h2>{selectedItem.thickness}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Material</h6>
-                                <h1>{selectedItem.material}</h1>
+                                <h2>{selectedItem.material}</h2>
                             </Col>
                         </Row>
                     </CardBody>

@@ -3,6 +3,7 @@ export class PipeLength {
     dimension: number;
     diameter: number;
     isometric: string;
+    heatNumber?: string;
     sheet: number;
     part: string;
     thickness: number;
@@ -14,6 +15,7 @@ export class PipeLength {
         dimension: number,
         diameter: number,
         isometric: string,
+        heatNumber: string,
         sheet: number,
         section: string,
         thickness: number,
@@ -24,6 +26,7 @@ export class PipeLength {
         this.dimension = dimension;
         this.diameter = diameter;
         this.isometric = isometric;
+        this.heatNumber = heatNumber;
         this.sheet = sheet;
         this.part = section;
         this.thickness = thickness;

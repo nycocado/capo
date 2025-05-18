@@ -1,1 +1,0 @@
-export {WorkLabel} from "./WorkLabel";
