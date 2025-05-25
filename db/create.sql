@@ -40,6 +40,14 @@ CREATE TABLE cuttingop
     PRIMARY KEY (ctop_id)
 );
 
+CREATE TABLE admin
+(
+    adm_id          INT NOT NULL AUTO_INCREMENT,
+    adm_certificate VARCHAR(100),
+    adm_user_id     INT NOT NULL,
+    PRIMARY KEY (adm_id)
+);
+
 -- Material
 CREATE TABLE material
 (
@@ -88,6 +96,7 @@ CREATE TABLE pipelength
     pipl_dn_id       INT           NOT NULL,
     pipl_prt_id      INT           NOT NULL,
     pipl_ctop_id     INT,
+    pipl_iso_id      INT           NOT NULL,
     UNIQUE (pipl_internal_id),
     PRIMARY KEY (pipl_id)
 );
@@ -104,6 +113,7 @@ CREATE TABLE fitting
     fit_fty_id      INT           NOT NULL,
     fit_mat_id      INT           NOT NULL,
     fit_prt_id      INT           NOT NULL,
+    fit_iso_id      INT           NOT NULL,
     UNIQUE (fit_internal_id),
     PRIMARY KEY (fit_id)
 );
@@ -206,14 +216,6 @@ CREATE TABLE wps
     PRIMARY KEY (wps_id)
 );
 
-CREATE TABLE jwt
-(
-    jwt_id      INT          NOT NULL AUTO_INCREMENT,
-    jwt_token   VARCHAR(255) NOT NULL,
-    jwt_user_id INT          NOT NULL,
-    PRIMARY KEY (jwt_id)
-);
-
 -- Foreign Keys
 ALTER TABLE welder
     ADD CONSTRAINT fk_welder_user FOREIGN KEY (wdr_user_id) REFERENCES user (user_id);
@@ -223,6 +225,9 @@ ALTER TABLE pipefitter
 
 ALTER TABLE cuttingop
     ADD CONSTRAINT fk_cuttingop_user FOREIGN KEY (ctop_user_id) REFERENCES user (user_id);
+
+ALTER TABLE admin
+    ADD CONSTRAINT fk_admin_user FOREIGN KEY (adm_user_id) REFERENCES user (user_id);
 
 ALTER TABLE isometric
     ADD CONSTRAINT fk_iso_project FOREIGN KEY (iso_prj_id) REFERENCES project (prj_id);
@@ -238,12 +243,15 @@ ALTER TABLE pipelength
     ADD CONSTRAINT fk_pipelength_part FOREIGN KEY (pipl_prt_id) REFERENCES part (prt_id),
     ADD CONSTRAINT fk_pipelength_cuttingop FOREIGN KEY (pipl_ctop_id) REFERENCES cuttingop (ctop_id),
     ADD CONSTRAINT fk_pipelength_material FOREIGN KEY (pipl_mat_id) REFERENCES material (mat_id),
-    ADD CONSTRAINT fk_pipelength_diameter FOREIGN KEY (pipl_dn_id) REFERENCES diameter (dn_id);
+    ADD CONSTRAINT fk_pipelength_diameter FOREIGN KEY (pipl_dn_id) REFERENCES diameter (dn_id),
+    ADD CONSTRAINT fk_pipelength_isometric FOREIGN KEY (pipl_iso_id) REFERENCES isometric (iso_id);
 
 ALTER TABLE fitting
     ADD CONSTRAINT fk_fitting_type FOREIGN KEY (fit_fty_id) REFERENCES fittingtype (fty_id),
     ADD CONSTRAINT fk_fitting_material FOREIGN KEY (fit_mat_id) REFERENCES material (mat_id),
-    ADD CONSTRAINT fk_fitting_part FOREIGN KEY (fit_prt_id) REFERENCES part (prt_id);
+    ADD CONSTRAINT fk_fitting_part FOREIGN KEY (fit_prt_id) REFERENCES part (prt_id),
+    ADD CONSTRAINT fk_fitting_isometric FOREIGN KEY (fit_iso_id) REFERENCES isometric (iso_id);
+
 
 ALTER TABLE port
     ADD CONSTRAINT fk_port_fitting FOREIGN KEY (port_fit_id) REFERENCES fitting (fit_id),
@@ -259,9 +267,6 @@ ALTER TABLE weld
     ADD CONSTRAINT fk_weld_welder FOREIGN KEY (wld_wdr_id) REFERENCES welder (wdr_id),
     ADD CONSTRAINT fk_weld_filler FOREIGN KEY (wld_fm_id) REFERENCES filler (flr_id),
     ADD CONSTRAINT fk_weld_joint FOREIGN KEY (wld_jnt_id) REFERENCES joint (jnt_id);
-
-ALTER TABLE jwt
-    ADD CONSTRAINT fk_jwt_user FOREIGN KEY (jwt_user_id) REFERENCES user (user_id);
 
 -- Isometricos
 DELIMITER $$
@@ -345,4 +350,3 @@ BEGIN
         END WHILE;
 END$$
 DELIMITER ;
-
