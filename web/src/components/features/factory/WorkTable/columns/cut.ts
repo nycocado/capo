@@ -42,7 +42,7 @@ export const columnsPipeLength: Column<PipeLength>[ ] = [
         id: 'diameter',
         header: 'Ø',
         subheader: 'DN',
-        accessor: 'diameter',
+        accessor: 'diameterMm',
         className: 'text-center',
         sortable: true
     }

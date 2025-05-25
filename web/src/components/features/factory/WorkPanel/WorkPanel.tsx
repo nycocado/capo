@@ -14,7 +14,7 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Diameter (DN)</h6>
-                                <h2>{selectedItem.diameter}<small className="ms-2 fs-5">mm</small></h2>
+                                <h2>{selectedItem.diameterMm}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                         </Row>
                     </Card.Body>

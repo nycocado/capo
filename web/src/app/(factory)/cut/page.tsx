@@ -1,6 +1,6 @@
 "use client";
 import {Col, Container, Row} from "react-bootstrap";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {pipeLengths} from "@data/mock/workTable/cutMock";
 import {columnsPipeLength, WorkTable} from "@components/features/factory/WorkTable";
 import {ControlPanel} from "@components/features/factory/ControlPanel";
@@ -8,10 +8,6 @@ import {WorkPanel} from "@components/features/factory/WorkPanel";
 import {tabsAllWorking, WorkTabs} from "@components/features/factory/WorkTabs";
 
 function CuttingPage() {
-    useEffect(() => {
-        document.title = 'CAPO - CUT';
-    }, []);
-
     const [items] = useState(pipeLengths);
     const [selectedItem, setSelectedItem] = useState(items[0]);
     const [activeTab, setActiveTab] = useState('all');

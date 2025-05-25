@@ -3,13 +3,15 @@
 
 $custom-theme-colors: (
         "primary": #ff6600,
-        "secondary": $secondary,
-        "success": $success,
-        "info": $info,
-        "warning": $warning,
-        "danger": $danger,
+        "secondary": #242222,
+        "tertiary": #616161,
+        "success": #228B22,
+        "danger": #FF0A0A,
+        "info": #25DDFD,
+        "complement": #FFEE93,
         "light": $light,
-        "dark": #242222
+        "dark": #242222,
+        "surface": #DBDBDB,
 );
 
 $theme-colors: map-merge($theme-colors, $custom-theme-colors);

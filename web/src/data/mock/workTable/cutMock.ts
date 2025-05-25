@@ -1,37 +1,9 @@
-import {PipeLength} from "@models/PipeLenght"
+import {PipeLength} from "@models/PipeLenght";
+import {Dn} from "@models/Dn";
 
 export const pipeLengths: PipeLength[] = [
-    {
-        id: 1078,
-        dimension: 1979,
-        diameter: 65,
-        isometric: 'ERB-SM018',
-        sheet: 1,
-        part: '1.1',
-        thickness: 5,
-        material: '306L',
-        working: true
-    },
-    {
-        id: 1079,
-        dimension: 334,
-        diameter: 65,
-        isometric: 'ERB-SM018',
-        sheet: 1,
-        part: '1.2',
-        thickness: 5,
-        material: '306L',
-        working: false
-    },
-    {
-        id: 1080,
-        dimension: 897,
-        diameter: 65,
-        isometric: 'ERB-SM018',
-        sheet: 1,
-        part: '1.3',
-        thickness: 5,
-        material: '306L',
-        working: false
-    }
+    new PipeLength(1078, 1979, new Dn(1, 65, 2.5), 'ERB-SM018', undefined, 1, '1.1', 5, '306L', true),
+    new PipeLength(1079, 334, new Dn(1, 65, 2.5), 'ERB-SM018', undefined, 1, '1.2', 5, '306L', false),
+    new PipeLength(1080, 897, new Dn(1, 65, 2.5), 'ERB-SM018', undefined, 1, '1.3', 5, '306L', false)
 ];
+

@@ -1,7 +1,9 @@
+import {Dn} from "@models/Dn";
+
 export class PipeLength {
     id: number;
     dimension: number;
-    diameter: number;
+    dn: Dn;
     isometric: string;
     heatNumber?: string;
     sheet: number;
@@ -13,9 +15,9 @@ export class PipeLength {
     constructor(
         id: number,
         dimension: number,
-        diameter: number,
+        dn: Dn,
         isometric: string,
-        heatNumber: string,
+        heatNumber: string | undefined,
         sheet: number,
         section: string,
         thickness: number,
@@ -24,7 +26,7 @@ export class PipeLength {
     ) {
         this.id = id;
         this.dimension = dimension;
-        this.diameter = diameter;
+        this.dn = dn;
         this.isometric = isometric;
         this.heatNumber = heatNumber;
         this.sheet = sheet;
@@ -32,5 +34,13 @@ export class PipeLength {
         this.thickness = thickness;
         this.material = material;
         this.working = working;
+    }
+
+    get diameterMm(): number {
+        return this.dn.mm;
+    }
+
+    get diameterInch(): number {
+        return this.dn.inch;
     }
 }
