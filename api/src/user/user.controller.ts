@@ -14,6 +14,14 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @Get('profile')
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getProfile(@Req() req: any) {
+    return this.userService.getProfile(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('roles')
   @ApiOkResponse({ type: Array<RoleEntity> })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

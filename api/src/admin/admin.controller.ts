@@ -19,6 +19,4 @@ export class AdminController {
   verifyAdmin(@Req() req: any) {
     return this.adminService.verifyAdmin(req.user.id);
   }
-
-
 }

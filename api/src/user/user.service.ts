@@ -33,4 +33,17 @@ export class UserService {
     if (user.admins.length) roles.push(new RoleEntity('admin', 'Admin'));
     return roles;
   }
+
+  async getProfile(id: number) {
+    const user = await this.databaseService.user.findUnique({
+      where: { id },
+      omit: { password: true, birthDate: true, id: true, internalId: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 }

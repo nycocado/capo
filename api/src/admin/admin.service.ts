@@ -5,16 +5,6 @@ import { DatabaseService } from '../database/database.service';
 export class AdminService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async verifyAdmin(userId: number): Promise<boolean> {
-    const admin = await this.databaseService.admin.findFirst({
-      where: {
-        userId: userId,
-      },
-    });
-
-    return !!admin;
-  }
-
   async validateAdmin(userId: number) {
     const admin = await this.databaseService.admin.findFirst({
       where: { userId: userId },
@@ -26,5 +16,10 @@ export class AdminService {
     }
 
     return admin;
+  }
+
+  async verifyAdmin(userId: number) {
+    const admin = await this.validateAdmin(userId);
+    return !!admin;
   }
 }

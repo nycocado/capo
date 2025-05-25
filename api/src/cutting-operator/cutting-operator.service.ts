@@ -5,17 +5,6 @@ import { DatabaseService } from '../database/database.service';
 export class CuttingOperatorService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async verifyCuttingOperator(userId: number): Promise<boolean> {
-    const cuttingOperator =
-      await this.databaseService.cuttingOperator.findFirst({
-        where: {
-          userId: userId,
-        },
-      });
-
-    return !!cuttingOperator;
-  }
-
   async validateCuttingOperator(userId: number) {
     const cuttingOperator =
       await this.databaseService.cuttingOperator.findFirst({
@@ -28,5 +17,10 @@ export class CuttingOperatorService {
     }
 
     return cuttingOperator;
+  }
+
+  async verifyCuttingOperator(userId: number) {
+    const cuttingOperator = await this.validateCuttingOperator(userId);
+    return !!cuttingOperator;
   }
 }
