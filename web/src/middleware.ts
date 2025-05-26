@@ -15,6 +15,25 @@ export const config = {
     ]
 };
 
+async function canAccessRole(url: string, token: string): Promise<boolean> {
+    try {
+        const res = await fetch(
+            `${API_URL}${url}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+            }
+        );
+        if (!res.ok) throw new Error();
+        return res.ok;
+    } catch {
+        return false;
+    }
+}
+
 export async function middleware(req: NextRequest) {
     const {pathname} = req.nextUrl;
     const token = req.cookies.get("token")?.value;
@@ -52,6 +71,21 @@ export async function middleware(req: NextRequest) {
         if (!res.ok) throw new Error();
     } catch {
         return NextResponse.redirect(new URL(ROUTES.login, req.url));
+    }
+
+    const pageRolesMap: Record<string, string> = {
+        [ROUTES.cut]: API_ROUTES.cuttingOperator.verify,
+        [ROUTES.assembly]: API_ROUTES.pipeFitter.verify,
+        [ROUTES.weld]: API_ROUTES.welder.verify,
+        [ROUTES.admin]: API_ROUTES.admin.verify
+    }
+
+    if (pathname in pageRolesMap) {
+        const canAccess = await canAccessRole(pageRolesMap[pathname], token);
+        if (!canAccess) {
+            return NextResponse.redirect(new URL(ROUTES.unauthorized, req.url));
+        }
+        return NextResponse.next();
     }
 
     return NextResponse.next();

@@ -10,11 +10,11 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">Dimension</h6>
-                                <h2>{selectedItem.dimension}<small className="ms-2 fs-5">mm</small></h2>
+                                <h2>{selectedItem.length}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Diameter (DN)</h6>
-                                <h2>{selectedItem.diameterMm}<small className="ms-2 fs-5">mm</small></h2>
+                                <h2>{selectedItem.diameter.nominalMm}<small className="ms-2 fs-5">mm</small></h2>
                             </Col>
                         </Row>
                     </Card.Body>
@@ -24,7 +24,7 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">ID</h6>
-                                <h2>PL{selectedItem.id}</h2>
+                                <h2>{selectedItem.internalId}</h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Heat Number</h6>
@@ -38,11 +38,11 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                         <Row>
                             <Col>
                                 <h6 className="opacity-75">Isometric</h6>
-                                <h2>{selectedItem.isometric}</h2>
+                                <h2>{selectedItem.isometric.internalId}</h2>
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Sheet</h6>
-                                <h2>{selectedItem.sheet}</h2>
+                                <h2>{selectedItem.isometric.sheet.map(s => s.number).join(', ')}</h2>
                             </Col>
                         </Row>
                     </CardBody>
@@ -56,7 +56,7 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
                             </Col>
                             <Col>
                                 <h6 className="opacity-75">Material</h6>
-                                <h2>{selectedItem.material}</h2>
+                                <h2>{selectedItem.material.name}</h2>
                             </Col>
                         </Row>
                     </CardBody>
@@ -65,3 +65,4 @@ export function WorkPanel({selectedItem}: { selectedItem: PipeLength }) {
         </Card>
     );
 }
+

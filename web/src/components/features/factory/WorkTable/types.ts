@@ -17,4 +17,12 @@ export interface WorkTableProps<T extends { id: string | number }> {
     columns: Column<T>[];
     defaultSortColumn?: string;
     defaultSortDirection?: SortDirection;
+    hover?: boolean;
+    rowStates?: Record<string, RowStateConfig<T>>;
+    rowStateAccessor?: (item: T) => string;
+}
+
+export interface RowStateConfig<T> {
+    className?: string;
+    onClick?: (item: T) => void;
 }

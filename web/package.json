@@ -15,11 +15,10 @@
     "cookies": "^0.9.1",
     "echarts": "^5.6.0",
     "echarts-for-react": "^3.0.2",
+    "js-cookie": "^3.0.5",
     "next": "15.3.1",
-    "next-client-cookies": "^2.1.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
-    "react-cookie": "^8.0.1",
     "react-dom": "^19.0.0",
     "sass": "1.77.6"
   },

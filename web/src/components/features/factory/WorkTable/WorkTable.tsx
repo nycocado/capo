@@ -1,13 +1,23 @@
 import {Table} from "react-bootstrap";
 import {WorkTableProps, SortDirection} from "./types";
 import {useState, useMemo} from "react";
-import {BarsArrowDownIcon} from '@heroicons/react/16/solid'
-import {BarsArrowUpIcon} from "@heroicons/react/16/solid";
+import {BarsArrowDownIcon} from '@heroicons/react/16/solid';
+import {BarsArrowUpIcon} from '@heroicons/react/16/solid';
+import {WorkTableRow} from "./WorkTableRow";
 
 export function WorkTable<T extends { id: string | number }>(
     props: WorkTableProps<T>
 ) {
-    const {items, handleRowClick, columns, defaultSortColumn, defaultSortDirection = null} = props;
+    const {
+        items,
+        handleRowClick,
+        columns,
+        defaultSortColumn,
+        defaultSortDirection = null,
+        hover = false,
+        rowStates,
+        rowStateAccessor
+    } = props;
 
     const [sortColumn, setSortColumn] = useState<string | null>(defaultSortColumn || null);
     const [sortDirection, setSortDirection] = useState<SortDirection>(defaultSortDirection);
@@ -82,7 +92,7 @@ export function WorkTable<T extends { id: string | number }>(
                 className="flex-grow-1 d-flex flex-column rounded-3 overflow-auto bg-dark"
                 style={{height: '400px'}}
             >
-                <Table hover responsive variant="dark" className="mb-0">
+                <Table responsive variant="dark" hover={hover} className="mb-0">
                     <thead>
                     <tr className="bg-dark">
                         {columns.map((col) => (
@@ -99,26 +109,14 @@ export function WorkTable<T extends { id: string | number }>(
                     </thead>
                     <tbody>
                     {sortedItems.map(item => (
-                        <tr
-                            key={`row-${item.id}`}
-                            onClick={() => handleRowClick(item)}
-                            className="cursor-pointer bg-dark"
-                        >
-                            {columns.map((col) => {
-                                const value =
-                                    typeof col.accessor === 'function'
-                                        ? col.accessor(item)
-                                        : item[col.accessor];
-                                return (
-                                    <td
-                                        key={`cell-${item.id}-${col.id}`}
-                                        className={`text-center py-3 bg-dark ${col.className || ''}`}
-                                    >
-                                        {typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value)}
-                                    </td>
-                                );
-                            })}
-                        </tr>
+                        <WorkTableRow
+                            key={item.id}
+                            item={item}
+                            columns={columns}
+                            handleRowClick={handleRowClick}
+                            rowStates={rowStates}
+                            rowStateAccessor={rowStateAccessor}
+                        />
                     ))}
                     </tbody>
                 </Table>

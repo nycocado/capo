@@ -5,27 +5,49 @@ export const ROUTES = {
     cut: '/cut',
     assembly: '/assembly',
     weld: '/weld',
-    admin: '/admin',
+    admin: '/admin/dashboard',
+    unauthorized: '/unauthorized',
 };
 
 export const API_ROUTES = {
+    verify: '/verify',
     auth: {
+        base: '/auth',
         login: '/auth/login',
         validate: '/auth/validate',
     },
     user: {
+        base: '/user',
         roles: '/user/roles',
     },
+    project: {
+        base: '/project',
+        admin: '/project/admin',
+        adminId: (param: string | number) => `/project/admin/${param}`,
+    },
+    admin: {
+        base: '/admin',
+        verify: '/admin/verify',
+    },
     cuttingOperator: {
-        validate: '/cutting-operator/validate',
+        base: '/cutting-operator',
+        verify: '/cutting-operator/verify',
     },
     pipeFitter: {
-        validate: '/pipe-fitter/validate',
+        base: '/pipe-fitter',
+        verify: '/pipe-fitter/verify',
     },
     welder: {
-        validate: '/welder/validate',
+        base: '/welder',
+        verify: '/welder/verify',
     },
     statistic: {
-        overall: '/statistic/overall/1',
+        base: '/statistic',
+        overall: (param: string | number) => `/statistic/overall/${param}`
+    },
+    pipeLength: {
+        base: '/pipe-length',
+        cut: '/pipe-length/cut',
     }
 }
+

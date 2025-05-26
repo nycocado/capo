@@ -17,16 +17,16 @@ export function ControlPanel({search, setSearch}: { search: string, setSearch: (
                 </InputGroup>
                <Row className="g-3">
                    <Col className="d-flex flex-column">
-                       <Button variant="warning" className="h-100 fs-5" style={{ minHeight: '60px' }}>Isometric</Button>
+                       <Button variant="outline-complement" className="h-100 fs-6" style={{ minHeight: '50px' }}>Isometric</Button>
                    </Col>
                    <Col className="d-flex flex-column">
-                       <Button variant="secondary" className="h-100 fs-5" style={{ minHeight: '60px' }}>Note</Button>
+                       <Button variant="outline-note" className="h-100 fs-6" style={{ minHeight: '50px' }}>Note</Button>
                    </Col>
                    <Col className="d-flex flex-column">
-                       <Button variant="danger" className="h-100 fs-5" style={{ minHeight: '60px' }}>Report</Button>
+                       <Button variant="outline-danger" className="h-100 fs-6" style={{ minHeight: '50px' }}>Report</Button>
                    </Col>
                    <Col className="d-flex flex-column">
-                       <Button variant="success" className="h-100 fs-5" style={{ minHeight: '60px' }}>Next</Button>
+                       <Button variant="outline-success" className="h-100 fs-6" style={{ minHeight: '50px' }}>Next</Button>
                    </Col>
                </Row>
             </CardBody>

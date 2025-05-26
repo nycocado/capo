@@ -1,6 +1,6 @@
 import {cookies} from 'next/headers';
-import RolesList from "@/app/roles/RolesList";
-import {API_ROUTES} from "@/routes";
+import RolesClient from "@/app/roles/RolesClient";
+import {API_ROUTES, ROUTES} from "@/routes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -11,10 +11,10 @@ export interface Role {
 }
 
 const fixedRoles: Role[] = [
-    {id: 'cutting-operator', title: 'Cutting Operator', route: '/cut'},
-    {id: 'pipe-fitter', title: 'Pipe Fitter', route: '/assembly'},
-    {id: 'welder', title: 'Welder', route: '/weld'},
-    {id: 'admin', title: 'Administrator', route: '/admin'},
+    {id: 'cutting-operator', title: 'Cutting Operator', route: ROUTES.cut},
+    {id: 'pipe-fitter', title: 'Pipe Fitter', route: ROUTES.assembly},
+    {id: 'welder', title: 'Welder', route: ROUTES.weld},
+    {id: 'admin', title: 'Administrator', route: ROUTES.admin},
 ];
 
 export default async function RolesPage() {
@@ -22,7 +22,7 @@ export default async function RolesPage() {
     const token = cookieStore.get('token')?.value;
 
     if (!token) {
-        return <RolesList roles={[]} error="Not authenticated"/>;
+        return <RolesClient roles={[]} error="Not authenticated"/>;
     }
 
     try {
@@ -40,9 +40,9 @@ export default async function RolesPage() {
 
         const mappedRoles = fixedRoles.filter(role => backend.some(backendRole => backendRole.id === role.id));
 
-        return <RolesList roles={mappedRoles}/>;
+        return <RolesClient roles={mappedRoles}/>;
     } catch {
-        return <RolesList roles={[]} error="Failed to load roles. Please try again."/>;
+        return <RolesClient roles={[]} error="Failed to load roles. Please try again."/>;
     }
 }
 

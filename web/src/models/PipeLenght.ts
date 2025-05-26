@@ -1,46 +1,39 @@
-import {Dn} from "@models/Dn";
+// Models for PipeLength and related types
+export interface Material {
+  id: number;
+  name: string;
+}
 
-export class PipeLength {
-    id: number;
-    dimension: number;
-    dn: Dn;
-    isometric: string;
-    heatNumber?: string;
-    sheet: number;
-    part: string;
-    thickness: number;
-    material: string;
-    working: boolean;
+export interface Diameter {
+  id: number;
+  nominalMm: string;
+  nominalInch: string;
+}
 
-    constructor(
-        id: number,
-        dimension: number,
-        dn: Dn,
-        isometric: string,
-        heatNumber: string | undefined,
-        sheet: number,
-        section: string,
-        thickness: number,
-        material: string,
-        working: boolean
-    ) {
-        this.id = id;
-        this.dimension = dimension;
-        this.dn = dn;
-        this.isometric = isometric;
-        this.heatNumber = heatNumber;
-        this.sheet = sheet;
-        this.part = section;
-        this.thickness = thickness;
-        this.material = material;
-        this.working = working;
-    }
+export interface Sheet {
+  id: number;
+  number: number;
+}
 
-    get diameterMm(): number {
-        return this.dn.mm;
-    }
+export interface Isometric {
+  id: number;
+  internalId: string;
+  sheet: Sheet[];
+}
 
-    get diameterInch(): number {
-        return this.dn.inch;
-    }
+export interface Part {
+  id: number;
+  number: string;
+}
+
+export interface PipeLength {
+  id: number;
+  internalId: string;
+  length: string;
+  thickness: string;
+  heatNumber?: string | null;
+  material: Material;
+  diameter: Diameter;
+  part: Part;
+  isometric: Isometric;
 }
