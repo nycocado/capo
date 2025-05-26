@@ -14,7 +14,7 @@ export class ProjectService {
   }
 
   findOne(id: number) {
-    return this.databaseService.project.findUnique({ where: { id } });
+    return this.databaseService.project.findUniqueOrThrow({ where: { id } });
   }
 
   async findAllForAdmin(userId: number) {
@@ -24,6 +24,6 @@ export class ProjectService {
 
   async findOneForAdmin(id: number, userId: number) {
     await this.adminService.validateAdmin(userId);
-    return this.databaseService.project.findUnique({ where: { id } });
+    return this.databaseService.project.findUniqueOrThrow({ where: { id } });
   }
 }

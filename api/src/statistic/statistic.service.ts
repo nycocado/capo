@@ -14,6 +14,7 @@ import {
 } from './entities/chart-data.entity';
 import { WeldService } from '../weld/weld.service';
 import { JointService } from '../joint/joint.service';
+import { ProjectService } from '../project/project.service';
 import { ProgressStatistics } from './entities/progress-statistics.entity';
 import { OverallStatisticsDto } from './dto/overall-statistics.dto';
 
@@ -25,6 +26,7 @@ export class StatisticService {
     private readonly weldService: WeldService,
     private readonly jointService: JointService,
     private readonly adminService: AdminService,
+    private readonly projectService: ProjectService,
   ) {}
 
   avg(numbers: number[]): number {
@@ -237,9 +239,11 @@ export class StatisticService {
       await this.makeFittingTypeStatisticsByProject(projectId);
     const diameterFrequencies =
       await this.makeDiameterStatisticsByProject(projectId);
+    const project = await this.projectService.findOne(projectId);
     const progress = await this.makeProgressStatisticsByProject(projectId);
     const chartData = await this.makeChartDataByProject(projectId);
     return {
+      project,
       progress,
       pipeLengths,
       fittingTypes,

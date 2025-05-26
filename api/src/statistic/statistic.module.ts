@@ -6,6 +6,7 @@ import { AdminModule } from '../admin/admin.module';
 import { FittingModule } from '../fitting/fitting.module';
 import { WeldModule } from '../weld/weld.module';
 import { JointModule } from '../joint/joint.module';
+import { ProjectModule } from '../project/project.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { JointModule } from '../joint/joint.module';
     WeldModule,
     JointModule,
     AdminModule,
+    ProjectModule,
   ],
   controllers: [StatisticController],
   providers: [StatisticService],

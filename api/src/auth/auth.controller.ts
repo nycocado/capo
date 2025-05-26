@@ -25,7 +25,7 @@ export class AuthController {
     const { accessToken } = await this.authService.login(internalId, password);
 
     res.cookie('token', accessToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 8 * 60 * 60 * 1000, // 8 hours

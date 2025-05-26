@@ -275,7 +275,7 @@ BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10
         DO
-            INSERT INTO isometric (iso_internal_id, iso_prj_id) VALUES (CONCAT('ISO', LPAD(i, 3, '0')), 1);
+            INSERT INTO isometric (iso_internal_id, iso_prj_id) VALUES (CONCAT('ISO', LPAD(i, 4, '0')), 1);
             SET i = i + 1;
         END WHILE;
 END $$

@@ -7,5 +7,6 @@ import { AdminModule } from '../admin/admin.module';
   imports: [AdminModule],
   controllers: [ProjectController],
   providers: [ProjectService],
+  exports: [ProjectService],
 })
 export class ProjectModule {}
