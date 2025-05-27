@@ -48,6 +48,10 @@ export const API_ROUTES = {
     pipeLength: {
         base: '/pipe-length',
         cut: '/pipe-length/cut',
+    },
+    joint: {
+        base: '/joint',
+        assembly: '/joint/assembly'
     }
 }
 

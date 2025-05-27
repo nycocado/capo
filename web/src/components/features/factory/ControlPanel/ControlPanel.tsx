@@ -1,35 +1,45 @@
+import React from 'react';
 import {Button, Card, CardBody, Col, Form, InputGroup, Row} from "react-bootstrap";
+import {ControlPanelProps} from "@components/features/factory/ControlPanel/ControlPanel.types";
+import {MagnifyingGlassIcon} from '@heroicons/react/16/solid';
 
-export function ControlPanel({search, setSearch}: { search: string, setSearch: (value: string) => void }) {
+export function ControlPanel({search, setSearch, buttons, tag}: ControlPanelProps) {
     return (
         <Card bg="dark">
             <CardBody>
-                <InputGroup className="mb-4">
+                <InputGroup className="mb-3">
+                    <InputGroup.Text>{tag}</InputGroup.Text>
                     <Form.Control
+                        className="bg-light"
                         placeholder="Search..."
                         value={search}
-                        type="text"
-                        onChange={e => setSearch(e.target.value)}
+                        inputMode="numeric"
+                        pattern="\d*"
+                        onChange={e => {
+                            const val = e.target.value;
+                            if (/^\d*$/.test(val)) setSearch(val);
+                        }}
                     />
-                    <Button variant="outline-light">
-                        <i className="bi bi-search"></i>
-                    </Button>
+                    <InputGroup.Text>
+                        <MagnifyingGlassIcon className="text-primary" style={{height: '23px'}}/>
+                    </InputGroup.Text>
                 </InputGroup>
-               <Row className="g-3">
-                   <Col className="d-flex flex-column">
-                       <Button variant="outline-complement" className="h-100 fs-6" style={{ minHeight: '50px' }}>Isometric</Button>
-                   </Col>
-                   <Col className="d-flex flex-column">
-                       <Button variant="outline-note" className="h-100 fs-6" style={{ minHeight: '50px' }}>Note</Button>
-                   </Col>
-                   <Col className="d-flex flex-column">
-                       <Button variant="outline-danger" className="h-100 fs-6" style={{ minHeight: '50px' }}>Report</Button>
-                   </Col>
-                   <Col className="d-flex flex-column">
-                       <Button variant="outline-success" className="h-100 fs-6" style={{ minHeight: '50px' }}>Next</Button>
-                   </Col>
-               </Row>
+                <Row className="g-3">
+                    {buttons.map((btn, idx) => (
+                        <Col key={idx} className="d-flex flex-column">
+                            <Button
+                                variant={btn.variant}
+                                className={`h-100 fs-6 ${btn.className || ''}`}
+                                style={{minHeight: '50px', ...btn.style}}
+                                onClick={btn.onClick}
+                            >
+                                {btn.label}
+                            </Button>
+                        </Col>
+                    ))}
+                </Row>
             </CardBody>
         </Card>
     )
 }
+

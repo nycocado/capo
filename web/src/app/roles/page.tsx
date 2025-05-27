@@ -21,10 +21,6 @@ export default async function RolesPage() {
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
 
-    if (!token) {
-        return <RolesClient roles={[]} error="Not authenticated"/>;
-    }
-
     try {
         const res = await fetch(`${API_URL}${API_ROUTES.user.roles}`, {
             headers: {

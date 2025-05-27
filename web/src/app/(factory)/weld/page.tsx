@@ -1,10 +1,5 @@
-function WeldPage() {
-  return (
-    <div>
-      <h1>Weld Page</h1>
-      <p>This is the weld page content.</p>
-    </div>
-  );
-}
+import WeldClient from "./WeldClient";
 
-export default WeldPage;
+export default async function WeldPage() {
+  return (<WeldClient />);
+}

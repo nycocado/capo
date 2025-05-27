@@ -1,5 +1,5 @@
-import {Column} from "../types"
-import {PipeLength} from "@models/PipeLenght"
+import {Column} from "./WorkTable.types";
+import {PipeLength} from "@models/pipe-length.interface";
 
 export const columnsPipeLength: Column<PipeLength>[] = [
     {

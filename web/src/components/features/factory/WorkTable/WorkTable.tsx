@@ -1,12 +1,13 @@
 import {Table} from "react-bootstrap";
-import {WorkTableProps, SortDirection} from "./types";
+import {motion} from 'framer-motion';
+import {WorkTableProps, SortDirection} from "./WorkTable.types";
 import {useState, useMemo} from "react";
 import {BarsArrowDownIcon} from '@heroicons/react/16/solid';
 import {BarsArrowUpIcon} from '@heroicons/react/16/solid';
 import {WorkTableRow} from "./WorkTableRow";
 
-export function WorkTable<T extends { id: string | number }>(
-    props: WorkTableProps<T>
+export function WorkTable(
+    props: WorkTableProps
 ) {
     const {
         items,
@@ -53,8 +54,8 @@ export function WorkTable<T extends { id: string | number }>(
                 valueA = column.accessor(a);
                 valueB = column.accessor(b);
             } else {
-                valueA = a[column.accessor as keyof T];
-                valueB = b[column.accessor as keyof T];
+                valueA = a[column.accessor as keyof any];
+                valueB = b[column.accessor as keyof any];
             }
 
             const isNumericA = !isNaN(Number(valueA));
@@ -100,6 +101,7 @@ export function WorkTable<T extends { id: string | number }>(
                                 key={col.id}
                                 className={`text-center border-bottom border-light py-3 bg-dark ${col.className || ''} ${col.sortable ? 'cursor-pointer' : ''}`}
                                 onClick={() => handleSort(col.id, col.sortable)}
+                                style={{cursor: col.sortable ? 'pointer' : 'default'}}
                             >
                                 {col.header}
                                 {renderSortIcon(col.id)}
@@ -107,18 +109,22 @@ export function WorkTable<T extends { id: string | number }>(
                         ))}
                     </tr>
                     </thead>
-                    <tbody>
-                    {sortedItems.map(item => (
-                        <WorkTableRow
-                            key={item.id}
-                            item={item}
-                            columns={columns}
-                            handleRowClick={handleRowClick}
-                            rowStates={rowStates}
-                            rowStateAccessor={rowStateAccessor}
-                        />
-                    ))}
-                    </tbody>
+                    {/* animate reordering via layout prop */}
+                    <motion.tbody layout initial={false} className="">
+                        {sortedItems.map(item => (
+                            <WorkTableRow
+                                layout
+                                key={item.id}
+                                item={item}
+                                columns={columns}
+                                handleRowClick={handleRowClick}
+                                rowStates={rowStates}
+                                rowStateAccessor={rowStateAccessor}
+                                // remove mount animations to focus on reorder
+                                initial={false}
+                            />
+                        ))}
+                    </motion.tbody>
                 </Table>
             </div>
         </div>

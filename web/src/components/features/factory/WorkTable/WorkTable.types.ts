@@ -1,4 +1,5 @@
 import * as React from "react";
+import {RowStateConfig} from "./WorkTableRow.types";
 
 export type SortDirection = 'asc' | 'desc' | null;
 
@@ -11,18 +12,13 @@ export interface Column<T> {
     sortable?: boolean;
 }
 
-export interface WorkTableProps<T extends { id: string | number }> {
-    items: T[];
-    handleRowClick: (item: T) => void;
-    columns: Column<T>[];
+export interface WorkTableProps {
+    items: any[];
+    handleRowClick: (item: any) => void;
+    columns: Column<any>[];
     defaultSortColumn?: string;
     defaultSortDirection?: SortDirection;
     hover?: boolean;
-    rowStates?: Record<string, RowStateConfig<T>>;
-    rowStateAccessor?: (item: T) => string;
-}
-
-export interface RowStateConfig<T> {
-    className?: string;
-    onClick?: (item: T) => void;
+    rowStates?: Record<string, RowStateConfig<any>>;
+    rowStateAccessor?: (item: any) => string;
 }

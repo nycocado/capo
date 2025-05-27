@@ -1,6 +1,7 @@
 // app/dashboard/page.tsx
 import {cookies} from 'next/headers';
 import DashboardClient from './DashboardClient';
+import {StatisticsData} from '@models/statistics/statistics-data.interface';
 
 export default async function DashboardPage() {
     const cookieStore = await cookies();

@@ -1,2 +1,2 @@
 export {WorkTabs} from "./WorkTabs";
-export {tabsAllWorking} from "./tabs";
+export {tabsAllWorking} from "./WorkTable.tabs";

@@ -1,3 +1,5 @@
 export {WorkTable} from "./WorkTable";
-export type {WorkTableProps, Column} from "./types";
-export {columnsPipeLength} from "./columns/cut";
+export type {WorkTableProps, Column, SortDirection} from "./WorkTable.types";
+export {columnsPipeLength} from "./WorkTable.columns";
+export {WorkTableRow} from "./WorkTableRow";
+export type {WorkTableRowProps} from "./WorkTableRow.types";

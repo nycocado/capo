@@ -3,6 +3,7 @@
 import React from 'react';
 import {Container, Row, Col, Card, Table} from 'react-bootstrap';
 import dynamic from 'next/dynamic';
+import {StatisticsData} from '@models/statistics/statistics-data.interface';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), {ssr: false});
 
@@ -63,7 +64,6 @@ export default function DashboardClient({data}: { data: StatisticsData }) {
         }]
     };
 
-    // Ordenar as frequências de diâmetro por valor de diâmetro (mm) em ordem crescente
     const sortedFrequencies = [...data.diameterFrequencies.frequencies].sort(
         (a, b) => a.nominalDiameterMm - b.nominalDiameterMm
     );
