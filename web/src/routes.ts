@@ -5,7 +5,7 @@ export const ROUTES = {
     cut: '/cut',
     assembly: '/assembly',
     weld: '/weld',
-    admin: '/admin/dashboard',
+    admin: '/admin',
     unauthorized: '/unauthorized',
 };
 
