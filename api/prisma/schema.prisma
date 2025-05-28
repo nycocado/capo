@@ -150,9 +150,11 @@ model Weld {
   welderId Int?    @map("wld_wdr_id")
   fillerId Int?    @map("wld_fm_id")
   jointId  Int     @map("wld_jnt_id")
+  wpsId    Int?    @map("wld_wps_id")
   filler   Filler? @relation(fields: [fillerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_filler")
   joint    Joint   @relation(fields: [jointId], references: [id], onUpdate: Restrict, map: "fk_weld_joint")
   welder   Welder? @relation(fields: [welderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_welder")
+  wps      Wps?    @relation(fields: [wpsId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_weld_wps")
 
   @@index([fillerId], map: "fk_weld_filler")
   @@index([jointId], map: "fk_weld_joint")
@@ -268,6 +270,7 @@ model Wps {
   id         Int     @id @default(autoincrement()) @map("wps_id")
   internalId String  @map("wps_internal_id") @db.VarChar(100)
   document   String? @map("wps_document") @db.VarChar(100)
+  Weld       Weld[]
 
   @@map("wps")
 }

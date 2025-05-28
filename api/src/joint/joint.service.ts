@@ -24,7 +24,7 @@ export class JointService {
                   omit: { isometricId: true },
                 },
               },
-              omit: { spoolId: true, sheetId: true },
+              omit: { spoolId: true, sheetId: true, document: true },
             },
           },
         },

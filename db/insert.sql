@@ -347,8 +347,9 @@ FROM
 
 -- Soldaduras
 INSERT INTO
-    weld (wld_wdr_id, wld_fm_id, wld_jnt_id)
+    weld (wld_wdr_id, wld_fm_id, wld_wps_id, wld_jnt_id)
 SELECT
+    NULL,
     NULL,
     NULL,
     jnt_id

@@ -1,11 +1,9 @@
 import { Controller, Post, Body, Req, UseGuards, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthEntity } from './entity/auth.entity';
 import { AdminDto } from './dto/admin.dto';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';

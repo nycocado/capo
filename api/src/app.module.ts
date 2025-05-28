@@ -14,6 +14,7 @@ import { FittingModule } from './fitting/fitting.module';
 import { WeldModule } from './weld/weld.module';
 import { JointModule } from './joint/joint.module';
 import { ProjectModule } from './project/project.module';
+import { RevModule } from './rev/rev.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ProjectModule } from './project/project.module';
     WeldModule,
     JointModule,
     ProjectModule,
+    RevModule,
   ],
   providers: [AppService],
 })
