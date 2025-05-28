@@ -10,6 +10,8 @@ export interface Column<T> {
     accessor: keyof T | ((item: T) => React.ReactNode);
     className?: string;
     sortable?: boolean;
+    // when true, accessor returns an array and should be rendered item by item
+    iterable?: boolean;
 }
 
 export interface WorkTableProps {
@@ -22,3 +24,4 @@ export interface WorkTableProps {
     rowStates?: Record<string, RowStateConfig<any>>;
     rowStateAccessor?: (item: any) => string;
 }
+

@@ -1,5 +1,7 @@
 import {Column} from "./WorkTable.types";
 import {PipeLength} from "@models/pipe-length.interface";
+import {IsoItem} from "@/app/(factory)/assembly/useAssemblyTable";
+import {AssemblyRow} from "@/app/(factory)/assembly/AssemblyClient";
 
 export const columnsPipeLength: Column<PipeLength>[] = [
     {
@@ -43,6 +45,23 @@ export const columnsPipeLength: Column<PipeLength>[] = [
         header: 'Ø',
         subheader: 'DN',
         accessor: item => item.diameter.nominalMm,
+        className: 'text-center',
+        sortable: true
+    }
+];
+
+export const columnsAssembly: Column<AssemblyRow>[] = [
+    {
+        id: 'internalId',
+        header: 'ISOMETRIC',
+        accessor: row => row.internalId,
+        className: 'text-center',
+        sortable: true
+    },
+    {
+        id: 'sheet',
+        header: 'SHEET',
+        accessor: row => row.sheetNumber,
         className: 'text-center',
         sortable: true
     }

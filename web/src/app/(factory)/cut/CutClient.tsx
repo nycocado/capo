@@ -1,7 +1,7 @@
 "use client";
 import {Col, Container, Row} from "react-bootstrap";
 import {useState} from "react";
-import {columnsPipeLength, WorkTable} from "@components/features/factory/WorkTable";
+import {columnsPipeLength, WorkTable} from "components/features/WorkTable";
 import {ControlPanel} from "@components/features/factory/ControlPanel";
 import {tabsAllWorking, WorkTabs} from "@components/features/factory/WorkTabs";
 import {useCuttingTable} from "./useCuttingTable";

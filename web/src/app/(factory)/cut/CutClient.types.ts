@@ -12,4 +12,5 @@ export interface RowState {
 }
 
 export type AllState = 'initial' | 'information' | 'finished';
-export type WorkState = 'initial' | 'working' | 'finished';
+export type WorkState = 'initial' | 'information' | 'working' | 'finished';
+

@@ -11,7 +11,6 @@ interface Sheet {
 
 interface Rev {
     id: number;
-    document: string;
     sheet: Sheet;
 }
 

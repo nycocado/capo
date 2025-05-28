@@ -6,7 +6,7 @@ import {MagnifyingGlassIcon} from '@heroicons/react/16/solid';
 export function ControlPanel({search, setSearch, buttons, tag}: ControlPanelProps) {
     return (
         <Card bg="dark">
-            <CardBody>
+            <CardBody className="pb-2">
                 <InputGroup className="mb-3">
                     <InputGroup.Text>{tag}</InputGroup.Text>
                     <Form.Control
@@ -29,7 +29,7 @@ export function ControlPanel({search, setSearch, buttons, tag}: ControlPanelProp
                         <Col key={idx} className="d-flex flex-column">
                             <Button
                                 variant={btn.variant}
-                                className={`h-100 fs-6 ${btn.className || ''}`}
+                                className={`fs-5 ${btn.className || ''}`}
                                 style={{minHeight: '50px', ...btn.style}}
                                 onClick={btn.onClick}
                             >
