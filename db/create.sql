@@ -203,6 +203,7 @@ CREATE TABLE weld
     wld_id     INT NOT NULL AUTO_INCREMENT,
     wld_wdr_id INT,
     wld_fm_id  INT,
+    wld_wps_id INT,
     wld_jnt_id INT NOT NULL,
     PRIMARY KEY (wld_id)
 );
@@ -266,7 +267,8 @@ ALTER TABLE joint
 ALTER TABLE weld
     ADD CONSTRAINT fk_weld_welder FOREIGN KEY (wld_wdr_id) REFERENCES welder (wdr_id),
     ADD CONSTRAINT fk_weld_filler FOREIGN KEY (wld_fm_id) REFERENCES filler (flr_id),
-    ADD CONSTRAINT fk_weld_joint FOREIGN KEY (wld_jnt_id) REFERENCES joint (jnt_id);
+    ADD CONSTRAINT fk_weld_joint FOREIGN KEY (wld_jnt_id) REFERENCES joint (jnt_id),
+    ADD CONSTRAINT fk_weld_wps FOREIGN KEY (wld_wps_id) REFERENCES wps (wps_id);
 
 -- Isometricos
 DELIMITER $$
@@ -317,7 +319,7 @@ BEGIN
     WHILE i <= 30
         DO
             SET sheet_id = CEIL(i / 3);
-            SET document_link = CONCAT('https://www.example.com/document/', UUID());
+            SET document_link = 'isometricExample.pdf';
             INSERT INTO rev (rev_document, rev_spo_id, rev_sht_id) VALUES (document_link, i, sheet_id);
             SET i = i + 1;
         END WHILE;
