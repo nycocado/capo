@@ -2,6 +2,9 @@
 import {cookies} from 'next/headers';
 import DashboardClient from './DashboardClient';
 import {StatisticsData} from '@models/statistics/statistics-data.interface';
+import {API_ROUTES} from "@/routes";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 export default async function DashboardPage() {
     const cookieStore = await cookies();
@@ -12,7 +15,8 @@ export default async function DashboardPage() {
     }
 
     try {
-        const res = await fetch('http://localhost:3002/statistic/overall/1', {
+        const res = await fetch(`${API_URL}${API_ROUTES.statistic.overall(1)}`, {
+            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'

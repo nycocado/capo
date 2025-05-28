@@ -1,6 +1,5 @@
 import AssemblyClient from "@/app/(factory)/assembly/AssemblyClient";
 import {cookies} from "next/headers";
-import {PipeLength} from "@models/pipe-length.interface";
 import {API_ROUTES} from "@/routes";
 import {Joint} from "@models/joint.interface";
 

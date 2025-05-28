@@ -12,29 +12,29 @@ export function WorkPanel({cards, containerClassName}: WorkPanelProps) {
                 {cards.map((card, idx) => (
                     <Card key={card.key ?? idx} bg="dark" text="light"
                           className={`${idx === 0 ? 'mb-2' : idx === cards.length - 1 ? 'mt-2' : 'my-2'} rounded-3 ${card.className || ''}`}>
-                            <Row className="py-2">
-                                {card.items.map((item, i) => (
-                                    <Col
-                                        key={i}
-                                        ms={6}
-                                        onClick={item.onClick}
-                                        style={{cursor: item.onClick ? 'pointer' : 'default'}}
-                                    >
-                                        {item.type === 'normal' && <NormalValue label={item.label} value={item.value}/>}
-                                        {item.type === 'tagged' &&
-                                            <TaggedValue label={item.label} value={item.value} tag={item.tag}/>}
-                                        {item.type === 'double' && (
-                                            <DoubleValue
-                                                label={item.label}
-                                                primaryValue={item.primaryValue}
-                                                primaryTag={item.primaryTag}
-                                                secondaryValue={item.secondaryValue}
-                                                secondaryTag={item.secondaryTag}
-                                            />
-                                        )}
-                                    </Col>
-                                ))}
-                            </Row>
+                        <Row className="py-2">
+                            {card.items.map((item, i) => (
+                                <Col
+                                    key={i}
+                                    ms={6}
+                                    onClick={item.onClick}
+                                    style={{cursor: item.onClick ? 'pointer' : 'default'}}
+                                >
+                                    {item.type === 'normal' && <NormalValue label={item.label} value={item.value}/>}
+                                    {item.type === 'tagged' &&
+                                        <TaggedValue label={item.label} value={item.value} tag={item.tag}/>}
+                                    {item.type === 'double' && (
+                                        <DoubleValue
+                                            label={item.label}
+                                            primaryValue={item.primaryValue}
+                                            primaryTag={item.primaryTag}
+                                            secondaryValue={item.secondaryValue}
+                                            secondaryTag={item.secondaryTag}
+                                        />
+                                    )}
+                                </Col>
+                            ))}
+                        </Row>
                     </Card>
                 ))}
             </CardBody>

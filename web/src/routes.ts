@@ -52,6 +52,10 @@ export const API_ROUTES = {
     joint: {
         base: '/joint',
         assembly: '/joint/assembly'
+    },
+    rev: {
+        base: '/rev',
+        document: (param: string | number) => `/rev/document/${param}`,
     }
 }
 

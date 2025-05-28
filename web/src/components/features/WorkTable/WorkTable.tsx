@@ -94,8 +94,10 @@ export function WorkTable(
                 style={{height: '400px'}}
             >
                 <Table responsive variant="dark" hover={hover} className="mb-0">
-                    <thead>
-                    <tr className="bg-dark">
+                    <thead style={{position: 'sticky', top: 0, zIndex: 2}}>
+                    <tr className="bg-dark"
+                        style={{borderBottom: '1px solid white'}}
+                    >
                         {columns.map((col) => (
                             <th
                                 key={col.id}
@@ -109,19 +111,17 @@ export function WorkTable(
                         ))}
                     </tr>
                     </thead>
-                    {/* animate reordering via layout prop */}
                     <motion.tbody layout initial={false} className="">
                         {sortedItems.map(item => (
                             <WorkTableRow
-                                layout
                                 key={item.id}
                                 item={item}
                                 columns={columns}
                                 handleRowClick={handleRowClick}
                                 rowStates={rowStates}
                                 rowStateAccessor={rowStateAccessor}
-                                // remove mount animations to focus on reorder
                                 initial={false}
+                                layout
                             />
                         ))}
                     </motion.tbody>

@@ -13,7 +13,7 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
         stateConfig?.onClick?.(item);
         handleRowClick(item);
     };
-    const rowClass = stateConfig?.className ?? 'bg-dark text-light';
+    const rowClass = stateConfig?.className ?? 'bg-dark';
     return (
         <motion.tr
             ref={ref}
@@ -44,5 +44,4 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
     );
 });
 
-WorkTableRow.displayName = 'WorkTableRow';
 
