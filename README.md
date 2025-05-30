@@ -42,6 +42,11 @@
     - [Áreas Principais Implementadas](#áreas-principais-implementadas)
     - [Funcionalidades Transversais](#funcionalidades-transversais)
     - [Recursos "Inteligentes"](#recursos-inteligentes)
+  - [Features Previstas vs Implementadas](#features-previstas-vs-implementadas)
+    - [Features Previstas na Proposta Inicial](#features-previstas-na-proposta-inicial)
+    - [Features Efetivamente Implementadas](#features-efetivamente-implementadas)
+      - [**Completamente Implementadas**](#completamente-implementadas)
+      - [**Não Implementadas**](#não-implementadas)
   - [Conclusão](#conclusão)
   - [Anexos](#anexos)
     - [Documento de Interface e Usabilidade](#documento-de-interface-e-usabilidade)
@@ -237,7 +242,41 @@ Desenvolvemos uma plataforma completa para tornar todo o fluxo de produção dig
 - **Contadores e barras de progresso** com atualização imediata  
 - **Validações em múltiplas etapas** para eliminar erros humanos  
 
-Com essa implementação, transformamos a fábrica em um ambiente digital, simples de usar no dia a dia, mas robusto o bastante para garantir qualidade, eficiência e total visibilidade dos processos.  
+Com essa implementação, transformamos a fábrica em um ambiente digital, simples de usar no dia a dia, mas robusto o bastante para garantir qualidade, eficiência e total visibilidade dos processos.
+
+## Features Previstas vs Implementadas
+
+### Features Previstas na Proposta Inicial
+
+Na proposta inicial do projeto **CAPO**, foram definidas as seguintes funcionalidades principais:
+
+- **Gestão de Produção Completa**: Acompanhamento detalhado de todas as etapas produtivas (corte, montagem, soldagem)
+- **Controle Avançado de Materiais**: Sistema completo de rastreamento da matéria-prima ao produto acabado, com controle de entrada e saída
+- **Interfaces Adaptadas por Perfil**: Interfaces personalizadas para tubistas, soldadores, administradores e gestores
+- **Otimização de Processos**: Algoritmos para otimização da produção e descarte de materiais, com análise de dados e sugestões de melhorias
+- **Análises Estatísticas Avançadas**: Indicadores de desempenho, tempo médio de execução e métricas de eficiência
+- **Sistema de Informações Geográficas (SIG)**: Mapas interativos para otimização logística e distribuição
+
+### Features Efetivamente Implementadas
+
+O projeto conseguiu implementar aproximadamente **83%** das funcionalidades previstas, concentrando-se nas áreas mais críticas:
+
+#### **Completamente Implementadas**
+
+- **Digitalização da Produção**: Substituição completa de processos manuais por interfaces visuais centralizadas
+- **Áreas de Produção Específicas**: Sistemas funcionais para corte (lista dinâmica com status), montagem (desenhos técnicos e checklist) e solda (seleção guiada com validação)
+- **Controle de Acesso**: Sistema robusto de autenticação JWT e RBAC por perfis de usuário
+- **Funcionalidades Inteligentes**: Busca automática, seleção preditiva, validações em tempo real e barras de progresso
+- **Rastreabilidade**: Registro automático de operações e histórico completo de auditoria
+- **Dashboard Estatístico**: Implementação completa das análises estatísticas na interface administrativa
+
+#### **Não Implementadas**
+
+- **Algoritmos de Otimização Avançada**: Otimização automática de processos e descarte de materiais
+- **Sistema SIG**: Mapas interativos para logística e distribuição (não implementado por ser uma unidade curricular optativa no projeto)
+- **Controle Completo de Estoque**: Sistema avançado de entrada/saída de materiais
+
+A implementação priorizou a entrega de um sistema funcional e utilizável, estabelecendo uma base sólida para futuras expansões em otimização avançada e controle de estoque. A não implementação do Sistema SIG deveu-se ao facto de esta unidade curricular ser optativa no âmbito do projeto.
 
 ## Conclusão
 
