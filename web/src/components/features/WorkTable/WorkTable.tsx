@@ -112,18 +112,20 @@ export function WorkTable(
                     </tr>
                     </thead>
                     <motion.tbody layout initial={false} className="">
-                        {sortedItems.map(item => (
-                            <WorkTableRow
-                                key={item.id}
-                                item={item}
-                                columns={columns}
-                                handleRowClick={handleRowClick}
-                                rowStates={rowStates}
-                                rowStateAccessor={rowStateAccessor}
-                                initial={false}
-                                layout
-                            />
-                        ))}
+                        {sortedItems.map(item => {
+                            return (
+                                <WorkTableRow
+                                    key={item?.id || Math.random()}
+                                    item={item}
+                                    columns={columns}
+                                    handleRowClick={handleRowClick}
+                                    rowStates={rowStates}
+                                    rowStateAccessor={rowStateAccessor}
+                                    initial={false}
+                                    layout
+                                />
+                            );
+                        })}
                     </motion.tbody>
                 </Table>
             </div>

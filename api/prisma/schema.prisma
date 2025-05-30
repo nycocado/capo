@@ -131,14 +131,14 @@ model Joint {
   part1Id      Int         @map("jnt_prt1_id")
   part2Id      Int         @map("jnt_prt2_id")
   spoolId      Int         @map("jnt_spo_id")
-  pipefitterId Int?        @map("jnt_pipf_id")
-  pipefitter   PipeFitter? @relation(fields: [pipefitterId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_joint_pipefitter")
+  pipeFitterId Int?        @map("jnt_pipf_id")
+  pipeFitter   PipeFitter? @relation(fields: [pipeFitterId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_joint_pipefitter")
   part1        Part        @relation("joint_jnt_prt1_idTopart", fields: [part1Id], references: [id], onUpdate: Restrict, map: "fk_joint_prt1")
   part2        Part        @relation("joint_jnt_prt2_idTopart", fields: [part2Id], references: [id], onUpdate: Restrict, map: "fk_joint_prt2")
   spool        Spool       @relation(fields: [spoolId], references: [id], onUpdate: Restrict, map: "fk_joint_spool")
   welds        Weld[]
 
-  @@index([pipefitterId], map: "fk_joint_pipefitter")
+  @@index([pipeFitterId], map: "fk_joint_pipefitter")
   @@index([part1Id], map: "fk_joint_prt1")
   @@index([part2Id], map: "fk_joint_prt2")
   @@index([spoolId], map: "fk_joint_spool")
@@ -269,7 +269,8 @@ model Material {
 model Wps {
   id         Int     @id @default(autoincrement()) @map("wps_id")
   internalId String  @map("wps_internal_id") @db.VarChar(100)
-  document   String? @map("wps_document") @db.VarChar(100)
+  document   String  @map("wps_document") @db.VarChar(100)
+  tpi        Decimal @map("wps_tpi") @db.Decimal(4, 2)
   Weld       Weld[]
 
   @@map("wps")

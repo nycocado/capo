@@ -29,7 +29,7 @@ export default function RolesClient({roles, error}: RolesListProps) {
 
     return (
         <>
-            <NavBar title="Roles"/>
+            <NavBar title="Roles" fixed={true}/>
             <div
                 className="d-flex justify-content-center align-items-center"
                 style={{height: 'calc(100vh - 56px)'}}

@@ -7,10 +7,15 @@ export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
         const {item, accessor, handleClick, itemStates, itemStateAccessor, ...motionProps} = props;
         const stateKey = itemStateAccessor ? itemStateAccessor(item) : 'default';
         const stateConfig = itemStates?.[stateKey];
+
         const onClick = () => {
-            stateConfig?.onClick?.(item);
-            handleClick(item);
+            if (stateConfig?.onClick) {
+                stateConfig.onClick(item);
+            } else {
+                handleClick(item);
+            }
         };
+
         const className = stateConfig?.className ?? '';
         const raw = typeof accessor === 'function'
             ? accessor(item)

@@ -1,17 +1,7 @@
-import {useReducer, useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useReducer, useState, useEffect, useMemo, useCallback} from 'react';
 import {PipeLength} from '@models/pipe-length.interface';
 import {AllState, WorkState} from './CutClient.types';
-
-// Types
-type CuttingAction =
-    | { type: 'toggleInfo'; id: number }
-    | { type: 'workClick'; id: number }
-    | { type: 'resetInfo'; id: number };
-
-interface CuttingState {
-    allState: Record<number, AllState>;
-    workState: Record<number, WorkState>;
-}
+import {CuttingAction, CuttingState, UseCuttingTableCallbacks} from "@/app/(factory)/cut/useCuttingTable.types";
 
 // Utility functions
 const sortFinishedLast = (items: PipeLength[], finishedIds: number[]): PipeLength[] => {
@@ -65,6 +55,12 @@ const cuttingReducer = (state: CuttingState, action: CuttingAction): CuttingStat
                 if (hasOtherActive) return state;
             }
 
+            // If transitioning from 'information' to 'working', don't make the transition immediately
+            // The transition will be made by 'proceedToWorking' after modal confirmation
+            if (currentWorkState === 'information') {
+                return state; // Don't transition yet
+            }
+
             const nextWorkState: WorkState = getNextWorkState(currentWorkState);
 
             const updatedAllState = currentWorkState === 'working'
@@ -74,6 +70,13 @@ const cuttingReducer = (state: CuttingState, action: CuttingAction): CuttingStat
             return {
                 allState: updatedAllState,
                 workState: {...state.workState, [id]: nextWorkState}
+            };
+        }
+
+        case 'proceedToWorking': {
+            return {
+                ...state,
+                workState: {...state.workState, [id]: 'working'}
             };
         }
 
@@ -149,12 +152,15 @@ const useRowStateAccessor = (
 const useEventHandlers = (
     dispatch: React.Dispatch<CuttingAction>,
     activeTab: 'all' | 'working',
+    allState: Record<number, AllState>,
     workState: Record<number, WorkState>,
     infoIds: number[],
     workingIds: number[],
     rowStateAccessor: (item: PipeLength) => string,
     setSelectedItem: React.Dispatch<React.SetStateAction<PipeLength | null>>,
-    setSelectionHistory: React.Dispatch<React.SetStateAction<PipeLength[]>>
+    setSelectionHistory: React.Dispatch<React.SetStateAction<PipeLength[]>>,
+    items: PipeLength[],
+    callbacks?: UseCuttingTableCallbacks
 ) => {
     const handleAllClick = useCallback((item: PipeLength) => {
         dispatch({type: 'toggleInfo', id: item.id});
@@ -176,11 +182,22 @@ const useEventHandlers = (
                 setSelectedItem(item);
                 return;
             }
+
+            // If transitioning from 'information' to 'working', trigger the modal
+            if (currentState === 'information') {
+                callbacks?.onWorkingTransition?.(item);
+                return; // Don't make the transition yet
+            }
+
+            // If transitioning from 'working' to 'finished', trigger the completion callback
+            if (currentState === 'working') {
+                callbacks?.onItemCompleted?.(item);
+            }
         }
 
         dispatch({type: 'workClick', id: item.id});
         setSelectedItem(item);
-    }, [activeTab, workState, infoIds, workingIds, dispatch, setSelectedItem]);
+    }, [activeTab, workState, infoIds, workingIds, dispatch, setSelectedItem, callbacks]);
 
     const handleRowClick = useCallback((item: PipeLength) => {
         if (activeTab === 'working') {
@@ -209,7 +226,73 @@ const useEventHandlers = (
         }
     }, [activeTab, rowStateAccessor, setSelectedItem, setSelectionHistory]);
 
-    return {handleAllClick, handleWorkClick, handleRowClick};
+    const proceedToWorking = useCallback((id: number) => {
+        dispatch({type: 'proceedToWorking', id});
+        const item = items.find(i => i.id === id);
+        if (item) {
+            setSelectedItem(item);
+        }
+    }, [dispatch, items, setSelectedItem]);
+
+    // New function for the Next button workflow
+    const handleNextWorkflow = useCallback(() => {
+        if (activeTab !== 'working') return;
+
+        // Find the first item that is not finished
+        const availableItems = items.filter(item => {
+            const state = workState[item.id] || 'initial';
+            return state !== 'finished';
+        });
+
+        if (availableItems.length === 0) return;
+
+        // Check if there's any item in working state
+        const workingItem = availableItems.find(item => workState[item.id] === 'working');
+        if (workingItem) {
+            // If there's a working item, click it to finish
+            handleWorkClick(workingItem);
+            return;
+        }
+
+        // Check if there's any item in information state
+        const infoItem = availableItems.find(item => workState[item.id] === 'information');
+        if (infoItem) {
+            // If there's an item in information, click it to move to working
+            handleWorkClick(infoItem);
+            return;
+        }
+
+        // If there's no item in information or working, get the first available item
+        const firstItem = availableItems[0];
+        if (firstItem) {
+            // Click the first item to put it in information state
+            handleWorkClick(firstItem);
+        }
+    }, [activeTab, items, workState, handleWorkClick]);
+
+    // Check if all working items are finished
+    const areAllWorkingItemsFinished = useCallback(() => {
+        // Get all items that appear in the working tab (same logic as workingItems)
+        const workingTabItems = items.filter(item =>
+            allState[item.id] === 'information' || workState[item.id] !== undefined
+        );
+
+        // If there are no items in working tab, return false
+        if (workingTabItems.length === 0) return false;
+
+        // Check if ALL items in working tab are finished
+        // Items are finished if they have 'finished' state in workState
+        return workingTabItems.every(item => workState[item.id] === 'finished');
+    }, [items, allState, workState]);
+
+    return {
+        handleAllClick,
+        handleWorkClick,
+        handleRowClick,
+        proceedToWorking,
+        handleNextWorkflow,
+        areAllWorkingItemsFinished
+    };
 };
 
 // Row states configuration
@@ -220,14 +303,14 @@ const useRowStates = (
     handleRowClick: (item: PipeLength) => void
 ) => {
     const rowStatesAll = useMemo(() => ({
-        initial: {className: 'bg-dark text-light', onClick: handleAllClick},
+        initial: {className: 'bg-dark text-white', onClick: handleAllClick},
         information: {className: 'bg-tertiary text-white', onClick: handleAllClick},
         working: {className: 'bg-primary text-white'},
         finished: {className: 'bg-success text-white'},
     }), [handleAllClick]);
 
     const rowStatesWork = useMemo(() => ({
-        initial: {className: 'bg-dark text-light', onClick: handleWorkClick},
+        initial: {className: 'bg-dark text-white', onClick: handleWorkClick},
         information: {className: 'bg-tertiary text-white', onClick: handleWorkClick},
         working: {className: 'bg-primary text-white', onClick: handleWorkClick},
         finished: {className: 'bg-success text-white', onClick: handleRowClick},
@@ -240,7 +323,8 @@ const useRowStates = (
 export function useCuttingTable(
     items: PipeLength[],
     activeTab: 'all' | 'working',
-    search: string
+    search: string,
+    callbacks?: UseCuttingTableCallbacks
 ) {
     // State management
     const [{allState, workState}, dispatch] = useReducer(cuttingReducer, {
@@ -248,7 +332,7 @@ export function useCuttingTable(
         workState: {}
     });
 
-    const [selectionHistory, setSelectionHistory] = useState<PipeLength[]>([]);
+    const [, setSelectionHistory] = useState<PipeLength[]>([]);
     const [movedIds, setMovedIds] = useState<number[]>([]);
     const [selectedItem, setSelectedItem] = useState<PipeLength | null>(null);
 
@@ -257,15 +341,25 @@ export function useCuttingTable(
     const rowStateAccessor = useRowStateAccessor(activeTab, allState, workState, workingIds, finishedIds);
 
     // Event handlers
-    const {handleAllClick, handleWorkClick, handleRowClick} = useEventHandlers(
+    const {
+        handleAllClick,
+        handleWorkClick,
+        handleRowClick,
+        proceedToWorking,
+        handleNextWorkflow,
+        areAllWorkingItemsFinished
+    } = useEventHandlers(
         dispatch,
         activeTab,
+        allState,
         workState,
         infoIds,
         workingIds,
         rowStateAccessor,
         setSelectedItem,
-        setSelectionHistory
+        setSelectionHistory,
+        items,
+        callbacks
     );
 
     // Row states
@@ -314,6 +408,9 @@ export function useCuttingTable(
         rowStates,
         rowStateAccessor,
         selectedItem,
-        handleRowClick
+        handleRowClick,
+        proceedToWorking,
+        handleNextWorkflow,
+        areAllWorkingItemsFinished
     };
 }

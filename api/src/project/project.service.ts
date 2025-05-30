@@ -14,7 +14,9 @@ export class ProjectService {
   }
 
   findOne(id: number) {
-    return this.databaseService.project.findUniqueOrThrow({ where: { id } });
+    return this.databaseService.project.findUnique({
+      where: { id: id },
+    });
   }
 
   async findAllForAdmin(userId: number) {

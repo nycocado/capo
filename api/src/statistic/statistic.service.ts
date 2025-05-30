@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PipeLengthService } from '../pipe-length/pipe-length.service';
 import { PipeLengthStatistics } from './entities/pipe-length-statistics.entity';
 import { AdminService } from '../admin/admin.service';
@@ -240,6 +240,11 @@ export class StatisticService {
     const diameterFrequencies =
       await this.makeDiameterStatisticsByProject(projectId);
     const project = await this.projectService.findOne(projectId);
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found.`);
+    }
+
     const progress = await this.makeProgressStatisticsByProject(projectId);
     const chartData = await this.makeChartDataByProject(projectId);
     return {

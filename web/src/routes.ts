@@ -48,14 +48,35 @@ export const API_ROUTES = {
     pipeLength: {
         base: '/pipe-length',
         cut: '/pipe-length/cut',
+        assembly: (param: string | number) => `/pipe-length/assembly/${param}`,
+        editHeatNumber: '/pipe-length/edit/heat-number',
+    },
+    fitting: {
+        base: '/fitting',
+        assembly: (param: string | number) => `/fitting/assembly/${param}`,
     },
     joint: {
         base: '/joint',
         assembly: '/joint/assembly'
     },
+    weld: {
+        base: '/weld',
+        welding: '/weld/welding',
+        editFillerMaterial: '/weld/edit/filler-material',
+        editWps: '/weld/edit/wps',
+    },
     rev: {
         base: '/rev',
         document: (param: string | number) => `/rev/document/${param}`,
+    },
+    filler: {
+        base: '/filler',
+        weld: '/filler/weld',
+    },
+    wps: {
+        base: '/wps',
+        weld: '/wps/weld',
+        document: (param: string | number) => `/wps/document/${param}`,
     }
 }
 

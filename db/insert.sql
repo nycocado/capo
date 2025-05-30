@@ -118,8 +118,11 @@ VALUES
 INSERT INTO
     filler (flr_name)
 VALUES
-    ('TW222072024'),
-    ('F9919514'   );
+    ('ER70S-6'),
+    ('E7018-1'),
+    ('ER316L' ),
+    ('E6013'  ),
+    ('ER4043' );
 
 -- Projetos
 INSERT INTO
@@ -307,8 +310,7 @@ VALUES
     ('FIT0049', 'COUDE ROULE SOUDE 3D 90º ISO - EN10253-3/10253-4 - 316L',   14,   2, NULL, 3, 2, 119, 10),
     ('FIT0050', 'COLLET EPAIS - TYPE 35 NFE29251 / TYPE 37 EN1092-1 - 304L', 14,   2, NULL, 2, 1, 120, 10);
 
--- Bocas dos Fittings
--- Single-port fittings
+-- Single-port fittings (CAPs, COLLARs, etc.)
 INSERT INTO
     port (port_number, port_fit_id, port_dn_id)
 SELECT
@@ -318,20 +320,25 @@ SELECT
 FROM
     fitting f
 WHERE
-    f.fit_id NOT IN (9, 10, 11, 12, 33, 34, 35, 36);
+    f.fit_fty_id IN (1, 2, 3, 4, 5, 7);
+-- CAP, COLLAR, ELBOW, FLANGE, PIPE, SPECIALS
 
--- Two-port fittings
+-- Two-port fittings (REDUCERs e TEEs)
 INSERT INTO
     port (port_number, port_fit_id, port_dn_id)
-VALUES
-    (1, 33, 5),
-    (2, 33, 5),
-    (1, 34, 5),
-    (2, 34, 5),
-    (1, 35, 5),
-    (2, 35, 5),
-    (1, 36, 5),
-    (2, 36, 5);
+SELECT
+    port_num,
+    f.fit_id,
+    CASE WHEN f.fit_fty_id = 6 AND port_num = 1 THEN 7 -- Reducer porta maior
+         WHEN f.fit_fty_id = 6 AND port_num = 2 THEN 5 -- Reducer porta menor
+         ELSE 5 -- TEEs com portas iguais
+        END
+FROM
+    fitting f
+        CROSS JOIN ( SELECT 1 AS port_num UNION ALL SELECT 2 ) AS ports
+WHERE
+    f.fit_fty_id IN (6, 8);
+-- REDUCER, TEE
 
 -- Junções
 INSERT INTO
@@ -355,3 +362,5 @@ SELECT
     jnt_id
 FROM
     joint;
+
+CALL insert_wps();

@@ -9,13 +9,21 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
     const {item, columns, handleRowClick, rowStates, rowStateAccessor, ...motionProps} = props;
     const stateKey = rowStateAccessor ? rowStateAccessor(item) : 'default';
     const stateConfig = rowStates?.[stateKey];
+
     const onClickRow = () => {
-        stateConfig?.onClick?.(item);
-        handleRowClick(item);
+        if (stateConfig?.onClick) {
+            stateConfig.onClick(item);
+        }
+        if (handleRowClick) {
+            handleRowClick(item);
+        }
     };
+
     const rowClass = stateConfig?.className ?? 'bg-dark';
+
     return (
         <motion.tr
+            key={item?.id || 'unknown'} // Proteção contra item undefined
             ref={ref}
             onClick={onClickRow}
             className={`cursor-pointer ${rowClass}`}
@@ -25,7 +33,7 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
             {columns.map(col => {
                 const raw = typeof col.accessor === 'function'
                     ? col.accessor(item)
-                    : (item[col.accessor as keyof any] as unknown);
+                    : (item?.[col.accessor as keyof any] as unknown);
                 const value =
                     typeof raw === 'object' && raw !== null
                         ? JSON.stringify(raw)
@@ -33,7 +41,7 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
 
                 return (
                     <td
-                        key={`cell-${item.id}-${col.id}`}
+                        key={`cell-${item?.id || 'unknown'}-${col.id}`}
                         className={`text-center py-3 bg-transparent ${col.className || ''}`}
                     >
                         {value}
@@ -43,5 +51,3 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
         </motion.tr>
     );
 });
-
-

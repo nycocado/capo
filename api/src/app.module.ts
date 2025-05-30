@@ -15,6 +15,8 @@ import { WeldModule } from './weld/weld.module';
 import { JointModule } from './joint/joint.module';
 import { ProjectModule } from './project/project.module';
 import { RevModule } from './rev/rev.module';
+import { WpsModule } from './wps/wps.module';
+import { FillerModule } from './filler/filler.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { RevModule } from './rev/rev.module';
     JointModule,
     ProjectModule,
     RevModule,
+    WpsModule,
+    FillerModule,
   ],
   providers: [AppService],
 })

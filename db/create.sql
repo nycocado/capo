@@ -211,9 +211,10 @@ CREATE TABLE weld
 -- WPS
 CREATE TABLE wps
 (
-    wps_id          INT          NOT NULL AUTO_INCREMENT,
-    wps_internal_id VARCHAR(100) NOT NULL,
-    wps_document    VARCHAR(100),
+    wps_id          INT           NOT NULL AUTO_INCREMENT,
+    wps_internal_id VARCHAR(100)  NOT NULL,
+    wps_document    VARCHAR(100)  NOT NULL,
+    wps_tpi         DECIMAL(4, 2) NOT NULL,
     PRIMARY KEY (wps_id)
 );
 
@@ -319,7 +320,7 @@ BEGIN
     WHILE i <= 30
         DO
             SET sheet_id = CEIL(i / 3);
-            SET document_link = 'isometricExample.pdf';
+            SET document_link = CONCAT('isometric', LPAD(sheet_id, 2, '0'), '.pdf');
             INSERT INTO rev (rev_document, rev_spo_id, rev_sht_id) VALUES (document_link, i, sheet_id);
             SET i = i + 1;
         END WHILE;
@@ -351,4 +352,27 @@ BEGIN
             SET iso = iso + 1;
         END WHILE;
 END$$
+DELIMITER ;
+
+-- WPS
+DELIMITER $$
+CREATE PROCEDURE insert_wps()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE internal_id VARCHAR(100);
+    DECLARE document_name VARCHAR(100);
+    DECLARE temperature DECIMAL(4,2);
+
+    WHILE i <= 5
+        DO
+            SET internal_id = CONCAT('WPS', LPAD(i, 2, '0'));
+            SET document_name = CONCAT('WPS', LPAD(i, 2, '0'), '.pdf');
+            SET temperature = ROUND(50 + (RAND() * 49.99), 2);
+
+            INSERT INTO wps (wps_internal_id, wps_document, wps_tpi)
+            VALUES (internal_id, document_name, temperature);
+
+            SET i = i + 1;
+        END WHILE;
+END $$
 DELIMITER ;

@@ -99,7 +99,7 @@ export const weldButtonConfig = (
     handlers?: weldButtonHandlers
 ): ControlButtonConfig[] => [
     {
-        variant: 'outline-complement',
+        variant: 'outline-info',
         label: 'WPS',
         onClick: handlers?.onWpsClick,
         className: 'mb-2 border-3',

@@ -8,6 +8,7 @@ DROP PROCEDURE IF EXISTS insert_spool;
 DROP PROCEDURE IF EXISTS insert_sheet;
 DROP PROCEDURE IF EXISTS insert_isometric;
 DROP PROCEDURE IF EXISTS insert_parts_for_isos;
+DROP PROCEDURE IF EXISTS insert_wps;
 
 -- Drop tables em ordem reversa de dependência
 DROP TABLE IF EXISTS `weld`;

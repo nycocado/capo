@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { PipeFitterService } from '../pipe-fitter/pipe-fitter.service';
 
@@ -13,7 +13,7 @@ export class JointService {
     await this.pipeFitterService.validatePipeFitter(userId);
 
     return this.databaseService.joint.findMany({
-      where: { pipefitterId: null },
+      where: { pipeFitterId: null },
       include: {
         spool: {
           include: {
@@ -32,7 +32,46 @@ export class JointService {
           omit: { jointId: true, welderId: true, fillerId: true },
         },
       },
-      omit: { pipefitterId: true, spoolId: true, part1Id: true, part2Id: true },
+      omit: { pipeFitterId: true, spoolId: true, part1Id: true, part2Id: true },
+    });
+  }
+
+  async updatePipeFitter(id: number, userId: number) {
+    const pipeFitter = await this.pipeFitterService.validatePipeFitter(userId);
+
+    const existing = await this.databaseService.joint.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!existing) {
+      throw new UnauthorizedException('Not allowed to edit this joint');
+    }
+
+    return this.databaseService.joint.update({
+      where: { id: id },
+      data: { pipeFitterId: pipeFitter.id },
+      include: {
+        spool: {
+          include: {
+            revs: {
+              include: {
+                sheet: {
+                  include: { isometric: { omit: { projectId: true } } },
+                  omit: { isometricId: true },
+                },
+              },
+              omit: { spoolId: true, sheetId: true, document: true },
+            },
+          },
+        },
+        welds: {
+          omit: { jointId: true, welderId: true, fillerId: true },
+        },
+      },
+      omit: { pipeFitterId: true, spoolId: true, part1Id: true, part2Id: true },
     });
   }
 
@@ -42,7 +81,7 @@ export class JointService {
 
   async countDone(): Promise<number> {
     return this.databaseService.joint.count({
-      where: { pipefitterId: { not: null } },
+      where: { pipeFitterId: { not: null } },
     });
   }
 
@@ -59,7 +98,7 @@ export class JointService {
   async countDoneByProject(projectId: number): Promise<number> {
     return this.databaseService.joint.count({
       where: {
-        pipefitterId: { not: null },
+        pipeFitterId: { not: null },
         spool: {
           revs: { some: { sheet: { isometric: { projectId } } } },
         },
