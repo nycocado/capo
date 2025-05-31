@@ -22,6 +22,7 @@
     - [1. Instalar dependências da API](#1-instalar-dependências-da-api)
     - [2. Instalar dependências do Frontend](#2-instalar-dependências-do-frontend)
     - [3. Inicializar API](#3-inicializar-api)
+    - [4. Inicializar a base de dados](#4-inicializar-a-base-de-dados)
     - [4. Inicializar Frontend](#4-inicializar-frontend)
     - [Observações](#observações)
       - [API](#api)
@@ -111,6 +112,10 @@ npm install
 cd api/
 npm run start
 ```
+
+### 4. Inicializar a base de dados
+
+Todos os scripts necessários de create e insert da base de dados estão na pasta DB, é necessário apenas mudar as credenciais no .env da API
 
 ### 4. Inicializar Frontend
 
