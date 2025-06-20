@@ -1,378 +1,367 @@
--- Essa versão da base de dados é simplificada para o trabalho escolar
--- Usuário
 CREATE TABLE user
 (
-    user_id          INT          NOT NULL AUTO_INCREMENT,
-    user_internal_id VARCHAR(100) NOT NULL,
-    user_password    VARCHAR(255) NOT NULL,
-    user_name        VARCHAR(60)  NOT NULL,
-    user_bdate       DATE         NOT NULL,
-    user_gender      CHAR(1)      NOT NULL,
-    user_photo       VARCHAR(100),
-    UNIQUE (user_internal_id),
-    PRIMARY KEY (user_id)
+    id          INT                  NOT NULL AUTO_INCREMENT,
+    internal_id VARCHAR(100)         NOT NULL,
+    password    VARCHAR(255)         NOT NULL,
+    name        VARCHAR(60)          NOT NULL,
+    birth_date  DATE                 NOT NULL,
+    gender      ENUM ('M', 'F', 'O') NOT NULL,
+    photo       VARCHAR(255),
+    created_at  TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
 );
 
--- Soldador
-CREATE TABLE welder
+CREATE TABLE role
 (
-    wdr_id          INT NOT NULL AUTO_INCREMENT,
-    wdr_certificate VARCHAR(100),
-    wdr_user_id     INT NOT NULL,
-    PRIMARY KEY (wdr_id)
+    id         INT         NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(60) NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (name),
+    PRIMARY KEY (id)
 );
 
--- Tubista
-CREATE TABLE pipefitter
+CREATE TABLE user_role
 (
-    pipf_id          INT NOT NULL AUTO_INCREMENT,
-    pipf_certificate VARCHAR(100),
-    pipf_user_id     INT NOT NULL,
-    PRIMARY KEY (pipf_id)
+    id         INT          NOT NULL AUTO_INCREMENT,
+    user_id    INT          NOT NULL,
+    role_id    INT          NOT NULL,
+    document   VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (user_id, role_id),
+    PRIMARY KEY (id)
 );
 
--- Operador de Corte
-CREATE TABLE cuttingop
-(
-    ctop_id          INT NOT NULL AUTO_INCREMENT,
-    ctop_certificate VARCHAR(100),
-    ctop_user_id     INT NOT NULL,
-    PRIMARY KEY (ctop_id)
-);
-
-CREATE TABLE admin
-(
-    adm_id          INT NOT NULL AUTO_INCREMENT,
-    adm_certificate VARCHAR(100),
-    adm_user_id     INT NOT NULL,
-    PRIMARY KEY (adm_id)
-);
-
--- Material
 CREATE TABLE material
 (
-    mat_id   INT         NOT NULL AUTO_INCREMENT,
-    mat_name VARCHAR(60) NOT NULL,
-    UNIQUE (mat_name),
-    PRIMARY KEY (mat_id)
+    id         INT         NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(60) NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (name),
+    PRIMARY KEY (id)
 );
 
--- Diametro (DN)
 CREATE TABLE diameter
 (
-    dn_id           INT           NOT NULL AUTO_INCREMENT,
-    dn_nominal_mm   DECIMAL(6, 2) NOT NULL,
-    dn_nominal_inch DECIMAL(5, 3) NOT NULL,
-    UNIQUE (dn_nominal_mm),
-    PRIMARY KEY (dn_id)
+    id           INT           NOT NULL AUTO_INCREMENT,
+    nominal_mm   DECIMAL(6, 2) NOT NULL,
+    nominal_inch DECIMAL(5, 3) NOT NULL,
+    created_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (nominal_mm),
+    PRIMARY KEY (id)
 );
 
--- Tipo do acessório
-CREATE TABLE fittingtype
+CREATE TABLE filler_material
 (
-    fty_id   INT         NOT NULL AUTO_INCREMENT,
-    fty_name VARCHAR(60) NOT NULL,
-    UNIQUE (fty_name),
-    PRIMARY KEY (fty_id)
+    id         INT         NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(60) NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (name),
+    PRIMARY KEY (id)
 );
 
--- Part ou componente
-CREATE TABLE part
-(
-    prt_id     INT          NOT NULL AUTO_INCREMENT,
-    prt_number VARCHAR(100) NOT NULL,
-    PRIMARY KEY (prt_id)
-);
-
--- Troço
-CREATE TABLE pipelength
-(
-    pipl_id          INT           NOT NULL AUTO_INCREMENT,
-    pipl_internal_id VARCHAR(100)  NOT NULL,
-    pipl_length      DECIMAL(8, 2) NOT NULL,
-    pipl_thickness   DECIMAL(5, 2) NOT NULL,
-    pipl_heatnumber  VARCHAR(100),
-    pipl_mat_id      INT           NOT NULL,
-    pipl_dn_id       INT           NOT NULL,
-    pipl_prt_id      INT           NOT NULL,
-    pipl_ctop_id     INT,
-    pipl_iso_id      INT           NOT NULL,
-    UNIQUE (pipl_internal_id),
-    PRIMARY KEY (pipl_id)
-);
-
--- Acessório
-CREATE TABLE fitting
-(
-    fit_id          INT           NOT NULL AUTO_INCREMENT,
-    fit_internal_id VARCHAR(100)  NOT NULL,
-    fit_description VARCHAR(100)  NOT NULL,
-    fit_length      DECIMAL(8, 2) NOT NULL,
-    fit_thickness   DECIMAL(5, 2) NOT NULL,
-    fit_heatnumber  VARCHAR(100),
-    fit_fty_id      INT           NOT NULL,
-    fit_mat_id      INT           NOT NULL,
-    fit_prt_id      INT           NOT NULL,
-    fit_iso_id      INT           NOT NULL,
-    UNIQUE (fit_internal_id),
-    PRIMARY KEY (fit_id)
-);
-
--- Boca do acessório
-CREATE TABLE port
-(
-    port_id     INT NOT NULL AUTO_INCREMENT,
-    port_number INT NOT NULL,
-    port_fit_id INT NOT NULL,
-    port_dn_id  INT NOT NULL,
-    PRIMARY KEY (port_id)
-);
-
--- Junção
-CREATE TABLE joint
-(
-    jnt_id      INT NOT NULL AUTO_INCREMENT,
-    jnt_prt1_id INT NOT NULL,
-    jnt_prt2_id INT NOT NULL,
-    jnt_spo_id  INT NOT NULL,
-    jnt_pipf_id INT,
-    PRIMARY KEY (jnt_id)
-);
-
--- Spool
-CREATE TABLE spool
-(
-    spo_id          INT          NOT NULL AUTO_INCREMENT,
-    spo_internal_id VARCHAR(100) NOT NULL,
-    UNIQUE (spo_internal_id),
-    PRIMARY KEY (spo_id)
-);
-
--- Projeto
-CREATE TABLE project
-(
-    prj_id          INT          NOT NULL AUTO_INCREMENT,
-    prj_internal_id VARCHAR(100) NOT NULL,
-    prj_name        VARCHAR(60)  NOT NULL,
-    prj_client      VARCHAR(60)  NOT NULL,
-    UNIQUE (prj_internal_id),
-    PRIMARY KEY (prj_id)
-);
-
--- Isométrico
-CREATE TABLE isometric
-(
-    iso_id          INT          NOT NULL AUTO_INCREMENT,
-    iso_internal_id VARCHAR(100) NOT NULL,
-    iso_prj_id      INT          NOT NULL,
-    UNIQUE (iso_internal_id),
-    PRIMARY KEY (iso_id)
-);
-
--- Folha
-CREATE TABLE sheet
-(
-    sht_id     INT NOT NULL AUTO_INCREMENT,
-    sht_number INT NOT NULL,
-    sht_iso_id INT NOT NULL,
-    PRIMARY KEY (sht_id)
-);
-
--- Revisão
-CREATE TABLE rev
-(
-    rev_id       INT          NOT NULL AUTO_INCREMENT,
-    rev_document VARCHAR(100) NOT NULL,
-    rev_spo_id   INT          NOT NULL,
-    rev_sht_id   INT          NOT NULL,
-    PRIMARY KEY (rev_id)
-);
-
--- Material de Adição
-CREATE TABLE filler
-(
-    flr_id   INT         NOT NULL AUTO_INCREMENT,
-    flr_name VARCHAR(60) NOT NULL,
-    UNIQUE (flr_name),
-    PRIMARY KEY (flr_id)
-);
-
--- Soldadura
-CREATE TABLE weld
-(
-    wld_id     INT NOT NULL AUTO_INCREMENT,
-    wld_wdr_id INT,
-    wld_fm_id  INT,
-    wld_wps_id INT,
-    wld_jnt_id INT NOT NULL,
-    PRIMARY KEY (wld_id)
-);
-
--- WPS
 CREATE TABLE wps
 (
-    wps_id          INT           NOT NULL AUTO_INCREMENT,
-    wps_internal_id VARCHAR(100)  NOT NULL,
-    wps_document    VARCHAR(100)  NOT NULL,
-    wps_tpi         DECIMAL(4, 2) NOT NULL,
-    PRIMARY KEY (wps_id)
+    id          INT           NOT NULL AUTO_INCREMENT,
+    internal_id VARCHAR(100)  NOT NULL,
+    document    VARCHAR(255)  NOT NULL,
+    tpi         DECIMAL(4, 2) NOT NULL,
+    created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
 );
 
--- Foreign Keys
-ALTER TABLE welder
-    ADD CONSTRAINT fk_welder_user FOREIGN KEY (wdr_user_id) REFERENCES user (user_id);
+CREATE TABLE fitting_type
+(
+    id         INT         NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(60) NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (name),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE pipefitter
-    ADD CONSTRAINT fk_pipefitter_user FOREIGN KEY (pipf_user_id) REFERENCES user (user_id);
+CREATE TABLE work_status_type
+(
+    id         INT         NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(60) NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (name),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE cuttingop
-    ADD CONSTRAINT fk_cuttingop_user FOREIGN KEY (ctop_user_id) REFERENCES user (user_id);
+CREATE TABLE cut_list
+(
+    id                  INT          NOT NULL AUTO_INCREMENT,
+    internal_id         VARCHAR(100) NOT NULL,
+    cutting_operator_id INT,
+    created_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE admin
-    ADD CONSTRAINT fk_admin_user FOREIGN KEY (adm_user_id) REFERENCES user (user_id);
+CREATE TABLE part
+(
+    id         INT                             NOT NULL AUTO_INCREMENT,
+    type       ENUM ('pipe_length', 'fitting') NOT NULL,
+    number     VARCHAR(100)                    NOT NULL,
+    created_at TIMESTAMP                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP                       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE isometric
-    ADD CONSTRAINT fk_iso_project FOREIGN KEY (iso_prj_id) REFERENCES project (prj_id);
+CREATE TABLE pipe_length
+(
+    id                  INT           NOT NULL,
+    internal_id         VARCHAR(100)  NOT NULL,
+    description         VARCHAR(100)  NOT NULL,
+    length              DECIMAL(8, 2) NOT NULL,
+    thickness           DECIMAL(5, 2) NOT NULL,
+    heat_number         VARCHAR(100),
+    material_id         INT           NOT NULL,
+    diameter_id         INT           NOT NULL,
+    cutting_operator_id INT,
+    cut_list_id         INT,
+    created_at          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE sheet
-    ADD CONSTRAINT fk_sheet_iso FOREIGN KEY (sht_iso_id) REFERENCES isometric (iso_id);
+CREATE TABLE fitting
+(
+    id              INT           NOT NULL,
+    internal_id     VARCHAR(100)  NOT NULL,
+    description     VARCHAR(100)  NOT NULL,
+    length          DECIMAL(8, 2) NOT NULL,
+    thickness       DECIMAL(5, 2) NOT NULL,
+    heat_number     VARCHAR(100),
+    material_id     INT           NOT NULL,
+    fitting_type_id INT           NOT NULL,
+    created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE rev
-    ADD CONSTRAINT fk_rev_spool FOREIGN KEY (rev_spo_id) REFERENCES spool (spo_id),
-    ADD CONSTRAINT fk_rev_sheet FOREIGN KEY (rev_sht_id) REFERENCES sheet (sht_id);
+CREATE TABLE port
+(
+    id          INT       NOT NULL AUTO_INCREMENT,
+    number      INT       NOT NULL,
+    fitting_id  INT       NOT NULL,
+    diameter_id INT       NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (fitting_id, number),
+    PRIMARY KEY (id)
+);
 
-ALTER TABLE pipelength
-    ADD CONSTRAINT fk_pipelength_part FOREIGN KEY (pipl_prt_id) REFERENCES part (prt_id),
-    ADD CONSTRAINT fk_pipelength_cuttingop FOREIGN KEY (pipl_ctop_id) REFERENCES cuttingop (ctop_id),
-    ADD CONSTRAINT fk_pipelength_material FOREIGN KEY (pipl_mat_id) REFERENCES material (mat_id),
-    ADD CONSTRAINT fk_pipelength_diameter FOREIGN KEY (pipl_dn_id) REFERENCES diameter (dn_id),
-    ADD CONSTRAINT fk_pipelength_isometric FOREIGN KEY (pipl_iso_id) REFERENCES isometric (iso_id);
+CREATE TABLE project
+(
+    id          INT          NOT NULL AUTO_INCREMENT,
+    internal_id VARCHAR(100) NOT NULL,
+    name        VARCHAR(60)  NOT NULL,
+    client      VARCHAR(60)  NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE isometric
+(
+    id          INT          NOT NULL AUTO_INCREMENT,
+    internal_id VARCHAR(100) NOT NULL,
+    project_id  INT          NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE sheet
+(
+    id           INT       NOT NULL AUTO_INCREMENT,
+    number       INT       NOT NULL,
+    isometric_id INT       NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (isometric_id, number),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE rev
+(
+    id              INT          NOT NULL AUTO_INCREMENT,
+    document        VARCHAR(100) NOT NULL,
+    revision_number VARCHAR(10)  NOT NULL,
+    sheet_id        INT          NOT NULL,
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE (sheet_id, revision_number)
+);
+
+CREATE TABLE spool
+(
+    id          INT          NOT NULL AUTO_INCREMENT,
+    internal_id VARCHAR(100) NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (internal_id),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE spool_rev
+(
+    id         INT       NOT NULL AUTO_INCREMENT,
+    spool_id   INT       NOT NULL,
+    rev_id     INT       NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (spool_id, rev_id),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE joint
+(
+    id             INT       NOT NULL AUTO_INCREMENT,
+    part1_id       INT       NOT NULL,
+    part2_id       INT       NOT NULL,
+    spool_id       INT       NOT NULL,
+    pipe_fitter_id INT,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE weld
+(
+    id                 INT       NOT NULL AUTO_INCREMENT,
+    joint_id           INT       NOT NULL,
+    filler_material_id INT,
+    wps_id             INT,
+    welder_id          INT,
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE part_work_status
+(
+    id                  INT       NOT NULL AUTO_INCREMENT,
+    part_id             INT       NOT NULL,
+    work_status_type_id INT       NOT NULL,
+    notes               TEXT,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by          INT,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE weld_work_status
+(
+    id                  INT       NOT NULL AUTO_INCREMENT,
+    weld_id             INT       NOT NULL,
+    work_status_type_id INT       NOT NULL,
+    notes               TEXT,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by          INT,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE joint_work_status
+(
+    id                  INT       NOT NULL AUTO_INCREMENT,
+    joint_id            INT       NOT NULL,
+    work_status_type_id INT       NOT NULL,
+    notes               TEXT,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by          INT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE diameter
+    ADD CONSTRAINT chk_nominal_mm_positive CHECK (nominal_mm > 0),
+    ADD CONSTRAINT chk_nominal_inch_positive CHECK (nominal_inch > 0);
+
+ALTER TABLE wps
+    ADD CONSTRAINT chk_tpi_positive CHECK (tpi > 0);
+
+ALTER TABLE user_role
+    ADD FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE;
+
+ALTER TABLE cut_list
+    ADD FOREIGN KEY (cutting_operator_id) REFERENCES user (id) ON DELETE SET NULL;
+
+ALTER TABLE pipe_length
+    ADD FOREIGN KEY (id) REFERENCES part (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (material_id) REFERENCES material (id),
+    ADD FOREIGN KEY (diameter_id) REFERENCES diameter (id),
+    ADD FOREIGN KEY (cutting_operator_id) REFERENCES user (id),
+    ADD FOREIGN KEY (cut_list_id) REFERENCES cut_list (id) ON DELETE CASCADE,
+    ADD CONSTRAINT chk_pipe_length_length_positive CHECK (length > 0),
+    ADD CONSTRAINT chk_pipe_length_thickness_positive CHECK (thickness > 0);
 
 ALTER TABLE fitting
-    ADD CONSTRAINT fk_fitting_type FOREIGN KEY (fit_fty_id) REFERENCES fittingtype (fty_id),
-    ADD CONSTRAINT fk_fitting_material FOREIGN KEY (fit_mat_id) REFERENCES material (mat_id),
-    ADD CONSTRAINT fk_fitting_part FOREIGN KEY (fit_prt_id) REFERENCES part (prt_id),
-    ADD CONSTRAINT fk_fitting_isometric FOREIGN KEY (fit_iso_id) REFERENCES isometric (iso_id);
-
+    ADD FOREIGN KEY (id) REFERENCES part (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (material_id) REFERENCES material (id),
+    ADD FOREIGN KEY (fitting_type_id) REFERENCES fitting_type (id);
 
 ALTER TABLE port
-    ADD CONSTRAINT fk_port_fitting FOREIGN KEY (port_fit_id) REFERENCES fitting (fit_id),
-    ADD CONSTRAINT fk_port_diameter FOREIGN KEY (port_dn_id) REFERENCES diameter (dn_id);
+    ADD FOREIGN KEY (fitting_id) REFERENCES fitting (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (diameter_id) REFERENCES diameter (id);
+
+ALTER TABLE isometric
+    ADD FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE;
+
+ALTER TABLE sheet
+    ADD FOREIGN KEY (isometric_id) REFERENCES isometric (id) ON DELETE CASCADE,
+    ADD CONSTRAINT chk_sheet_number_positive CHECK (number > 0);
+
+ALTER TABLE rev
+    ADD FOREIGN KEY (sheet_id) REFERENCES sheet (id) ON DELETE CASCADE;
+
+ALTER TABLE spool_rev
+    ADD FOREIGN KEY (spool_id) REFERENCES spool (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (rev_id) REFERENCES rev (id) ON DELETE CASCADE;
 
 ALTER TABLE joint
-    ADD CONSTRAINT fk_joint_prt1 FOREIGN KEY (jnt_prt1_id) REFERENCES part (prt_id),
-    ADD CONSTRAINT fk_joint_prt2 FOREIGN KEY (jnt_prt2_id) REFERENCES part (prt_id),
-    ADD CONSTRAINT fk_joint_spool FOREIGN KEY (jnt_spo_id) REFERENCES spool (spo_id),
-    ADD CONSTRAINT fk_joint_pipefitter FOREIGN KEY (jnt_pipf_id) REFERENCES pipefitter (pipf_id);
+    ADD FOREIGN KEY (part1_id) REFERENCES part (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (part2_id) REFERENCES part (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (spool_id) REFERENCES spool (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (pipe_fitter_id) REFERENCES user (id),
+    ADD CONSTRAINT chk_different_parts CHECK (part1_id != part2_id);
 
 ALTER TABLE weld
-    ADD CONSTRAINT fk_weld_welder FOREIGN KEY (wld_wdr_id) REFERENCES welder (wdr_id),
-    ADD CONSTRAINT fk_weld_filler FOREIGN KEY (wld_fm_id) REFERENCES filler (flr_id),
-    ADD CONSTRAINT fk_weld_joint FOREIGN KEY (wld_jnt_id) REFERENCES joint (jnt_id),
-    ADD CONSTRAINT fk_weld_wps FOREIGN KEY (wld_wps_id) REFERENCES wps (wps_id);
+    ADD FOREIGN KEY (welder_id) REFERENCES user (id) ON DELETE SET NULL,
+    ADD FOREIGN KEY (filler_material_id) REFERENCES filler_material (id) ON DELETE SET NULL,
+    ADD FOREIGN KEY (joint_id) REFERENCES joint (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (wps_id) REFERENCES wps (id) ON DELETE SET NULL;
 
--- Isometricos
-DELIMITER $$
-CREATE PROCEDURE insert_isometric()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    WHILE i <= 10
-        DO
-            INSERT INTO isometric (iso_internal_id, iso_prj_id) VALUES (CONCAT('ISO', LPAD(i, 4, '0')), 1);
-            SET i = i + 1;
-        END WHILE;
-END $$
-DELIMITER ;
+ALTER TABLE part_work_status
+    ADD FOREIGN KEY (part_id) REFERENCES part (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (work_status_type_id) REFERENCES work_status_type (id),
+    ADD FOREIGN KEY (created_by) REFERENCES user (id) ON DELETE SET NULL;
 
--- Spools
-DELIMITER $$
-CREATE PROCEDURE insert_spool()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    WHILE i <= 30
-        DO
-            INSERT INTO spool (spo_internal_id) VALUES (CONCAT('SPO', LPAD(i, 3, '0')));
-            SET i = i + 1;
-        END WHILE;
-END $$
-DELIMITER ;
+ALTER TABLE weld_work_status
+    ADD FOREIGN KEY (weld_id) REFERENCES weld (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (work_status_type_id) REFERENCES work_status_type (id),
+    ADD FOREIGN KEY (created_by) REFERENCES user (id) ON DELETE SET NULL;
 
--- Folhas
-DELIMITER $$
-CREATE PROCEDURE insert_sheet()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    WHILE i <= 10
-        DO
-            INSERT INTO sheet (sht_number, sht_iso_id) VALUES (1, i);
-            SET i = i + 1;
-        END WHILE;
-END $$
-DELIMITER ;
-
--- Revisões
-DELIMITER $$
-CREATE PROCEDURE insert_revs()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    DECLARE sheet_id INT;
-    DECLARE document_link VARCHAR(255);
-    WHILE i <= 30
-        DO
-            SET sheet_id = CEIL(i / 3);
-            SET document_link = CONCAT('isometric', LPAD(sheet_id, 2, '0'), '.pdf');
-            INSERT INTO rev (rev_document, rev_spo_id, rev_sht_id) VALUES (document_link, i, sheet_id);
-            SET i = i + 1;
-        END WHILE;
-END $$
-DELIMITER ;
-
-
--- Parts por isometricos
-DELIMITER $$
-CREATE PROCEDURE insert_parts_for_isos(IN n_iso INT)
-BEGIN
-    DECLARE iso INT DEFAULT 1;
-    DECLARE pip INT;
-    WHILE iso <= n_iso
-        DO
-            SET pip = 1;
-            -- 7 pipelength parts por isométrico
-            WHILE pip <= 7
-                DO
-                    INSERT INTO part (prt_number) VALUES (CONCAT('1.', pip));
-                    SET pip = pip + 1;
-                END WHILE;
-            -- 5 fittings por isométrico (prefixos 2 a 6) com sufixo sempre 1
-            INSERT INTO part (prt_number) VALUES ('2.1');
-            INSERT INTO part (prt_number) VALUES ('3.1');
-            INSERT INTO part (prt_number) VALUES ('4.1');
-            INSERT INTO part (prt_number) VALUES ('5.1');
-            INSERT INTO part (prt_number) VALUES ('6.1');
-            SET iso = iso + 1;
-        END WHILE;
-END$$
-DELIMITER ;
-
--- WPS
-DELIMITER $$
-CREATE PROCEDURE insert_wps()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    DECLARE internal_id VARCHAR(100);
-    DECLARE document_name VARCHAR(100);
-    DECLARE temperature DECIMAL(4,2);
-
-    WHILE i <= 5
-        DO
-            SET internal_id = CONCAT('WPS', LPAD(i, 2, '0'));
-            SET document_name = CONCAT('WPS', LPAD(i, 2, '0'), '.pdf');
-            SET temperature = ROUND(50 + (RAND() * 49.99), 2);
-
-            INSERT INTO wps (wps_internal_id, wps_document, wps_tpi)
-            VALUES (internal_id, document_name, temperature);
-
-            SET i = i + 1;
-        END WHILE;
-END $$
-DELIMITER ;
+ALTER TABLE joint_work_status
+    ADD FOREIGN KEY (joint_id) REFERENCES joint (id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (work_status_type_id) REFERENCES work_status_type (id),
+    ADD FOREIGN KEY (created_by) REFERENCES user (id) ON DELETE SET NULL;
