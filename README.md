@@ -40,7 +40,7 @@ O público-alvo do **CAPO** são empresas metalúrgicas que atuam na fabricaçã
 
 - **Operadores:** Responsáveis por executar as etapas práticas do processo produtivo, como corte, montagem e soldagem. Eles utilizam o sistema para receber instruções claras, registar o andamento das tarefas e reportar eventuais problemas, garantindo precisão e agilidade na execução.
 
-- **Administradores:** Responsáveis pelo controle geral da produção, os administradores utilizam o sistema para monitorar o fluxo de materiais, acompanhar o progresso das etapas de cada projeto e garantir que os recursos estejam sendo utilizados de forma eficiente. Eles têm acesso a *dashboards* e relatórios que fornecem uma visão abrangente do processo.
+- **Administradores:** Responsáveis pelo controle geral da produção, os administradores utilizam o sistema para monitorar o fluxo de materiais, acompanhar o progresso das etapas de cada projeto e garantir que os recursos estejam sendo utilizados de forma eficiente. Eles têm acesso a _dashboards_ e relatórios que fornecem uma visão abrangente do processo.
 
 - **Equipe de Logística:** Profissionais encarregados da gestão de estoque, movimentação de materiais e distribuição dos produtos finais. Eles dependem do sistema para obter informações precisas sobre prazos, disponibilidade de insumos e status de entrega, garantindo que a cadeia de suprimentos funcione sem interrupções.
 
@@ -48,17 +48,17 @@ O público-alvo do **CAPO** são empresas metalúrgicas que atuam na fabricaçã
 
 Para dar suporte às funcionalidades e à escalabilidade do projeto, adotamos um conjunto moderno de ferramentas e frameworks, divididos entre front-end e back-end:
 
-- **Front-end**  
-  - **React**: biblioteca para construção de interfaces reativas e componentizadas.  
-  - **TypeScript**: superset do JavaScript que adiciona tipagem estática e maior segurança em tempo de desenvolvimento.  
-  - **Bootstrap**: framework CSS que agiliza a criação de layouts responsivos e consistentes.  
-  - **Next.js**: framework React para renderização híbrida (SSR/SSG), roteamento simplificado e otimização de performance.  
+- **Front-end**
+  - **React**: biblioteca para construção de interfaces reativas e componentizadas.
+  - **TypeScript**: superset do JavaScript que adiciona tipagem estática e maior segurança em tempo de desenvolvimento.
+  - **Bootstrap**: framework CSS que agiliza a criação de layouts responsivos e consistentes.
+  - **Next.js**: framework React para renderização híbrida (SSR/SSG), roteamento simplificado e otimização de performance.
   - **Framer Motion**: biblioteca de animações para React, permitindo transições fluidas e interações avançadas.
 
-- **Back-end**  
-  - **Nest.js**: framework Node.js escalável, baseado em módulos e injeção de dependência, ideal para APIs bem estruturadas.  
-  - **Prisma**: ORM moderno para TypeScript/Node.js, que facilita consultas ao banco e migrações de esquema de forma segura.  
-  - **MySQL**: sistema de gerenciamento de banco de dados relacional robusto, amplamente adotado em aplicações de missão crítica.  
+- **Back-end**
+  - **Nest.js**: framework Node.js escalável, baseado em módulos e injeção de dependência, ideal para APIs bem estruturadas.
+  - **Prisma**: ORM moderno para TypeScript/Node.js, que facilita consultas ao banco e migrações de esquema de forma segura.
+  - **MySQL**: sistema de gerenciamento de banco de dados relacional robusto, amplamente adotado em aplicações de missão crítica.
 
 ## Conclusão
 
