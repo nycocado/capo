@@ -1,3 +1,3 @@
 export interface FittingTypeStatistics {
-    modes: string[]
+  modes: string[];
 }

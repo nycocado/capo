@@ -1,6 +1,6 @@
 export interface PipeLengthStatistics {
-    min: number;
-    max: number;
-    median: number;
-    thicknessStandardDeviation: number;
+  min: number;
+  max: number;
+  median: number;
+  thicknessStandardDeviation: number;
 }

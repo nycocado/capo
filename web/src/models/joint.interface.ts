@@ -1,32 +1,31 @@
 interface Isometric {
-    id: number;
-    internalId: string;
+  id: number;
+  internalId: string;
 }
 
 interface Sheet {
-    id: number;
-    number: number;
-    isometric: Isometric;
+  id: number;
+  number: number;
+  isometric: Isometric;
 }
 
 interface Rev {
-    id: number;
-    sheet: Sheet;
+  id: number;
+  sheet: Sheet;
 }
 
 interface Spool {
-    id: number;
-    internalId: string;
-    revs: Rev[];
+  id: number;
+  internalId: string;
+  revs: Rev[];
 }
 
 interface Weld {
-    id: number;
+  id: number;
 }
 
 export interface Joint {
-    id: number;
-    spool: Spool;
-    welds: Weld[];
+  id: number;
+  spool: Spool;
+  welds: Weld[];
 }
-

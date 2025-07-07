@@ -1,3 +1,3 @@
 export interface ProgressStatistics {
-    avgProgress: number
+  avgProgress: number;
 }

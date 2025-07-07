@@ -1,6 +1,6 @@
 export interface Wps {
-    id: number,
-    internalId: string;
-    document: string;
-    tpi: number;
+  id: number;
+  internalId: string;
+  document: string;
+  tpi: number;
 }

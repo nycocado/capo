@@ -1,4 +1,4 @@
 export interface FillerMaterial {
-    id: number,
-    name: string
+  id: number;
+  name: string;
 }
