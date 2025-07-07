@@ -1,16 +1,19 @@
-import {NormalValueConfig} from "./values/NormalValue.types";
-import {TaggedValueConfig} from "./values/TaggedValue.types";
-import {DoubleValueConfig} from "./values/DoubleValue.types";
+import { NormalValueConfig } from './values/NormalValue.types';
+import { TaggedValueConfig } from './values/TaggedValue.types';
+import { DoubleValueConfig } from './values/DoubleValue.types';
 
-export type ValueConfig = NormalValueConfig | TaggedValueConfig | DoubleValueConfig;
+export type ValueConfig =
+  | NormalValueConfig
+  | TaggedValueConfig
+  | DoubleValueConfig;
 
 export interface CardConfig {
-    key?: string;
-    className?: string;
-    items: ValueConfig[];
+  key?: string;
+  className?: string;
+  items: ValueConfig[];
 }
 
 export interface WorkPanelProps {
-    cards: CardConfig[];
-    containerClassName?: string;
+  cards: CardConfig[];
+  containerClassName?: string;
 }

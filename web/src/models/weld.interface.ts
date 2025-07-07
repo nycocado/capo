@@ -1,46 +1,46 @@
 interface Isometric {
-    id: number;
-    internalId: string;
+  id: number;
+  internalId: string;
 }
 
 interface Sheet {
-    id: number;
-    number: number;
-    isometric: Isometric;
+  id: number;
+  number: number;
+  isometric: Isometric;
 }
 
 interface Rev {
-    id: number;
-    sheet: Sheet;
+  id: number;
+  sheet: Sheet;
 }
 
 interface Spool {
-    id: number;
-    internalId: string;
-    revs: Rev[];
+  id: number;
+  internalId: string;
+  revs: Rev[];
 }
 
 interface Joint {
-    id: number;
-    spoolId: number;
-    spool: Spool;
+  id: number;
+  spoolId: number;
+  spool: Spool;
 }
 
 interface Filler {
-    id?: number;
-    name?: string;
+  id?: number;
+  name?: string;
 }
 
 interface WPS {
-    id: number;
-    name: string;
-    document: string;
-    tpi: number;
+  id: number;
+  name: string;
+  document: string;
+  tpi: number;
 }
 
 export interface Weld {
-    id: number;
-    joint: Joint;
-    filler: Filler | null;
-    wps: WPS | null;
+  id: number;
+  joint: Joint;
+  filler: Filler | null;
+  wps: WPS | null;
 }
