@@ -31,6 +31,7 @@ export class AssemblyListRepository {
     'isometric.sheets.revisions.spools.joints.part1.pipeLength.part.workStatuses.workStatusType',
     'isometric.sheets.revisions.spools.joints.part1.fitting.part',
     'isometric.sheets.revisions.spools.joints.part1.fitting.material',
+    'isometric.sheets.revisions.spools.joints.part1.fitting.fittingType',
     'isometric.sheets.revisions.spools.joints.part1.fitting.ports.diameter',
     'isometric.sheets.revisions.spools.joints.part1.fitting.part.workStatuses.workStatusType',
     'isometric.sheets.revisions.spools.joints.part2.workStatuses.workStatusType',
@@ -40,6 +41,7 @@ export class AssemblyListRepository {
     'isometric.sheets.revisions.spools.joints.part2.pipeLength.part.workStatuses.workStatusType',
     'isometric.sheets.revisions.spools.joints.part2.fitting.part',
     'isometric.sheets.revisions.spools.joints.part2.fitting.material',
+    'isometric.sheets.revisions.spools.joints.part2.fitting.fittingType',
     'isometric.sheets.revisions.spools.joints.part2.fitting.ports.diameter',
     'isometric.sheets.revisions.spools.joints.part2.fitting.part.workStatuses.workStatusType',
     'isometric.sheets.revisions.spools.joints.welds.workStatuses.workStatusType',
@@ -50,40 +52,6 @@ export class AssemblyListRepository {
     'workStatuses.workStatusType',
     'isometric.sheets.revisions',
   ] as const;
-
-  async findMinimalByIdOrFail(id: number): Promise<AssemblyListEntity> {
-    return this.assemblyListRepository.findOneOrFail(id, {
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        isometric: {
-          sheets: {
-            revisions: {
-              revisionNumber: QueryOrder.ASC,
-            },
-          },
-        },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
-  async findMinimalAll(): Promise<AssemblyListEntity[]> {
-    return this.assemblyListRepository.findAll({
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        isometric: {
-          sheets: {
-            revisions: {
-              revisionNumber: QueryOrder.ASC,
-            },
-          },
-        },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
 
   async findMinimalByJointIdOrFail(
     jointId: number,
@@ -153,11 +121,36 @@ export class AssemblyListRepository {
     });
   }
 
-  async populateToMinimal(
-    assemblyList: AssemblyListEntity,
-  ): Promise<AssemblyListEntity> {
-    const em = this.assemblyListRepository.getEntityManager();
-    return em.populate(assemblyList, this.MINIMAL_POPULATE_FIELDS, {
+  async findFullAll(): Promise<AssemblyListEntity[]> {
+    return this.assemblyListRepository.findAll({
+      populate: this.FULL_POPULATE_FIELDS,
+      orderBy: {
+        isometric: {
+          sheets: {
+            revisions: {
+              revisionNumber: QueryOrder.ASC,
+              spools: {
+                joints: {
+                  part1: {
+                    id: QueryOrder.ASC,
+                    workStatuses: { id: QueryOrder.ASC },
+                  },
+                  part2: {
+                    id: QueryOrder.ASC,
+                    workStatuses: { id: QueryOrder.ASC },
+                  },
+                  welds: {
+                    id: QueryOrder.ASC,
+                    workStatuses: { id: QueryOrder.ASC },
+                  },
+                  workStatuses: { id: QueryOrder.ASC },
+                },
+              },
+            },
+          },
+        },
+        workStatuses: { id: QueryOrder.ASC },
+      },
       strategy: LoadStrategy.SELECT_IN,
     });
   }

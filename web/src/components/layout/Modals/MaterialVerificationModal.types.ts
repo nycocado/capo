@@ -1,5 +1,5 @@
-import { PipeLength } from '@models/pipe-length.interface';
-import { Fitting } from '@models/fitting.interface';
+import { PipeLengthDto } from '@/dtos/pipe-length.dto';
+import { FittingDto } from '@/dtos/fitting.dto';
 
 export interface MaterialVerificationModalProps {
   showModal: boolean;
@@ -12,12 +12,12 @@ export interface MaterialVerificationModalProps {
   loading: boolean;
   error: string | null;
   isConsultationMode: boolean;
-  handlePipeLengthClick: (pipeLength: PipeLength) => void;
-  handleFittingClick: (fitting: Fitting) => void;
+  handlePipeLengthClick: (pipeLength: PipeLengthDto) => void;
+  handleFittingClick: (fitting: FittingDto) => void;
   handleContinue: () => void;
   handleNext: () => void;
   handlePrevious: () => void;
   handleCancel: () => void;
-  getPipeLengthState: (pipeLength: PipeLength) => 'initial' | 'finished';
-  getFittingState: (fitting: Fitting) => 'initial' | 'finished';
+  getPipeLengthState: (pipeLength: PipeLengthDto) => 'initial' | 'finished';
+  getFittingState: (fitting: FittingDto) => 'initial' | 'finished';
 }

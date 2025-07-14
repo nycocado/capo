@@ -1,3 +1,6 @@
+const API_URL = process.env.NEXT_PUBLIC_API_PROXY_URL!;
+const WS_URL = process.env.NEXT_PUBLIC_WS_PROXY_URL!;
+
 export const ROUTES = {
   home: '/',
   login: '/login',
@@ -5,77 +8,104 @@ export const ROUTES = {
   cut: '/cut',
   assembly: '/assembly',
   weld: '/weld',
-  admin: '/admin',
   unauthorized: '/unauthorized',
 };
 
 export const API_ROUTES = {
-  verify: '/verify',
   auth: {
-    base: '/auth',
-    login: '/auth/login',
-    validate: '/auth/validate',
+    base: `${API_URL}/auth`,
+    login: `${API_URL}/auth/login`,
+    validate: `${API_URL}/auth/validate`,
+    hasRole: (role: string) => `${API_URL}/auth/has-role/${role}`,
   },
-  user: {
-    base: '/user',
-    roles: '/user/roles',
+  users: {
+    base: `${API_URL}/users`,
+    me: `${API_URL}/users/me`,
   },
-  project: {
-    base: '/project',
-    admin: '/project/admin',
-    adminId: (param: string | number) => `/project/admin/${param}`,
+  roles: {
+    base: `${API_URL}/roles`,
+    me: `${API_URL}/roles/me`,
   },
-  admin: {
-    base: '/admin',
-    verify: '/admin/verify',
+  projects: {
+    base: `${API_URL}/projects`,
+    id: (id: number) => `${API_URL}/project/${id}`,
   },
-  cuttingOperator: {
-    base: '/cutting-operator',
-    verify: '/cutting-operator/verify',
+  pipeLengths: {
+    base: `${API_URL}/pipe-lengths`,
+    id: (id: number) => `${API_URL}/pipe-lengths/${id}`,
+    step: (id: number) => `${API_URL}/pipe-lengths/${id}/step`,
+    heatNumber: (id: number) => `${API_URL}/pipe-lengths/${id}/heat-number`,
   },
-  pipeFitter: {
-    base: '/pipe-fitter',
-    verify: '/pipe-fitter/verify',
+  fittings: {
+    base: `${API_URL}/fittings`,
+    id: (id: number) => `${API_URL}/fittings/${id}`,
   },
-  welder: {
-    base: '/welder',
-    verify: '/welder/verify',
+  joints: {
+    base: `${API_URL}/joints`,
+    id: (id: number) => `${API_URL}/joints/${id}`,
+    step: (id: number) => `${API_URL}/joints/${id}/step`,
   },
-  statistic: {
-    base: '/statistic',
-    overall: (param: string | number) => `/statistic/overall/${param}`,
+  welds: {
+    base: `${API_URL}/welds`,
+    id: (id: number) => `${API_URL}/welds/${id}`,
+    step: (id: number) => `${API_URL}/welds/${id}/step`,
+    fillerMaterial: (id: number) => `${API_URL}/welds/${id}/filler-material`,
+    wps: (id: number) => `${API_URL}/welds/${id}/wps`,
   },
-  pipeLength: {
-    base: '/pipe-length',
-    cut: '/pipe-length/cut',
-    assembly: (param: string | number) => `/pipe-length/assembly/${param}`,
-    editHeatNumber: '/pipe-length/edit/heat-number',
+  cutLists: {
+    base: `${API_URL}/cut-lists`,
+    toDo: `${API_URL}/cut-lists/to-do`,
+    id: (id: number) => `${API_URL}/cut-lists/${id}`,
+    setWorking: (id: number) => `${API_URL}/cut-lists/${id}/set-working`,
   },
-  fitting: {
-    base: '/fitting',
-    assembly: (param: string | number) => `/fitting/assembly/${param}`,
+  assemblyLists: {
+    base: `${API_URL}/assembly-lists`,
+    toDo: `${API_URL}/assembly-lists/to-do`,
+    id: (id: number) => `${API_URL}/assembly-lists/${id}`,
+    setWorking: (id: number) => `${API_URL}/assembly-lists/${id}/set-working`,
   },
-  joint: {
-    base: '/joint',
-    assembly: '/joint/assembly',
+  weldLists: {
+    base: `${API_URL}/weld-lists`,
+    toDo: `${API_URL}/weld-lists/to-do`,
+    id: (id: number) => `${API_URL}/weld-lists/${id}`,
+    setWorking: (id: number) => `${API_URL}/weld-lists/${id}/set-working`,
   },
-  weld: {
-    base: '/weld',
-    welding: '/weld/welding',
-    editFillerMaterial: '/weld/edit/filler-material',
-    editWps: '/weld/edit/wps',
-  },
-  rev: {
-    base: '/rev',
-    document: (param: string | number) => `/rev/document/${param}`,
-  },
-  filler: {
-    base: '/filler',
-    weld: '/filler/weld',
+  fillerMaterials: {
+    base: `${API_URL}/filler-materials`,
+    id: (id: number) => `${API_URL}/filler-materials/${id}`,
   },
   wps: {
-    base: '/wps',
-    weld: '/wps/weld',
-    document: (param: string | number) => `/wps/document/${param}`,
+    base: `${API_URL}/wps`,
+    id: (id: number) => `${API_URL}/wps/${id}`,
+  },
+  documents: {
+    base: `${API_URL}/documents`,
+    download: (path: string) => `${API_URL}/documents/${path}`,
+  },
+};
+
+export const WS_ROUTES = {
+  cutList: `${WS_URL}/cut-list`,
+  assemblyList: `${WS_URL}/assembly-list`,
+  weldList: `${WS_URL}/weld-list`,
+};
+
+export const WS_EVENTS = {
+  default: {
+    connect: 'connect',
+    disconnect: 'disconnect',
+    connect_error: 'connect_error',
+    error: 'error',
+  },
+  cutList: {
+    updateWorkStatus: 'updateWorkStatus',
+  },
+  assemblyList: {
+    updateWorkStatus: 'updateWorkStatus',
+    create: 'createAssemblyList',
+  },
+  weldList: {
+    updatedWorkStatus: 'updateWorkStatus',
+    creates: 'createsWeldList',
   },
 };

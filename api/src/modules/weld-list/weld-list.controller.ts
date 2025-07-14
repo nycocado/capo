@@ -42,7 +42,7 @@ export class WeldListController {
     @User('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<WeldListEntity> {
-    const weldList = await this.weldListService.getMinimalById(id);
+    const weldList = await this.weldListService.getById(id);
     return this.weldListService.updateWorkStatusToWorking(weldList, userId);
   }
 }

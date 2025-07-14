@@ -17,7 +17,7 @@ export class WeldListGateway {
     const response = plainToInstance(WeldListResponseDto, weldList, {
       excludeExtraneousValues: true,
     });
-    this.server.emit('weldListCreates', { response });
+    this.server.emit('createsWeldList', { response });
   }
 
   @OnEvent('weld-list.updateWorkStatusToWorking', { async: true })

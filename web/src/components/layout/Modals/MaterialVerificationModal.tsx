@@ -6,8 +6,8 @@ import {
   columnsPipeLengthVerification,
   columnsFittingVerification,
 } from '@components/features/WorkTable/WorkTable.columns';
-import { PipeLength } from '@models/pipe-length.interface';
-import { Fitting } from '@models/fitting.interface';
+import { PipeLengthDto } from '@/dtos/pipe-length.dto';
+import { FittingDto } from '@/dtos/fitting.dto';
 import { MaterialVerificationModalProps } from '@components/layout/Modals/MaterialVerificationModal.types';
 
 export function MaterialVerificationModal(
@@ -44,9 +44,9 @@ export function MaterialVerificationModal(
     if (isConsultationMode || !item?.internalId) return;
 
     if (currentStep === 'pipeLength') {
-      handlePipeLengthClick(item as PipeLength);
+      handlePipeLengthClick(item as PipeLengthDto);
     } else {
-      handleFittingClick(item as Fitting);
+      handleFittingClick(item as FittingDto);
     }
   };
 
@@ -70,8 +70,8 @@ export function MaterialVerificationModal(
     if (isConsultationMode) return 'initial';
 
     return currentStep === 'pipeLength'
-      ? getPipeLengthState(item as PipeLength)
-      : getFittingState(item as Fitting);
+      ? getPipeLengthState(item as PipeLengthDto)
+      : getFittingState(item as FittingDto);
   };
 
   // Get columns

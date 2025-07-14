@@ -42,7 +42,7 @@ export class CutListController {
     @User('id') userId: number,
     @Param('id', ParseIntPipe) cutListId: number,
   ): Promise<CutListEntity> {
-    const cutList = await this.cutListService.getMinimalById(cutListId);
+    const cutList = await this.cutListService.getById(cutListId);
     return this.cutListService.updateWorkStatusToWorking(cutList, userId);
   }
 }

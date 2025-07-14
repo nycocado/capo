@@ -16,12 +16,8 @@ export class CutListService {
     return this.cutListRepository.findFullByIdOrFail(id);
   }
 
-  async getMinimalById(id: number): Promise<CutListEntity> {
-    return this.cutListRepository.findMinimalByIdOrFail(id);
-  }
-
   async getToDo(): Promise<CutListEntity[]> {
-    const lists = await this.cutListRepository.findMinimalAll();
+    const lists = await this.cutListRepository.findFullAll();
     return lists.filter((cutList) => {
       const statuses = cutList.workStatuses.getItems();
       const lastStatus = statuses[statuses.length - 1];
@@ -39,9 +35,7 @@ export class CutListService {
       workStatus.workStatusType.name === WorkStatusType.WORKING ||
       workStatus.workStatusType.name === WorkStatusType.FINISHED
     ) {
-      return workStatus.createdBy?.id === userId
-        ? this.cutListRepository.populateToFull(cutList)
-        : cutList;
+      return this.cutListRepository.populateToFull(cutList);
     }
 
     const newCutList = await this.cutListRepository.updateWorkStatusToWorking(
@@ -49,13 +43,16 @@ export class CutListService {
       userId,
     );
 
+    const populatedCutList =
+      await this.cutListRepository.populateToFull(newCutList);
+
     this.eventEmitter.emit(
       'cut-list.updateWorkStatusToWorking',
-      newCutList,
+      populatedCutList,
       userId,
     );
 
-    return this.cutListRepository.populateToFull(newCutList);
+    return populatedCutList;
   }
 
   async updateWorkStatusToFinished(
@@ -67,13 +64,16 @@ export class CutListService {
       userId,
     );
 
+    const populatedCutList =
+      await this.cutListRepository.populateToFull(newCutList);
+
     this.eventEmitter.emit(
       'cut-list.updateWorkStatusToFinished',
-      newCutList,
+      populatedCutList,
       userId,
     );
 
-    return this.cutListRepository.populateToFull(newCutList);
+    return populatedCutList;
   }
 
   @OnEvent('pipe-length.updateWorkStatusToFinished', { async: true })
@@ -94,7 +94,7 @@ export class CutListService {
       return this.updateWorkStatusToFinished(cutList, userId);
     }
 
-    return cutList;
+    return this.cutListRepository.populateToFull(cutList);
   }
 
   async isCutListFinished(cutList: CutListEntity): Promise<boolean> {

@@ -17,12 +17,8 @@ export class AssemblyListService {
     return this.assemblyListRepository.findFullByIdOrFail(id);
   }
 
-  async getMinimalById(id: number): Promise<AssemblyListEntity> {
-    return this.assemblyListRepository.findMinimalByIdOrFail(id);
-  }
-
   async getToDo(): Promise<AssemblyListEntity[]> {
-    const lists = await this.assemblyListRepository.findMinimalAll();
+    const lists = await this.assemblyListRepository.findFullAll();
     return lists.filter((assemblyList) => {
       const statuses = assemblyList.workStatuses.getItems();
       const lastStatus = statuses[statuses.length - 1];
@@ -41,9 +37,7 @@ export class AssemblyListService {
       workStatus.workStatusType.name === WorkStatusType.WORKING ||
       workStatus.workStatusType.name === WorkStatusType.FINISHED
     ) {
-      return workStatus.createdBy?.id === userId
-        ? this.assemblyListRepository.populateToFull(assemblyList)
-        : assemblyList;
+      return this.assemblyListRepository.populateToFull(assemblyList);
     }
 
     const newAssemblyList =
@@ -97,7 +91,7 @@ export class AssemblyListService {
       return this.updateWorkStatusToFinished(assemblyList, userId);
     }
 
-    return assemblyList;
+    return this.assemblyListRepository.populateToFull(assemblyList);
   }
 
   @OnEvent('cut-list.updateWorkStatusToFinished', { async: true })
@@ -111,11 +105,11 @@ export class AssemblyListService {
     );
 
     const newAssemblyList =
-      await this.assemblyListRepository.populateToMinimal(assemblyList);
+      await this.assemblyListRepository.populateToFull(assemblyList);
 
     this.eventEmitter.emit('assembly-list.create', newAssemblyList, userId);
 
-    return this.assemblyListRepository.populateToFull(newAssemblyList);
+    return newAssemblyList;
   }
 
   async isAssemblyListFinished(

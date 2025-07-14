@@ -3,7 +3,7 @@ import { CutListService } from '@modules/cut-list/cut-list.service';
 import { Server } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
 import { CutListEntity } from '@modules/cut-list/entities';
-import { plainToInstance } from 'class-transformer';
+import { serializeGatewayResponse } from '@common/utils/serialize.gateway';
 import { CutListResponseDto } from '@modules/cut-list/dto';
 
 @WebSocketGateway({ namespace: 'cut-list', cors: true })
@@ -15,9 +15,9 @@ export class CutListGateway {
   @OnEvent('cut-list.updateWorkStatusToFinished', { async: true })
   @OnEvent('cut-list.updateWorkStatusToWorking', { async: true })
   handleUpdateWorkStatus(cutList: CutListEntity) {
-    const response = plainToInstance(CutListResponseDto, cutList, {
-      excludeExtraneousValues: true,
-    });
-    this.server.emit('updateWorkStatus', { response });
+    this.server.emit(
+      'updateWorkStatus',
+      serializeGatewayResponse(cutList, CutListResponseDto, 'cut-list'),
+    );
   }
 }

@@ -17,11 +17,13 @@
     "echarts-for-react": "^3.0.2",
     "framer-motion": "^12.23.0",
     "js-cookie": "^3.0.5",
+    "ky": "^1.8.1",
     "next": "15.3.5",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
-    "sass": "1.89.2"
+    "sass": "1.89.2",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -30,7 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
-    "typescript": "^5",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "^5"
   }
 }

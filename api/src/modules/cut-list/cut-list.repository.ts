@@ -39,39 +39,6 @@ export class CutListRepository {
     'isometric.sheets.revisions',
   ] as const;
 
-  async findMinimalByIdOrFail(id: number): Promise<CutListEntity> {
-    return this.cutListRepository.findOneOrFail(id, {
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        isometric: {
-          sheets: {
-            revisions: {
-              revisionNumber: QueryOrder.ASC,
-            },
-          },
-        },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
-  async findMinimalAll(): Promise<CutListEntity[]> {
-    return this.cutListRepository.findAll({
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        isometric: {
-          sheets: {
-            revisions: {
-              revisionNumber: QueryOrder.ASC,
-            },
-          },
-        },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
   async findMinimalByPipeLengthIdOrFail(
     pipeLengthId: number,
   ): Promise<CutListEntity> {
@@ -168,6 +135,42 @@ export class CutListRepository {
         strategy: LoadStrategy.SELECT_IN,
       },
     );
+  }
+
+  async findFullAll(): Promise<CutListEntity[]> {
+    return this.cutListRepository.findAll({
+      populate: this.FULL_POPULATE_FIELDS,
+      orderBy: {
+        id: QueryOrder.ASC,
+        isometric: {
+          sheets: {
+            revisions: {
+              revisionNumber: QueryOrder.ASC,
+              spools: {
+                joints: {
+                  part1: {
+                    id: QueryOrder.ASC,
+                    workStatuses: {
+                      id: QueryOrder.ASC,
+                    },
+                  },
+                  part2: {
+                    id: QueryOrder.ASC,
+                    workStatuses: {
+                      id: QueryOrder.ASC,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        workStatuses: {
+          id: QueryOrder.ASC,
+        },
+      },
+      strategy: LoadStrategy.SELECT_IN,
+    });
   }
 
   async populateToFull(cutList: CutListEntity): Promise<CutListEntity> {

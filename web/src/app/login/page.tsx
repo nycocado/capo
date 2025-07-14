@@ -4,8 +4,8 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_ROUTES, ROUTES } from '@/routes';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+import { LoginResDto } from '@/interfaces';
+import ky from 'ky';
 
 function LoginPage() {
   const [internalId, setInternalId] = useState('');
@@ -20,22 +20,13 @@ function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}${API_ROUTES.auth.login}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await ky.post<LoginResDto>(API_ROUTES.auth.login, {
         credentials: 'include',
-        body: JSON.stringify({
+        json: {
           internalId,
           password,
-        }),
+        },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
 
       router.push(ROUTES.roles);
     } catch (err: unknown) {
@@ -44,7 +35,6 @@ function LoginPage() {
       setLoading(false);
     }
   };
-
   return (
     <Container fluid className="vh-100 d-flex">
       <Row className="flex-grow-1 w-100">
