@@ -173,7 +173,7 @@ export function useWeldTable(
 
   // Form modal integration
   const formModal = useFormModal({
-    processWeld,
+    processJoint: processWeld,
     editWps,
     editFillerMaterial,
     onError: callbacks?.onError,

@@ -17,7 +17,7 @@ export class SpoolResponseDto {
   @Type(() => WeldResponseDto)
   @Transform(({ obj, options }) => {
     const welds = obj.joints?.flatMap((joint: any) => joint.welds);
-    if (!welds || welds.length === 0) return undefined;
+    if (!welds || welds.length === 0) return [];
     return plainToInstance(WeldResponseDto, welds, {
       ...options,
     });

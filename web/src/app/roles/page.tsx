@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import RolesClient from '@/app/roles/RolesClient';
 import { API_ROUTES, ROUTES } from '@/routes';
+import ky from 'ky';
+import { RoleDto } from '@/interfaces';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -14,7 +16,6 @@ const fixedRoles: Role[] = [
   { id: 'cutting-operator', title: 'Cutting Operator', route: ROUTES.cut },
   { id: 'pipe-fitter', title: 'Pipe Fitter', route: ROUTES.assembly },
   { id: 'welder', title: 'Welder', route: ROUTES.weld },
-  { id: 'admin', title: 'Administrator', route: ROUTES.admin },
 ];
 
 export default async function RolesPage() {
@@ -22,20 +23,16 @@ export default async function RolesPage() {
   const token = cookieStore.get('token')?.value;
 
   try {
-    const res = await fetch(`${API_URL}${API_ROUTES.user.roles}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      cache: 'no-store',
-    });
-
-    if (!res.ok) throw new Error();
-
-    const backend: Role[] = await res.json();
+    const res = await ky
+      .get<RoleDto[]>(API_ROUTES.roles.me, {
+        headers: {
+          Cookie: `token=${token}`,
+        },
+      })
+      .json();
 
     const mappedRoles = fixedRoles.filter((role) =>
-      backend.some((backendRole) => backendRole.id === role.id),
+      res.some((userRole) => userRole.name === role.id),
     );
 
     return <RolesClient roles={mappedRoles} />;

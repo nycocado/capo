@@ -1,0 +1,49 @@
+import { PipeLengthWithContext } from '@/interfaces';
+import { PipeLengthDto } from '@/dtos';
+import { useMemo } from 'react';
+import { cutCardConfigs } from '@components/features/factory/WorkPanel/WorkPanel.cardConfigs';
+import { cutButtonConfig } from '@components/features/factory/ControlPanel/ControlPanel.buttonConfig';
+import { cutCompletionModalConfig } from '@components/layout/Modals/ComponentLabelModal.valueConfig';
+
+// Hook to manage UI configurations (cards, buttons, modals)
+export const useUIConfigurations = (
+  enrichedSelectedItem: PipeLengthWithContext | null,
+  completedItem: PipeLengthDto | null,
+  canEditHeatNumber: boolean,
+  handlers: {
+    onHeatNumberEdit: () => void;
+    onNextClick: () => void;
+  },
+) => {
+  const cards = useMemo(
+    () =>
+      cutCardConfigs(enrichedSelectedItem, {
+        onHeatNumberClick: canEditHeatNumber
+          ? handlers.onHeatNumberEdit
+          : undefined,
+      }),
+    [enrichedSelectedItem, canEditHeatNumber, handlers.onHeatNumberEdit],
+  );
+
+  const controlButtons = useMemo(
+    () =>
+      cutButtonConfig({
+        onIsometricClick: () => {},
+        onNoteClick: () => {},
+        onReportClick: () => {},
+        onNextClick: handlers.onNextClick,
+      }),
+    [handlers.onNextClick],
+  );
+
+  const modalData = useMemo(
+    () => cutCompletionModalConfig(completedItem),
+    [completedItem],
+  );
+
+  return {
+    cards,
+    controlButtons,
+    modalData,
+  };
+};

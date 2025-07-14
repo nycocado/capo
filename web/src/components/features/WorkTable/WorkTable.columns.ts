@@ -1,10 +1,9 @@
 import { Column } from './WorkTable.types';
-import { PipeLength } from '@models/pipe-length.interface';
-import { Fitting } from '@models/fitting.interface';
-import { AssemblyRow } from '@/app/(factory)/assembly/AssemblyClient.types';
+import { AssemblyListDto, CutListDto, FittingDto, PipeLengthDto } from '@/dtos';
 import { WeldRow } from '@/app/(factory)/weld/useWeldTable.types';
+import { PipeLengthWithContext } from '@/interfaces';
 
-export const columnsPipeLength: Column<PipeLength>[] = [
+export const columnsCutList: Column<CutListDto>[] = [
   {
     id: 'id',
     header: 'ID',
@@ -20,16 +19,55 @@ export const columnsPipeLength: Column<PipeLength>[] = [
     sortable: true,
   },
   {
-    id: 'sheet',
-    header: 'SHEET',
-    accessor: (item) => item.isometric.sheet.map((s) => s.number).join(', '),
+    id: 'sheets',
+    header: 'SHEETS',
+    accessor: (item) => {
+      return item.isometric.sheets?.map((s) => s.number).join(', ') || '-';
+    },
+    className: 'text-center',
+    sortable: false,
+  },
+  {
+    id: 'pipeCount',
+    header: 'PIPES',
+    accessor: (item) => {
+      const totalPipes =
+        item.isometric.sheets?.reduce((total, sheet) => {
+          return total + (sheet.pipeLengths?.length || 0);
+        }, 0) || 0;
+      return totalPipes.toString();
+    },
+    className: 'text-center',
+    sortable: true,
+  },
+];
+
+export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
+  {
+    id: 'id',
+    header: 'ID',
+    accessor: (item) => item.internalId,
     className: 'text-center',
     sortable: true,
   },
   {
-    id: 'part',
-    header: 'PART',
-    accessor: (item) => item.part.number,
+    id: 'description',
+    header: 'DESCRIPTION',
+    accessor: (item) => item.description,
+    className: 'text-center',
+    sortable: true,
+  },
+  {
+    id: 'isometric',
+    header: 'ISOMETRIC',
+    accessor: (item) => item.isometricInfo?.internalId || '-',
+    className: 'text-center',
+    sortable: true,
+  },
+  {
+    id: 'sheet',
+    header: 'SHEET',
+    accessor: (item) => item.isometricInfo?.sheetNumber?.toString() || '-',
     className: 'text-center',
     sortable: true,
   },
@@ -37,7 +75,7 @@ export const columnsPipeLength: Column<PipeLength>[] = [
     id: 'length',
     header: 'LENGTH',
     subheader: 'mm',
-    accessor: (item) => item.length,
+    accessor: (item) => item.length.toString(),
     className: 'text-center',
     sortable: true,
   },
@@ -45,24 +83,74 @@ export const columnsPipeLength: Column<PipeLength>[] = [
     id: 'diameter',
     header: 'Ø',
     subheader: 'DN',
-    accessor: (item) => item.diameter.nominalMm,
+    accessor: (item) => item.diameter.nominalMm.toString(),
+    className: 'text-center',
+    sortable: true,
+  },
+  {
+    id: 'material',
+    header: 'MATERIAL',
+    accessor: (item) => item.material.name,
     className: 'text-center',
     sortable: true,
   },
 ];
 
-export const columnsAssembly: Column<AssemblyRow>[] = [
+export const columnsAssemblyList: Column<AssemblyListDto>[] = [
   {
-    id: 'internalId',
-    header: 'ISOMETRIC',
-    accessor: (row) => row.internalId,
+    id: 'id',
+    header: 'ID',
+    accessor: (item) => item.internalId,
     className: 'text-center',
     sortable: true,
   },
   {
-    id: 'sheet',
-    header: 'SHEET',
-    accessor: (row) => row.sheetNumber,
+    id: 'isometric',
+    header: 'ISOMETRIC',
+    accessor: (item) => item.isometric?.internalId || '-',
+    className: 'text-center',
+    sortable: true,
+  },
+  {
+    id: 'sheets',
+    header: 'SHEETS',
+    accessor: (item) => {
+      return item.isometric?.sheets?.map((s) => s.number).join(', ') || '-';
+    },
+    className: 'text-center',
+    sortable: false,
+  },
+  {
+    id: 'spoolCount',
+    header: 'SPOOLS',
+    accessor: (item) => {
+      const totalSpools =
+        item.isometric?.sheets?.reduce((total, sheet) => {
+          return total + (sheet.spools?.length || 0);
+        }, 0) || 0;
+      return totalSpools.toString();
+    },
+    className: 'text-center',
+    sortable: true,
+  },
+  {
+    id: 'weldCount',
+    header: 'WELDS',
+    accessor: (item) => {
+      const totalWelds =
+        item.isometric?.sheets?.reduce((sheetTotal, sheet) => {
+          const sheetWelds =
+            sheet.spools?.reduce((spoolTotal, spool) => {
+              const spoolWelds =
+                spool.joints?.reduce((jointTotal, joint) => {
+                  return jointTotal + (joint.welds?.length || 0);
+                }, 0) || 0;
+              return spoolTotal + spoolWelds;
+            }, 0) || 0;
+          return sheetTotal + sheetWelds;
+        }, 0) || 0;
+      return totalWelds.toString();
+    },
     className: 'text-center',
     sortable: true,
   },
@@ -95,7 +183,7 @@ export const columnsWeld: Column<WeldRow>[] = [
   },
 ];
 
-export const columnsPipeLengthVerification: Column<PipeLength>[] = [
+export const columnsPipeLengthVerification: Column<PipeLengthDto>[] = [
   {
     id: 'id',
     header: 'ID',
@@ -103,14 +191,20 @@ export const columnsPipeLengthVerification: Column<PipeLength>[] = [
     sortable: true,
   },
   {
-    id: 'partNumber',
-    header: 'Part',
-    accessor: (item) => item.part.number,
+    id: 'number',
+    header: 'NUMBER',
+    accessor: (item) => item.number,
     sortable: true,
   },
   {
+    id: 'description',
+    header: 'DESCRIPTION',
+    accessor: (item) => item.description,
+    sortable: false,
+  },
+  {
     id: 'length',
-    header: 'Length (mm)',
+    header: 'LENGTH (mm)',
     accessor: (item) => item.length.toString(),
     sortable: true,
   },
@@ -121,26 +215,44 @@ export const columnsPipeLengthVerification: Column<PipeLength>[] = [
       `${item.diameter.nominalMm}mm (${item.diameter.nominalInch}")`,
     sortable: false,
   },
+  {
+    id: 'material',
+    header: 'MATERIAL',
+    accessor: (item) => item.material.name,
+    sortable: true,
+  },
 ];
 
-export const columnsFittingVerification: Column<Fitting>[] = [
+export const columnsFittingVerification: Column<FittingDto>[] = [
+  {
+    id: 'id',
+    header: 'ID',
+    accessor: (item) => item.internalId,
+    sortable: true,
+  },
+  {
+    id: 'number',
+    header: 'NUMBER',
+    accessor: (item) => item.number,
+    sortable: true,
+  },
   {
     id: 'type',
-    header: 'Type',
+    header: 'TYPE',
     accessor: (item) => item.fittingType.name,
     sortable: true,
   },
   {
     id: 'description',
-    header: 'Description',
-    accessor: 'description',
+    header: 'DESCRIPTION',
+    accessor: (item) => item.description,
     sortable: false,
   },
   {
     id: 'diameter1',
     header: 'Ø 1',
     accessor: (item) => {
-      const port1 = item.ports.find((p) => p.number === 1);
+      const port1 = item.ports?.find((p) => p.number === 1);
       return port1
         ? `${port1.diameter.nominalInch}" (${port1.diameter.nominalMm}mm)`
         : '-';
@@ -151,7 +263,7 @@ export const columnsFittingVerification: Column<Fitting>[] = [
     id: 'diameter2',
     header: 'Ø 2',
     accessor: (item) => {
-      const port2 = item.ports.find((p) => p.number === 2);
+      const port2 = item.ports?.find((p) => p.number === 2);
       return port2
         ? `${port2.diameter.nominalInch}" (${port2.diameter.nominalMm}mm)`
         : '-';
@@ -159,9 +271,15 @@ export const columnsFittingVerification: Column<Fitting>[] = [
     sortable: false,
   },
   {
+    id: 'material',
+    header: 'MATERIAL',
+    accessor: (item) => item.material.name,
+    sortable: true,
+  },
+  {
     id: 'total',
-    header: 'Total Ports',
-    accessor: (item) => item.ports.length.toString(),
+    header: 'TOTAL PORTS',
+    accessor: (item) => item.ports?.length.toString() || '0',
     sortable: true,
   },
 ];

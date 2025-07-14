@@ -1,90 +1,255 @@
 'use client';
-
-import { PipeLength } from '@models/pipe-length.interface';
-import { useState } from 'react';
-import { useCuttingTable } from './useCuttingTable';
-import { useCuttingOperations } from './useCuttingOperations';
-import { cutCardConfigs } from '@components/features/factory/WorkPanel/WorkPanel.cardConfigs';
-import { cutButtonConfig } from '@/components/features/factory/ControlPanel/ControlPanel.buttonConfig';
-import NavBar from '@components/layout/NavBar/NavBar';
-import { Col, Container, Row } from 'react-bootstrap';
-import { WorkPanel } from '@/components/features/factory/WorkPanel';
-import { ControlPanel } from '@/components/features/factory/ControlPanel';
+import { CutListDto, PipeLengthDto, UserDto } from '@/dtos';
+import { useCallback, useState } from 'react';
 import {
+  TAB_TYPES,
   tabsAllWorking,
+  TabType,
   WorkTabs,
 } from '@components/features/factory/WorkTabs';
-import { columnsPipeLength, WorkTable } from '@components/features/WorkTable';
-import { InputModal } from '@components/layout/Modals';
-import { ComponentLabelModal } from '@components/layout/Modals/ComponentLabelModal';
+import {
+  useCutListOperations,
+  useCutListTable,
+  useCutOperations,
+  usePipeLengthSelection,
+  usePipeLengthTable,
+  useUIConfigurations,
+  useWebSocketCutList,
+} from '@/app/(factory)/cut/hooks';
+import {
+  enrichPipeLengths,
+  extractPipeLengthsFromCutList,
+  validateHeatNumber,
+} from '@/app/(factory)/cut/utils/cutClientUtils';
+import { WORK_STATES } from '@/app/(factory)/cut/constants';
+import NavBar from '@components/layout/NavBar/NavBar';
+import { Col, Container, Row } from 'react-bootstrap';
+import { WorkPanel } from '@components/features/factory/WorkPanel';
+import { ControlPanel } from '@components/features/factory/ControlPanel';
+import { WorkTable } from '@components/features/WorkTable';
+import {
+  columnsCutList,
+  columnsPipeLengthDto,
+} from '@components/features/WorkTable/WorkTable.columns';
+import { ComponentLabelModal, InputModal } from '@components/layout/Modals';
 import { ErrorToast } from '@components/common/ErrorToast';
-import { CutClientProps } from '@/app/(factory)/cut/CutClient.types';
-import { cutCompletionModalConfig } from '@components/layout/Modals/ComponentLabelModal.valueConfig';
 
-export default function CutClient({
-  initialItems,
-  fetchError,
-}: CutClientProps) {
+export interface CutClientProps {
+  initialItems: CutListDto[];
+  currentUser: UserDto | null;
+  fetchError?: string;
+}
+
+// Main state management hook
+const useCutClientState = (initialItems: CutListDto[], fetchError?: string) => {
   const [errorMsg, setErrorMsg] = useState<string | null>(fetchError ?? null);
-  const [items] = useState<PipeLength[]>(initialItems);
-  const [activeTab, setActiveTab] = useState<'all' | 'working'>('all');
+  const [cutLists, setCutLists] = useState<CutListDto[]>(initialItems);
+  const [workingPipeLengths, setWorkingPipeLengths] = useState<PipeLengthDto[]>(
+    [],
+  );
+  const [activeTab, setActiveTab] = useState<TabType>(TAB_TYPES.ALL);
   const [search, setSearch] = useState<string>('');
+
+  return {
+    errorMsg,
+    setErrorMsg,
+    cutLists,
+    setCutLists,
+    workingPipeLengths,
+    setWorkingPipeLengths,
+    activeTab,
+    setActiveTab,
+    search,
+    setSearch,
+  };
+};
+
+// Modal state management hook
+const useModalState = () => {
   const [inputShow, setInputShow] = useState(false);
-  const [pendingItem, setPendingItem] = useState<PipeLength | null>(null);
-  const [heatNumbers, setHeatNumbers] = useState<Record<number, string>>({});
+  const [pendingItem, setPendingItem] = useState<PipeLengthDto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState<string>('');
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [completedItem, setCompletedItem] = useState<PipeLength | null>(null);
+  const [completedItem, setCompletedItem] = useState<PipeLengthDto | null>(
+    null,
+  );
+
+  const resetModalState = () => {
+    setInputShow(false);
+    setPendingItem(null);
+    setIsEditing(false);
+    setInputValue('');
+  };
+
+  const resetCompletionModal = () => {
+    setShowCompletionModal(false);
+    setCompletedItem(null);
+  };
+
+  return {
+    inputShow,
+    pendingItem,
+    isEditing,
+    inputValue,
+    setInputValue,
+    showCompletionModal,
+    completedItem,
+    setPendingItem,
+    setIsEditing,
+    setInputShow,
+    setShowCompletionModal,
+    setCompletedItem,
+    resetModalState,
+    resetCompletionModal,
+  };
+};
+
+export default function CutClient(props: CutClientProps) {
+  const { initialItems, currentUser, fetchError } = props;
 
   const {
-    tableItems,
-    rowStates,
-    rowStateAccessor,
-    selectedItem,
-    handleRowClick,
-    proceedToWorking,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-  } = useCuttingTable(items, activeTab, search, {
-    onWorkingTransition: (item: PipeLength) => {
-      setPendingItem(item);
-      setIsEditing(false);
-      setInputValue('');
-      setInputShow(true);
-    },
-    onItemCompleted: (item: PipeLength) => {
-      setCompletedItem(item);
-      setShowCompletionModal(true);
-    },
-  });
+    errorMsg,
+    setErrorMsg,
+    cutLists,
+    setCutLists,
+    workingPipeLengths,
+    setWorkingPipeLengths,
+    activeTab,
+    setActiveTab,
+    search,
+    setSearch,
+  } = useCutClientState(initialItems, fetchError);
 
-  const { startWork, editHeatNumber, isSubmitting } = useCuttingOperations({
-    onSuccess: (item) => {
-      if (isEditing) {
-        setHeatNumbers((prev) => ({
-          ...prev,
-          [item.id]: inputValue,
-        }));
-      } else {
-        proceedToWorking(item.id);
+  const {
+    inputShow,
+    pendingItem,
+    isEditing,
+    inputValue,
+    setInputValue,
+    showCompletionModal,
+    completedItem,
+    setPendingItem,
+    setIsEditing,
+    setInputShow,
+    setShowCompletionModal,
+    setCompletedItem,
+    resetModalState,
+    resetCompletionModal,
+  } = useModalState();
+
+  // WebSocket para atualizações em tempo real dos CutLists
+  const handleCutListUpdate = useCallback(
+    (updatedCutList: CutListDto) => {
+      setCutLists((prevCutLists) => {
+        return prevCutLists.map((cutList) =>
+          cutList.id === updatedCutList.id ? updatedCutList : cutList,
+        );
+      });
+
+      // Atualizar pipeLengths se necessário - usando ref para evitar dependências
+      if (activeTab === TAB_TYPES.WORKING) {
+        setWorkingPipeLengths((prevPipeLengths) => {
+          // Verificar se algum pipe length pertence ao cutList atualizado
+          const belongsToUpdatedCutList = prevPipeLengths.some((pl) => {
+            const newPipeLengths =
+              extractPipeLengthsFromCutList(updatedCutList);
+            return newPipeLengths.some((newPl) => newPl.id === pl.id);
+          });
+
+          if (belongsToUpdatedCutList) {
+            return extractPipeLengthsFromCutList(updatedCutList);
+          }
+
+          return prevPipeLengths;
+        });
       }
-      handleInputHide();
     },
-    onError: (error) => {
-      setErrorMsg(error);
+    [], // Sem dependências para evitar reconexões
+  );
+
+  // Configurar WebSocket
+  const { isConnected } = useWebSocketCutList({
+    onCutListUpdate: handleCutListUpdate,
+    enabled: true,
+  });
+
+  const updatePipeLength = (updatedPipeLength: PipeLengthDto) => {
+    setWorkingPipeLengths((prev) =>
+      prev.map((pl) =>
+        pl.id === updatedPipeLength.id ? updatedPipeLength : pl,
+      ),
+    );
+  };
+
+  // Cut list operations (set-working)
+  const { setWorking } = useCutListOperations({
+    onSuccess: (updatedCutList) => {
+      // Update the cut list in state
+      setCutLists((prev) =>
+        prev.map((cl) => (cl.id === updatedCutList.id ? updatedCutList : cl)),
+      );
+      // Navigate to working tab with the updated cut list
+      setWorkingPipeLengths(extractPipeLengthsFromCutList(updatedCutList));
+      setActiveTab(TAB_TYPES.WORKING);
+    },
+    onError: (error) => setErrorMsg(error),
+  });
+
+  // Separate table hooks for each type
+  const cutListTable = useCutListTable(cutLists, search, currentUser?.id, {
+    onCutListSelected: (cutList: CutListDto) => {
+      setWorkingPipeLengths(extractPipeLengthsFromCutList(cutList));
+      setActiveTab(TAB_TYPES.WORKING);
+    },
+    onCutListSetWorking: async (cutListId: number) => {
+      return await setWorking(cutListId);
     },
   });
 
+  const pipeLengthTable = usePipeLengthTable(
+    enrichPipeLengths(workingPipeLengths, cutLists),
+    search,
+    {
+      onWorkingTransition: (item: PipeLengthDto) => {
+        setPendingItem(item);
+        setIsEditing(false);
+        setInputValue('');
+        setInputShow(true);
+      },
+      onItemCompleted: (item: PipeLengthDto) => {
+        setCompletedItem(item);
+        setShowCompletionModal(true);
+      },
+    },
+  );
+
+  const selectedPipeLength =
+    activeTab === TAB_TYPES.WORKING ? pipeLengthTable.selectedItem : null;
+
+  // API operations
+  const { startWork, finishWork, editHeatNumber, isSubmitting } =
+    useCutOperations({
+      onSuccess: (updatedItem) => {
+        updatePipeLength(updatedItem);
+        if (!isEditing && pendingItem) {
+          pipeLengthTable.proceedToWorking(pendingItem.id);
+        }
+        resetModalState();
+      },
+      onError: (error) => setErrorMsg(error),
+    });
+
+  // Modal handlers
   const handleInputConfirm = async (inputHeatNumber: string) => {
     if (!pendingItem) return;
 
-    const heatNumber = parseInt(inputHeatNumber);
+    if (!validateHeatNumber(inputHeatNumber)) {
+      setErrorMsg('Please enter a valid heat number');
+      return;
+    }
 
-    setHeatNumbers((prev) => ({
-      ...prev,
-      [pendingItem.id]: inputHeatNumber,
-    }));
+    const heatNumber = parseInt(inputHeatNumber);
 
     if (isEditing) {
       await editHeatNumber(pendingItem, heatNumber);
@@ -93,77 +258,70 @@ export default function CutClient({
     }
   };
 
-  const handleInputHide = () => {
-    setInputShow(false);
-    setPendingItem(null);
-    setIsEditing(false);
-    setInputValue('');
-  };
-
   const handleHeatNumberEdit = () => {
-    if (!selectedItem) return;
+    if (!selectedPipeLength || activeTab === TAB_TYPES.ALL) return;
 
-    const currentHeatNumber =
-      heatNumbers[selectedItem.id] || selectedItem.heatNumber || '';
-    setPendingItem(selectedItem);
+    const currentHeatNumber = selectedPipeLength.heatNumber?.toString() || '';
+    setPendingItem(selectedPipeLength);
     setIsEditing(true);
     setInputValue(currentHeatNumber);
     setInputShow(true);
   };
 
-  const handleCompletionModalHide = () => {
-    setShowCompletionModal(false);
-    setCompletedItem(null);
+  const handleCompletionModalConfirm = async () => {
+    if (!completedItem) {
+      resetCompletionModal();
+      return;
+    }
+
+    await finishWork(completedItem);
+    resetCompletionModal();
   };
 
-  const handleCompletionModalConfirm = () => {
-    handleCompletionModalHide();
-  };
-
-  // Handler do botão Next
+  // Next button handler
   const handleNextClick = () => {
-    if (activeTab === 'all') {
-      // If on 'all' tab and has selected item, go to 'working' tab
-      if (selectedItem) {
-        setActiveTab('working');
-      }
-    } else if (activeTab === 'working') {
-      // Check if all working items are finished
-      if (areAllWorkingItemsFinished()) {
-        // If all working items are finished, return to 'all' tab
-        setActiveTab('all');
+    if (activeTab === TAB_TYPES.ALL) {
+      cutListTable.handleNextWorkflow();
+      return;
+    }
+
+    if (activeTab === TAB_TYPES.WORKING) {
+      if (pipeLengthTable.areAllWorkingItemsFinished()) {
+        setActiveTab(TAB_TYPES.ALL);
+        setWorkingPipeLengths([]);
       } else {
-        // If not all finished, execute next workflow step
-        handleNextWorkflow();
+        pipeLengthTable.handleNextWorkflow();
       }
     }
   };
 
-  const enrichedSelectedItem = selectedItem
-    ? {
-        ...selectedItem,
-        heatNumber: heatNumbers[selectedItem.id] || selectedItem.heatNumber,
-      }
-    : null;
+  // UI configurations
+  const { enrichedSelectedItem } = usePipeLengthSelection(
+    selectedPipeLength,
+    cutLists,
+    activeTab,
+  );
 
-  const canEditHeatNumber =
-    selectedItem &&
-    (rowStateAccessor(selectedItem) === 'working' ||
-      rowStateAccessor(selectedItem) === 'finished');
+  const canEditHeatNumber = Boolean(
+    selectedPipeLength &&
+      activeTab === TAB_TYPES.WORKING &&
+      (pipeLengthTable.rowStateAccessor(selectedPipeLength) ===
+        WORK_STATES.WORKING ||
+        pipeLengthTable.rowStateAccessor(selectedPipeLength) ===
+          WORK_STATES.FINISHED),
+  );
+
+  const { cards, controlButtons, modalData } = useUIConfigurations(
+    enrichedSelectedItem,
+    completedItem,
+    canEditHeatNumber,
+    {
+      onHeatNumberEdit: handleHeatNumberEdit,
+      onNextClick: handleNextClick,
+    },
+  );
 
   const showError = Boolean(errorMsg);
-  const cards = cutCardConfigs(enrichedSelectedItem, {
-    onHeatNumberClick: canEditHeatNumber ? handleHeatNumberEdit : undefined,
-  });
-
-  const controlButtons = cutButtonConfig({
-    onIsometricClick: () => {},
-    onNoteClick: () => {},
-    onReportClick: () => {},
-    onNextClick: handleNextClick,
-  });
-
-  const modalData = cutCompletionModalConfig(completedItem, heatNumbers);
 
   return (
     <>
@@ -187,17 +345,28 @@ export default function CutClient({
               <WorkTabs
                 tabs={tabsAllWorking}
                 activeTab={activeTab}
-                setActiveTab={(tab: string) =>
-                  setActiveTab(tab as 'all' | 'working')
-                }
+                setActiveTab={(tab: string) => setActiveTab(tab as TabType)}
               />
-              <WorkTable
-                items={tableItems}
-                handleRowClick={handleRowClick}
-                columns={columnsPipeLength}
-                rowStates={rowStates}
-                rowStateAccessor={rowStateAccessor}
-              />
+              {/* Render specific table based on active tab */}
+              {activeTab === TAB_TYPES.ALL ? (
+                <WorkTable
+                  key="cutlist-table"
+                  items={cutListTable.tableItems}
+                  handleRowClick={cutListTable.handleRowClick}
+                  columns={columnsCutList}
+                  rowStates={cutListTable.rowStates}
+                  rowStateAccessor={cutListTable.rowStateAccessor}
+                />
+              ) : (
+                <WorkTable
+                  key="pipelength-table"
+                  items={pipeLengthTable.tableItems}
+                  handleRowClick={pipeLengthTable.handleRowClick}
+                  columns={columnsPipeLengthDto}
+                  rowStates={pipeLengthTable.rowStates}
+                  rowStateAccessor={pipeLengthTable.rowStateAccessor}
+                />
+              )}
             </Col>
           </Row>
         </Container>
@@ -205,7 +374,7 @@ export default function CutClient({
 
       <InputModal
         show={inputShow}
-        onHide={handleInputHide}
+        onHide={resetModalState}
         onConfirm={handleInputConfirm}
         title="Heat Number"
         inputType="number"
@@ -217,7 +386,7 @@ export default function CutClient({
 
       <ComponentLabelModal
         show={showCompletionModal}
-        onHide={handleCompletionModalHide}
+        onHide={resetCompletionModal}
         onConfirm={handleCompletionModalConfirm}
         title="PIPE LENGTH"
         value={modalData.value}

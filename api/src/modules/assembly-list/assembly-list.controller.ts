@@ -42,8 +42,7 @@ export class AssemblyListController {
     @User('id') userId: number,
     @Param('id', ParseIntPipe) assemblyListId: number,
   ): Promise<AssemblyListEntity> {
-    const assemblyList =
-      await this.assemblyListService.getMinimalById(assemblyListId);
+    const assemblyList = await this.assemblyListService.getById(assemblyListId);
     return this.assemblyListService.updateWorkStatusToWorking(
       assemblyList,
       userId,

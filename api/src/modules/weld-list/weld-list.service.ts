@@ -17,12 +17,8 @@ export class WeldListService {
     return this.weldListRepository.findFullByIdOrFail(id);
   }
 
-  async getMinimalById(id: number): Promise<WeldListEntity> {
-    return this.weldListRepository.findMinimalByIdOrFail(id);
-  }
-
   async getToDo(): Promise<WeldListEntity[]> {
-    const lists = await this.weldListRepository.findMinimalAll();
+    const lists = await this.weldListRepository.findFullAll();
     return lists.filter((weldList) => {
       const statuses = weldList.workStatuses.getItems();
       const lastStatus = statuses[statuses.length - 1];
@@ -40,9 +36,7 @@ export class WeldListService {
       workStatus.workStatusType.name === WorkStatusType.WORKING ||
       workStatus.workStatusType.name === WorkStatusType.FINISHED
     ) {
-      return workStatus.createdBy?.id === userId
-        ? this.weldListRepository.populateToFull(weldList)
-        : weldList;
+      return this.weldListRepository.populateToFull(weldList);
     }
 
     const newWeldList = await this.weldListRepository.updateWorkStatusToWorking(
@@ -105,7 +99,7 @@ export class WeldListService {
       return this.updateWorkStatusToFinished(weldList, userId);
     }
 
-    return weldList;
+    return this.weldListRepository.populateToFull(weldList);
   }
 
   @OnEvent('assembly-list.updateWorkStatusToFinished', { async: true })

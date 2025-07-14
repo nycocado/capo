@@ -5,7 +5,7 @@ export function WorkTabs({
   activeTab,
   setActiveTab,
 }: {
-  tabs: string[];
+  tabs: readonly string[];
   activeTab: string;
   setActiveTab: (value: string) => void;
 }) {
@@ -19,7 +19,7 @@ export function WorkTabs({
               className={`w-100 fw-bold fs-5 ${activeTab === tab ? 'text-black' : 'text-primary'}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab.toUpperCase()}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </Button>
           </Col>
         ))}

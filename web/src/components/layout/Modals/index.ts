@@ -9,3 +9,5 @@ export { ConfirmModal } from './ConfirmModal';
 export type { ConfirmModalProps } from './ConfirmModal.types';
 export { InputModal } from './InputModal';
 export type { InputModalProps } from './InputModal.types';
+export { MaterialVerificationModal } from './MaterialVerificationModal';
+export type { MaterialVerificationModalProps } from './MaterialVerificationModal.types';

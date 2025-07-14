@@ -124,6 +124,28 @@ export class WeldListRepository {
     );
   }
 
+  async findFullAll(): Promise<WeldListEntity[]> {
+    return this.weldListRepository.findAll({
+      populate: this.FULL_POPULATE_FIELDS,
+      orderBy: {
+        id: QueryOrder.ASC,
+        spool: {
+          id: QueryOrder.ASC,
+          joints: {
+            welds: {
+              id: QueryOrder.ASC,
+              workStatuses: {
+                id: QueryOrder.ASC,
+              },
+            },
+          },
+        },
+        workStatuses: { id: QueryOrder.ASC },
+      },
+      strategy: LoadStrategy.SELECT_IN,
+    });
+  }
+
   async populateToFull(weldList: WeldListEntity): Promise<WeldListEntity> {
     const em = this.weldListRepository.getEntityManager();
     return em.populate(weldList, this.FULL_POPULATE_FIELDS, {

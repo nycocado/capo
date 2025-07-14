@@ -23,7 +23,7 @@ export class SheetResponseDto {
   @Expose({ groups: ['cut-list', 'assembly-list'] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
-    if (!revisions || revisions.length === 0) return undefined;
+    if (!revisions || revisions.length === 0) return [];
     const lastRevision = revisions[revisions.length - 1];
     const lengths: any[] = [];
     lastRevision.spools?.forEach((spool: any) => {
@@ -41,7 +41,7 @@ export class SheetResponseDto {
   @Expose({ groups: ['assembly-list'] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
-    if (!revisions || revisions.length === 0) return undefined;
+    if (!revisions || revisions.length === 0) return [];
     const lastRevision = revisions[revisions.length - 1];
     const fittings: any[] = [];
     lastRevision.spools?.forEach((spool: any) => {
@@ -59,10 +59,10 @@ export class SheetResponseDto {
   @Expose({ groups: ['assembly-list', 'weld-list'] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
-    if (!revisions || revisions.length === 0) return undefined;
+    if (!revisions || revisions.length === 0) return [];
     const lastRevision = revisions[revisions.length - 1];
     const spools = lastRevision.spools;
-    if (!spools || spools.length === 0) return undefined;
+    if (!spools || spools.length === 0) return [];
     return plainToInstance(SpoolResponseDto, lastRevision.spools, {
       ...options,
     });
