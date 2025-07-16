@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
 import { PipeLengthWithContext } from "@/interfaces";
 import { CutListDto, PipeLengthDto } from "@/dtos";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 // Hook to select and enrich pipe length
 export const usePipeLengthSelection = (

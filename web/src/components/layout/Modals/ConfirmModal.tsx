@@ -1,7 +1,18 @@
 import { Button } from "react-bootstrap";
 import React from "react";
 import { BaseModal } from "./BaseModal";
-import { ConfirmModalProps } from "@components/layout/Modals/ConfirmModal.types";
+
+export interface ConfirmModalProps {
+  show: boolean;
+  onHide: () => void;
+  onConfirm: () => void;
+  title: string;
+  body: string;
+  confirmVariant?: string;
+  cancelVariant?: string;
+  confirmText?: string;
+  cancelText?: string;
+}
 
 export function ConfirmModal(props: ConfirmModalProps) {
   const {

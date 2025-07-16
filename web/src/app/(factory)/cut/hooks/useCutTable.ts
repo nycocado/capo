@@ -11,8 +11,8 @@ import {
   sortFinishedLast,
   filterBySearch,
 } from "./useTableUtils";
-import { type TabType } from "@components/features/factory/WorkTabs";
 import { CutListDto, PipeLengthDto } from "@/dtos";
+import { TabType } from "@components/features/WorkTabs";
 
 // Hook for general cut table management
 export function useCutTable(

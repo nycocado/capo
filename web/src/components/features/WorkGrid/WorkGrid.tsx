@@ -1,7 +1,17 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { WorkGridProps } from "./WorkGrid.types";
-import { WorkGridItem } from "./WorkGridItem";
+import { HTMLMotionProps, motion } from "framer-motion";
+import { ItemStateConfig, WorkGridItem } from "./WorkGridItem";
+
+export interface WorkGridProps extends HTMLMotionProps<"div"> {
+  items: any[];
+  accessor: keyof any | ((item: any) => React.ReactNode);
+  handleItemClick: (item: any) => void;
+  columns?: number;
+  itemStates?: Record<string, ItemStateConfig>;
+  itemStateAccessor?: (item: any) => string;
+  groupBy?: (item: any) => string;
+  renderGroupTitle?: (groupItems: any[], groupIndex: number) => React.ReactNode;
+}
 
 export function WorkGrid(props: WorkGridProps) {
   const {

@@ -1,11 +1,11 @@
-// Client-side WebSocket hook
 "use client";
+
 import { useEffect, useRef, useCallback } from "react";
 import io from "socket.io-client";
-// Inferindo o tipo de Socket a partir do retorno de io
-type SocketType = ReturnType<typeof io>;
 import { CutListDto } from "@/dtos";
 import { WS_EVENTS, WS_ROUTES } from "@/routes";
+
+type SocketType = ReturnType<typeof io>;
 
 // Props interface
 interface UseWebSocketCutListProps {

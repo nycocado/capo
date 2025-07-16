@@ -1,7 +1,7 @@
-import { Column } from "./WorkTable.types";
 import { AssemblyListDto, CutListDto, FittingDto, PipeLengthDto } from "@/dtos";
 import { WeldRow } from "@/app/(factory)/weld/useWeldTable.types";
 import { PipeLengthWithContext } from "@/interfaces";
+import { Column } from "@components/features/WorkTable/WorkTable";
 
 export const columnsCutList: Column<CutListDto>[] = [
   {

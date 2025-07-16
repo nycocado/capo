@@ -5,8 +5,8 @@ import {
   columnsAssemblyList,
   columnsWeld,
 } from "@components/features/WorkTable/WorkTable.columns";
-import { Column } from "@components/features/WorkTable";
 import * as React from "react";
+import { Column } from "@components/features/WorkTable/WorkTable";
 
 export interface SearchFieldConfig {
   id: string;

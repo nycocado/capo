@@ -20,7 +20,7 @@ function LoginPage() {
     setError("");
 
     try {
-      const response = await ky.post<LoginResDto>(API_ROUTES.auth.login, {
+      await ky.post<LoginResDto>(API_ROUTES.auth.login, {
         credentials: "include",
         json: {
           internalId,

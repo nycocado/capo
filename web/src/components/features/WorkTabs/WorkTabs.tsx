@@ -1,14 +1,14 @@
 import { Button, Col, Row } from "react-bootstrap";
 
-export function WorkTabs({
-  tabs,
-  activeTab,
-  setActiveTab,
-}: {
+export interface WorkTabsProps {
   tabs: readonly string[];
   activeTab: string;
   setActiveTab: (value: string) => void;
-}) {
+}
+
+export function WorkTabs(props: WorkTabsProps) {
+  const { tabs, activeTab, setActiveTab } = props;
+
   return (
     <>
       <Row className="g-3">

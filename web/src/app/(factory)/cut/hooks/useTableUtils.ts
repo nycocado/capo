@@ -1,7 +1,7 @@
 import { CutListDto, PipeLengthDto } from "@/dtos";
-import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
-import { Column } from "@components/features/WorkTable/WorkTable.types";
 import { useMemo } from "react";
+import { Column } from "@components/features/WorkTable/WorkTable";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 // Sort finished items last
 export const sortFinishedLast = <T extends PipeLengthDto | CutListDto>(

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { API_ROUTES } from "@/routes";
 import { VALIDATION } from "../constants";
 import ky from "ky";

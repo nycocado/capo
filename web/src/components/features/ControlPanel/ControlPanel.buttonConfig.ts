@@ -1,4 +1,4 @@
-import { ControlButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel.types";
+import { ControlButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel";
 
 export interface cutButtonHandlers {
   onIsometricClick?: () => void;

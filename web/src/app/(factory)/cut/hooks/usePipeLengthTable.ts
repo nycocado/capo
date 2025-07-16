@@ -6,13 +6,13 @@ import {
 import { useCutState } from "@/app/(factory)/cut/hooks/useCutState";
 import React, { useCallback, useMemo, useState } from "react";
 import { useWorkStatusAccessor } from "@/app/(factory)/cut/hooks/useWorkStatusAccessor";
-import { TAB_TYPES } from "@components/features/factory/WorkTabs";
 import { useFinishedItemsSorting } from "@/app/(factory)/cut/hooks/useFinishedItemsSorting";
 import {
   filterBySearch,
   sortFinishedLast,
   useRowStates,
 } from "@/app/(factory)/cut/hooks/useTableUtils";
+import { TAB_TYPES } from "@components/features/WorkTabs";
 
 // Hook for pipe length table in working tab
 export function usePipeLengthTable(
