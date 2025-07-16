@@ -1,7 +1,8 @@
-import { CutListDto, PipeLengthDto } from '@/dtos';
-import { PipeLengthWithContext } from '@/interfaces';
-import { VALIDATION } from '@/app/(factory)/cut/constants';
+import { CutListDto, PipeLengthDto } from "@/dtos";
+import { PipeLengthWithContext } from "@/interfaces";
+import { VALIDATION } from "@/app/(factory)/cut/constants";
 
+// Extract pipe lengths from cut list
 export const extractPipeLengthsFromCutList = (
   cutList: CutListDto,
 ): PipeLengthDto[] => {
@@ -14,6 +15,7 @@ export const extractPipeLengthsFromCutList = (
   return pipeLengths;
 };
 
+// Enrich single pipe length with context
 export const enrichPipeLengthWithContext = (
   pipeLength: PipeLengthDto,
   cutLists: CutListDto[],
@@ -34,6 +36,7 @@ export const enrichPipeLengthWithContext = (
   return null;
 };
 
+// Enrich multiple pipe lengths
 export const enrichPipeLengths = (
   pipeLengths: PipeLengthDto[],
   cutLists: CutListDto[],
@@ -44,6 +47,7 @@ export const enrichPipeLengths = (
   });
 };
 
+// Validate heat number input
 export const validateHeatNumber = (value: string): boolean => {
   const num = parseInt(value);
   return !isNaN(num) && num >= VALIDATION.HEAT_NUMBER_MIN;

@@ -1,5 +1,5 @@
 export interface NormalValueConfig {
-  type: 'normal';
+  type: "normal";
   label: string;
   value: string | number;
   onClick?: () => void;

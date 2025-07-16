@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
-import { useWeldOperations } from './useWeldOperations';
+import { useState, useCallback, useMemo } from "react";
+import { useWeldOperations } from "./useWeldOperations";
 
 interface UseFormModalProps {
   processWeld: (
@@ -20,7 +20,7 @@ export function useFormModal({
 }: UseFormModalProps) {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<
-    'process' | 'edit-wps' | 'edit-filler' | null
+    "process" | "edit-wps" | "edit-filler" | null
   >(null);
   const [currentWeldId, setCurrentWeldId] = useState<number | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -48,7 +48,7 @@ export function useFormModal({
       setWpsOptions(wpsOpts);
       setFillerOptions(fillerOpts);
     } catch (err) {
-      setError('Failed to load options');
+      setError("Failed to load options");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export function useFormModal({
   const openProcess = useCallback(
     (weldId: number) => {
       setCurrentWeldId(weldId);
-      setModalType('process');
+      setModalType("process");
       setValues({});
       setError(null);
       setShowModal(true);
@@ -67,9 +67,9 @@ export function useFormModal({
   );
 
   const openEdit = useCallback(
-    (weldId: number, editType: 'wps' | 'filler') => {
+    (weldId: number, editType: "wps" | "filler") => {
       setCurrentWeldId(weldId);
-      setModalType(editType === 'wps' ? 'edit-wps' : 'edit-filler');
+      setModalType(editType === "wps" ? "edit-wps" : "edit-filler");
       setValues({});
       setError(null);
       setShowModal(true);
@@ -101,27 +101,27 @@ export function useFormModal({
       let success = false;
 
       switch (modalType) {
-        case 'process':
-          const wpsId = parseInt(values.wps || '');
-          const fillerId = parseInt(values.filler || '');
+        case "process":
+          const wpsId = parseInt(values.wps || "");
+          const fillerId = parseInt(values.filler || "");
           if (!wpsId || !fillerId) {
-            throw new Error('Please select both WPS and Filler Material');
+            throw new Error("Please select both WPS and Filler Material");
           }
           success = await processWeld(currentWeldId, wpsId, fillerId);
           break;
 
-        case 'edit-wps':
-          const editWpsId = parseInt(values.wps || '');
+        case "edit-wps":
+          const editWpsId = parseInt(values.wps || "");
           if (!editWpsId) {
-            throw new Error('Please select a WPS');
+            throw new Error("Please select a WPS");
           }
           success = await editWps(currentWeldId, editWpsId);
           break;
 
-        case 'edit-filler':
-          const editFillerId = parseInt(values.filler || '');
+        case "edit-filler":
+          const editFillerId = parseInt(values.filler || "");
           if (!editFillerId) {
-            throw new Error('Please select a Filler Material');
+            throw new Error("Please select a Filler Material");
           }
           success = await editFillerMaterial(currentWeldId, editFillerId);
           break;
@@ -131,7 +131,7 @@ export function useFormModal({
         handleCancel();
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Operation failed';
+      const errorMsg = err instanceof Error ? err.message : "Operation failed";
       setError(errorMsg);
       onError?.(errorMsg);
     } finally {
@@ -151,25 +151,25 @@ export function useFormModal({
   const fields = useMemo(() => {
     const baseFields = [];
 
-    if (modalType === 'process' || modalType === 'edit-wps') {
+    if (modalType === "process" || modalType === "edit-wps") {
       baseFields.push({
-        id: 'wps',
-        label: 'WPS',
-        type: 'select' as const,
+        id: "wps",
+        label: "WPS",
+        type: "select" as const,
         required: true,
         options: wpsOptions,
-        placeholder: 'Select WPS...',
+        placeholder: "Select WPS...",
       });
     }
 
-    if (modalType === 'process' || modalType === 'edit-filler') {
+    if (modalType === "process" || modalType === "edit-filler") {
       baseFields.push({
-        id: 'filler',
-        label: 'Filler Material',
-        type: 'select' as const,
+        id: "filler",
+        label: "Filler Material",
+        type: "select" as const,
         required: true,
         options: fillerOptions,
-        placeholder: 'Select Filler Material...',
+        placeholder: "Select Filler Material...",
       });
     }
 
@@ -178,19 +178,19 @@ export function useFormModal({
 
   const title = useMemo(() => {
     switch (modalType) {
-      case 'process':
-        return 'Process Weld';
-      case 'edit-wps':
-        return 'Edit WPS';
-      case 'edit-filler':
-        return 'Edit Filler Material';
+      case "process":
+        return "Process Weld";
+      case "edit-wps":
+        return "Edit WPS";
+      case "edit-filler":
+        return "Edit Filler Material";
       default:
-        return 'Weld Form';
+        return "Weld Form";
     }
   }, [modalType]);
 
   const submitText = useMemo(() => {
-    return modalType === 'process' ? 'Process' : 'Update';
+    return modalType === "process" ? "Process" : "Update";
   }, [modalType]);
 
   return {

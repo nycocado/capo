@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { JointEntity } from '@modules/joint/entities';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { JointEntity } from "@modules/joint/entities";
 import {
   EntityRepository,
   LoadStrategy,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
-import { WorkStatusType, WorkStatusTypeEntity } from '@database/entities';
-import { UserEntity } from '@modules/user/entities';
-import { JointWorkStatusEntity } from '@modules/joint/entities/joint-work-status.entity';
+} from "@mikro-orm/mariadb";
+import { WorkStatusType, WorkStatusTypeEntity } from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
+import { JointWorkStatusEntity } from "@modules/joint/entities/joint-work-status.entity";
 
 @Injectable()
 export class JointRepository {
@@ -19,30 +19,30 @@ export class JointRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'part1.workStatuses.workStatusType',
-    'part1.pipeLength.material',
-    'part1.pipeLength.diameter',
-    'part1.pipeLength.part.workStatuses.workStatusType',
-    'part1.fitting.material',
-    'part1.fitting.fittingType',
-    'part1.fitting.ports.diameter',
-    'part1.fitting.part.workStatuses.workStatusType',
-    'part2.workStatuses.workStatusType',
-    'part2.pipeLength.material',
-    'part2.pipeLength.diameter',
-    'part2.pipeLength.part.workStatuses.workStatusType',
-    'part2.fitting.material',
-    'part2.fitting.fittingType',
-    'part2.fitting.ports.diameter',
-    'part2.fitting.part.workStatuses.workStatusType',
-    'welds.fillerMaterial',
-    'welds.wps',
-    'welds.workStatuses.workStatusType',
-    'workStatuses.workStatusType',
+    "part1.workStatuses.workStatusType",
+    "part1.pipeLength.material",
+    "part1.pipeLength.diameter",
+    "part1.pipeLength.part.workStatuses.workStatusType",
+    "part1.fitting.material",
+    "part1.fitting.fittingType",
+    "part1.fitting.ports.diameter",
+    "part1.fitting.part.workStatuses.workStatusType",
+    "part2.workStatuses.workStatusType",
+    "part2.pipeLength.material",
+    "part2.pipeLength.diameter",
+    "part2.pipeLength.part.workStatuses.workStatusType",
+    "part2.fitting.material",
+    "part2.fitting.fittingType",
+    "part2.fitting.ports.diameter",
+    "part2.fitting.part.workStatuses.workStatusType",
+    "welds.fillerMaterial",
+    "welds.wps",
+    "welds.workStatuses.workStatusType",
+    "workStatuses.workStatusType",
   ] as const;
 
   private readonly WORK_STATUS_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
+    "workStatuses.workStatusType",
   ] as const;
 
   async findById(id: number): Promise<JointEntity | null> {

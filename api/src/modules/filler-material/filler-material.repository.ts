@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { FillerMaterialEntity } from '@modules/filler-material/entities';
-import { EntityRepository } from '@mikro-orm/mariadb';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { FillerMaterialEntity } from "@modules/filler-material/entities";
+import { EntityRepository } from "@mikro-orm/mariadb";
 
 @Injectable()
 export class FillerMaterialRepository {

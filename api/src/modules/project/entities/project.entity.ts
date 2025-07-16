@@ -6,10 +6,10 @@ import {
   OneToMany,
   Collection,
   Index,
-} from '@mikro-orm/core';
-import { IsometricEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { IsometricEntity } from "@database/entities";
 
-@Entity({ tableName: 'project' })
+@Entity({ tableName: "project" })
 export class ProjectEntity {
   @PrimaryKey()
   id!: number;
@@ -26,12 +26,12 @@ export class ProjectEntity {
   @Index()
   client!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

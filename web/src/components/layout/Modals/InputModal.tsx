@@ -1,7 +1,7 @@
-import { Button, Form, Spinner } from 'react-bootstrap';
-import React, { useState, useEffect } from 'react';
-import { BaseModal } from './BaseModal';
-import { InputModalProps } from '@components/layout/Modals/InputModal.types';
+import { Button, Form, Spinner } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { BaseModal } from "./BaseModal";
+import { InputModalProps } from "@components/layout/Modals/InputModal.types";
 
 export function InputModal(props: InputModalProps) {
   const {
@@ -11,12 +11,12 @@ export function InputModal(props: InputModalProps) {
     title,
     label,
     placeholder,
-    initialValue = '',
+    initialValue = "",
     value: externalValue,
     onValueChange,
-    inputType = 'text',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    inputType = "text",
+    confirmText = "Confirm",
+    cancelText = "Cancel",
     isLoading = false,
   } = props;
 
@@ -35,7 +35,7 @@ export function InputModal(props: InputModalProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
 
-    if (inputType === 'number') {
+    if (inputType === "number") {
       if (/^\d*$/.test(val)) {
         if (isControlled) {
           onValueChange!(val);
@@ -70,9 +70,9 @@ export function InputModal(props: InputModalProps) {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (isLoading) return;
 
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleConfirm();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleClose();
     }
   };
@@ -84,7 +84,7 @@ export function InputModal(props: InputModalProps) {
       show={show}
       onHide={handleClose}
       title={title}
-      backdrop={isLoading ? 'static' : true}
+      backdrop={isLoading ? "static" : true}
       keyboard={!isLoading}
     >
       <BaseModal.Body>
@@ -99,13 +99,13 @@ export function InputModal(props: InputModalProps) {
               placeholder={placeholder}
               autoFocus
               disabled={isLoading}
-              inputMode={inputType === 'number' ? 'numeric' : 'text'}
-              pattern={inputType === 'number' ? '\\d*' : undefined}
+              inputMode={inputType === "number" ? "numeric" : "text"}
+              pattern={inputType === "number" ? "\\d*" : undefined}
               className="text-center"
               style={{
-                fontSize: '2.5rem',
-                letterSpacing: '0.5rem',
-                textIndent: '0.5rem',
+                fontSize: "2.5rem",
+                letterSpacing: "0.5rem",
+                textIndent: "0.5rem",
               }}
             />
           </Form.Group>

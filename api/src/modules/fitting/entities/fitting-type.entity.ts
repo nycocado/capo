@@ -5,10 +5,10 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { FittingEntity } from '@modules/fitting/entities';
+} from "@mikro-orm/core";
+import { FittingEntity } from "@modules/fitting/entities";
 
-@Entity({ tableName: 'fitting_type' })
+@Entity({ tableName: "fitting_type" })
 export class FittingTypeEntity {
   @PrimaryKey()
   id!: number;
@@ -17,12 +17,12 @@ export class FittingTypeEntity {
   @Unique()
   name!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

@@ -2,11 +2,11 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-} from '@nestjs/common';
-import { PipeLengthEntity } from '@modules/pipe-length/entities';
-import { WorkStatusType } from '@database/entities';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PipeLengthRepository } from '@modules/pipe-length/pipe-length.repository';
+} from "@nestjs/common";
+import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { WorkStatusType } from "@database/entities";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { PipeLengthRepository } from "@modules/pipe-length/pipe-length.repository";
 
 @Injectable()
 export class PipeLengthService {
@@ -54,7 +54,7 @@ export class PipeLengthService {
       );
 
     this.eventEmitter.emit(
-      'pipe-length.updateWorkStatusToFinished',
+      "pipe-length.updateWorkStatusToFinished",
       newPipeLength,
       userId,
     );

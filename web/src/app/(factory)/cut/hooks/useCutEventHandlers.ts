@@ -1,12 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   getWorkStatusState,
   canUserAccessCutList,
-} from './useWorkStatusAccessor';
-import { WORK_STATES } from '../constants';
-import { TAB_TYPES, type TabType } from '@components/features/factory/WorkTabs';
-import { CutListDto, PipeLengthDto } from '@/dtos';
+} from "./useWorkStatusAccessor";
+import { WORK_STATES } from "../constants";
+import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
+import { CutListDto, PipeLengthDto } from "@/dtos";
 
+// Interface for callbacks
 export interface UseCutTableCallbacks {
   onWorkingTransition?: (item: PipeLengthDto) => void;
   onItemCompleted?: (item: PipeLengthDto) => void;
@@ -14,6 +15,7 @@ export interface UseCutTableCallbacks {
   onCutListSetWorking?: (cutListId: number) => Promise<boolean>;
 }
 
+// Hook for handling cut events
 export const useCutEventHandlers = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -28,50 +30,43 @@ export const useCutEventHandlers = (
   callbacks?: UseCutTableCallbacks,
   currentUserId?: number,
 ) => {
-  // Handle work click for WORKING tab items
+  const hasOtherActiveItems = (
+    items: (PipeLengthDto | CutListDto)[],
+    currentId: number,
+    rowStateAccessor: (item: PipeLengthDto | CutListDto) => string,
+  ) => {
+    return items.some((i) => {
+      if (i.id === currentId) return false;
+      return rowStateAccessor(i) === WORK_STATES.WORKING;
+    });
+  };
+
+  // Handle work click
   const handleWorkClick = useCallback(
     (item: PipeLengthDto | CutListDto) => {
       if (activeTab !== TAB_TYPES.WORKING) return;
-
-      const pipeLength = item as PipeLengthDto;
       const currentState = rowStateAccessor(item);
-
-      // Block if other items are active
       const hasOtherInformation =
         hasInformationItems() && !informationIds.has(item.id);
-      const hasWorkingItems = items.some((i) => {
-        if (i.id === item.id) return false;
-        const itemWorkStatus = (i as PipeLengthDto).workStatus;
-        const apiState = getWorkStatusState(itemWorkStatus);
-        return apiState === WORK_STATES.WORKING;
-      });
-
+      const hasWorkingItems = items.some(
+        (i) => i.id !== item.id && rowStateAccessor(i) === WORK_STATES.WORKING,
+      );
       if (
         (hasOtherInformation || hasWorkingItems) &&
         currentState !== WORK_STATES.FINISHED &&
         currentState !== WORK_STATES.INFORMATION
-      ) {
+      )
         return;
-      }
-
-      // State transitions
       if (currentState === WORK_STATES.TO_DO) {
         clearAllInformation();
         toggleInformation(item.id);
         setSelectedItem(item);
         return;
       }
-
-      if (currentState === WORK_STATES.INFORMATION) {
-        callbacks?.onWorkingTransition?.(pipeLength);
-        return;
-      }
-
-      if (currentState === WORK_STATES.WORKING) {
-        callbacks?.onItemCompleted?.(pipeLength);
-        return;
-      }
-
+      if (currentState === WORK_STATES.INFORMATION)
+        return callbacks?.onWorkingTransition?.(item as PipeLengthDto);
+      if (currentState === WORK_STATES.WORKING)
+        return callbacks?.onItemCompleted?.(item as PipeLengthDto);
       setSelectedItem(item);
     },
     [
@@ -87,7 +82,7 @@ export const useCutEventHandlers = (
     ],
   );
 
-  // Handle row clicks based on active tab
+  // Handle row clicks
   const handleRowClick = useCallback(
     (item: PipeLengthDto | CutListDto) => {
       if (activeTab === TAB_TYPES.ALL) {
@@ -95,7 +90,7 @@ export const useCutEventHandlers = (
         const currentState = rowStateAccessor(cutList);
 
         // Block access if cut list is restricted
-        if (currentState === 'danger') {
+        if (currentState === "danger") {
           return; // Do nothing for restricted cut lists
         }
 
@@ -119,12 +114,11 @@ export const useCutEventHandlers = (
         const currentState = rowStateAccessor(item);
 
         // Block if working items exist and current item cannot be interacted with
-        const hasWorkingItems = items.some((i) => {
-          if (i.id === item.id) return false;
-          const itemWorkStatus = (i as PipeLengthDto).workStatus;
-          const apiState = getWorkStatusState(itemWorkStatus);
-          return apiState === WORK_STATES.WORKING;
-        });
+        const hasWorkingItems = hasOtherActiveItems(
+          items,
+          item.id,
+          rowStateAccessor,
+        );
 
         if (
           hasWorkingItems &&
@@ -170,7 +164,7 @@ export const useCutEventHandlers = (
     ],
   );
 
-  // Navigate to next available item
+  // Navigate to next item
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
       const todoCutList = (items as CutListDto[]).find((cutList) => {
@@ -223,7 +217,7 @@ export const useCutEventHandlers = (
     }
   }, [activeTab, items, informationIds, handleWorkClick, callbacks]);
 
-  // Check if all working items are finished
+  // Check if all items finished
   const areAllWorkingItemsFinished = useCallback(() => {
     if (activeTab !== TAB_TYPES.WORKING) return false;
 
@@ -236,7 +230,7 @@ export const useCutEventHandlers = (
     });
   }, [activeTab, items]);
 
-  // Check if item can appear in panel
+  // Check item focus
   const isItemInFocus = useCallback(
     (item: PipeLengthDto | CutListDto | null): boolean => {
       if (!item) return false;

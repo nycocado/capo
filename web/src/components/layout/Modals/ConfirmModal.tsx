@@ -1,7 +1,7 @@
-import { Button } from 'react-bootstrap';
-import React from 'react';
-import { BaseModal } from './BaseModal';
-import { ConfirmModalProps } from '@components/layout/Modals/ConfirmModal.types';
+import { Button } from "react-bootstrap";
+import React from "react";
+import { BaseModal } from "./BaseModal";
+import { ConfirmModalProps } from "@components/layout/Modals/ConfirmModal.types";
 
 export function ConfirmModal(props: ConfirmModalProps) {
   const {
@@ -10,10 +10,10 @@ export function ConfirmModal(props: ConfirmModalProps) {
     onConfirm,
     title,
     body,
-    confirmVariant = 'primary',
-    cancelVariant = 'secondary',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmVariant = "primary",
+    cancelVariant = "secondary",
+    confirmText = "Confirm",
+    cancelText = "Cancel",
   } = props;
 
   return (

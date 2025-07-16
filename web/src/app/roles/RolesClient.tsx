@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Card from 'react-bootstrap/Card';
-import { Alert, Container } from 'react-bootstrap';
-import { useRouter } from 'next/navigation';
-import { Role } from '@/app/roles/page';
-import React from 'react';
-import NavBar from '@components/layout/NavBar/NavBar';
+import Card from "react-bootstrap/Card";
+import { Alert, Container } from "react-bootstrap";
+import { useRouter } from "next/navigation";
+import { Role } from "@/app/roles/page";
+import React from "react";
+import NavBar from "@components/layout/NavBar/NavBar";
 
 interface RolesListProps {
   roles: Role[];
@@ -28,7 +28,7 @@ export default function RolesClient({ roles, error }: RolesListProps) {
       <NavBar title="Roles" fixed={true} />
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ height: 'calc(100vh - 56px)' }}
+        style={{ height: "calc(100vh - 56px)" }}
       >
         <Container
           fluid
@@ -37,7 +37,7 @@ export default function RolesClient({ roles, error }: RolesListProps) {
           <div className="overflow-auto w-100">
             <div
               className="d-flex flex-column justify-content-center"
-              style={{ minWidth: 'max-content' }}
+              style={{ minWidth: "max-content" }}
             >
               <h1 className="display-6 fw-semibold text-center mb-5">Roles</h1>
               <div className="d-flex justify-content-center">
@@ -46,16 +46,16 @@ export default function RolesClient({ roles, error }: RolesListProps) {
                     <Card
                       className="text-center h-100"
                       style={{
-                        minWidth: '200px',
-                        minHeight: '350px',
-                        cursor: 'pointer',
+                        minWidth: "200px",
+                        minHeight: "350px",
+                        cursor: "pointer",
                       }}
                       onClick={() => router.push(role.route!)}
                     >
                       <Card.Body className="bg-tertiary" />
                       <Card.Footer
                         className="bg-secondary d-flex align-items-center justify-content-center"
-                        style={{ height: '4rem' }}
+                        style={{ height: "4rem" }}
                       >
                         <h5 className="text-white mb-0">{role.title}</h5>
                       </Card.Footer>

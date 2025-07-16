@@ -7,11 +7,11 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { RevEntity } from '@database/entities';
-import { JointEntity } from '@modules/joint/entities';
+} from "@mikro-orm/core";
+import { RevEntity } from "@database/entities";
+import { JointEntity } from "@modules/joint/entities";
 
-@Entity({ tableName: 'spool' })
+@Entity({ tableName: "spool" })
 export class SpoolEntity {
   @PrimaryKey()
   id!: number;
@@ -20,12 +20,12 @@ export class SpoolEntity {
   @Unique()
   internalId!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, Col, Row } from "react-bootstrap";
 
 export function WorkTabs({
   tabs,
@@ -13,10 +13,10 @@ export function WorkTabs({
     <>
       <Row className="g-3">
         {tabs.map((tab) => (
-          <Col key={tab} className={tab === 'working' ? 'text-end' : ''}>
+          <Col key={tab} className={tab === "working" ? "text-end" : ""}>
             <Button
-              variant={activeTab === tab ? 'primary' : 'dark'}
-              className={`w-100 fw-bold fs-5 ${activeTab === tab ? 'text-black' : 'text-primary'}`}
+              variant={activeTab === tab ? "primary" : "dark"}
+              className={`w-100 fw-bold fs-5 ${activeTab === tab ? "text-black" : "text-primary"}`}
               onClick={() => setActiveTab(tab)}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}

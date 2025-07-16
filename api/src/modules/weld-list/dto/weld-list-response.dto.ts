@@ -1,6 +1,6 @@
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
-import { SpoolResponseDto } from '@shared/dto/spool-response.dto';
-import { WorkStatusResponseDto } from '@shared/dto';
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+import { SpoolResponseDto } from "@shared/dto/spool-response.dto";
+import { WorkStatusResponseDto } from "@shared/dto";
 
 export class WeldListResponseDto {
   @Expose()

@@ -7,13 +7,13 @@ import {
   OneToMany,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { JointEntity } from '@modules/joint/entities';
-import { FillerMaterialEntity } from '@modules/filler-material/entities';
-import { WpsEntity } from '@modules/wps/entities';
-import { WeldWorkStatusEntity } from '@modules/weld/entities/weld-work-status.entity';
+} from "@mikro-orm/core";
+import { JointEntity } from "@modules/joint/entities";
+import { FillerMaterialEntity } from "@modules/filler-material/entities";
+import { WpsEntity } from "@modules/wps/entities";
+import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
 
-@Entity({ tableName: 'weld' })
+@Entity({ tableName: "weld" })
 export class WeldEntity {
   @PrimaryKey()
   id!: number;
@@ -27,21 +27,21 @@ export class WeldEntity {
 
   @ManyToOne(() => FillerMaterialEntity, {
     nullable: true,
-    deleteRule: 'set null',
+    deleteRule: "set null",
   })
   @Index()
   fillerMaterial?: FillerMaterialEntity;
 
-  @ManyToOne(() => WpsEntity, { nullable: true, deleteRule: 'set null' })
+  @ManyToOne(() => WpsEntity, { nullable: true, deleteRule: "set null" })
   @Index()
   wps?: WpsEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

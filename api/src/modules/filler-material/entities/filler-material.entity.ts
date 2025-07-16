@@ -5,10 +5,10 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { WeldEntity } from '@modules/weld/entities';
+} from "@mikro-orm/core";
+import { WeldEntity } from "@modules/weld/entities";
 
-@Entity({ tableName: 'filler_material' })
+@Entity({ tableName: "filler_material" })
 export class FillerMaterialEntity {
   @PrimaryKey()
   id!: number;
@@ -17,12 +17,12 @@ export class FillerMaterialEntity {
   @Unique()
   name!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

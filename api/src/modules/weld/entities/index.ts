@@ -1,1 +1,1 @@
-export * from './weld.entity';
+export * from "./weld.entity";

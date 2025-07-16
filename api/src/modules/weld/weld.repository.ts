@@ -1,16 +1,16 @@
-import { WeldEntity } from '@modules/weld/entities';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable } from '@nestjs/common';
+import { WeldEntity } from "@modules/weld/entities";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { Injectable } from "@nestjs/common";
 import {
   EntityRepository,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
-import { WorkStatusType, WorkStatusTypeEntity } from '@database/entities';
-import { FillerMaterialEntity } from '@modules/filler-material/entities';
-import { WpsEntity } from '@modules/wps/entities';
-import { UserEntity } from '@modules/user/entities';
-import { WeldWorkStatusEntity } from '@modules/weld/entities/weld-work-status.entity';
+} from "@mikro-orm/mariadb";
+import { WorkStatusType, WorkStatusTypeEntity } from "@database/entities";
+import { FillerMaterialEntity } from "@modules/filler-material/entities";
+import { WpsEntity } from "@modules/wps/entities";
+import { UserEntity } from "@modules/user/entities";
+import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
 
 @Injectable()
 export class WeldRepository {
@@ -20,13 +20,13 @@ export class WeldRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'fillerMaterial',
-    'wps',
-    'workStatuses.workStatusType',
+    "fillerMaterial",
+    "wps",
+    "workStatuses.workStatusType",
   ] as const;
 
   private readonly WORK_STATUS_TYPE_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
+    "workStatuses.workStatusType",
   ] as const;
 
   async findById(id: number): Promise<WeldEntity | null> {
@@ -63,7 +63,7 @@ export class WeldRepository {
     return this.weldRepository.findAll({
       populate: this.FULL_POPULATE_FIELDS,
       orderBy: {
-        id: 'ASC',
+        id: "ASC",
         workStatuses: { id: QueryOrder.ASC },
       },
     });

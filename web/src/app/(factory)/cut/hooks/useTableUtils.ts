@@ -1,12 +1,13 @@
-import { CutListDto, PipeLengthDto } from '@/dtos';
-import { TAB_TYPES, TabType } from '@components/features/factory/WorkTabs';
-import { useMemo } from 'react';
+import { CutListDto, PipeLengthDto } from "@/dtos";
+import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
+import { Column } from "@components/features/WorkTable/WorkTable.types";
+import { useMemo } from "react";
 
-// Sort finished items to end of list
-export const sortFinishedLast = (
-  items: (PipeLengthDto | CutListDto)[],
+// Sort finished items last
+export const sortFinishedLast = <T extends PipeLengthDto | CutListDto>(
+  items: T[],
   finishedIds: number[],
-): (PipeLengthDto | CutListDto)[] => {
+): T[] => {
   return [...items].sort((a, b) => {
     const aFinished = finishedIds.includes(a.id);
     const bFinished = finishedIds.includes(b.id);
@@ -16,16 +17,31 @@ export const sortFinishedLast = (
   });
 };
 
-// Filter items by search term
-export const filterBySearch = (
-  items: (PipeLengthDto | CutListDto)[],
+// Filter by search using columns
+export const filterBySearch = <T extends { [key: string]: any }>(
+  items: T[],
   search: string,
-): (PipeLengthDto | CutListDto)[] => {
-  const searchTerm = search.replace(/^0+/, '');
-  return items.filter((item) => item.id.toString().includes(searchTerm));
+  searchField: string = "id",
+  columns?: Column<T>[],
+): T[] => {
+  if (!search) return items;
+  const lowerSearch = search.toLowerCase();
+  const column = columns?.find((col) => col.id === searchField);
+  return items.filter((item) => {
+    let value: any;
+    if (column) {
+      value =
+        typeof column.accessor === "function"
+          ? column.accessor(item)
+          : item[column.accessor as keyof T];
+    } else {
+      value = searchField.split(".").reduce((obj, key) => obj?.[key], item);
+    }
+    return value?.toString().toLowerCase().includes(lowerSearch);
+  });
 };
 
-// Row state configurations for table
+// Hook for row states
 export const useRowStates = (
   activeTab: TabType,
   handleRowClick: (item: PipeLengthDto | CutListDto) => void,
@@ -33,23 +49,23 @@ export const useRowStates = (
   return useMemo(() => {
     const baseStates = {
       initial: {
-        className: 'bg-dark text-white',
+        className: "bg-dark text-white",
         onClick: handleRowClick,
       },
       information: {
-        className: 'bg-tertiary text-white',
+        className: "bg-tertiary text-white",
         onClick: handleRowClick,
       },
       working: {
-        className: 'bg-primary text-white',
+        className: "bg-primary text-white",
         onClick: handleRowClick,
       },
       finished: {
-        className: 'bg-success text-white',
+        className: "bg-success text-white",
         onClick: handleRowClick,
       },
       danger: {
-        className: 'bg-danger text-white',
+        className: "bg-danger text-white",
         // No onClick for danger state - blocks interaction
       },
     };
@@ -58,8 +74,8 @@ export const useRowStates = (
     if (activeTab === TAB_TYPES.ALL) {
       return {
         ...baseStates,
-        working: { className: 'bg-primary text-white' },
-        finished: { className: 'bg-success text-white' },
+        working: { className: "bg-primary text-white" },
+        finished: { className: "bg-success text-white" },
       };
     }
 

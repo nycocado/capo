@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ProjectEntity } from '@modules/project/entities';
-import { ProjectRepository } from '@modules/project/project.repository';
+import { Injectable } from "@nestjs/common";
+import { ProjectEntity } from "@modules/project/entities";
+import { ProjectRepository } from "@modules/project/project.repository";
 
 @Injectable()
 export class ProjectService {

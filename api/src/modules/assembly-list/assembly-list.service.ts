@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { AssemblyListEntity } from '@modules/assembly-list/entities';
-import { AssemblyListRepository } from '@modules/assembly-list/assembly-list.repository';
-import { CutListEntity } from '@modules/cut-list/entities';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { WorkStatusType } from '@database/entities';
-import { JointEntity } from '@modules/joint/entities';
+import { Injectable } from "@nestjs/common";
+import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.repository";
+import { CutListEntity } from "@modules/cut-list/entities";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
+import { WorkStatusType } from "@database/entities";
+import { JointEntity } from "@modules/joint/entities";
 
 @Injectable()
 export class AssemblyListService {
@@ -47,7 +47,7 @@ export class AssemblyListService {
       );
 
     this.eventEmitter.emit(
-      'assembly-list.updateWorkStatusToWorking',
+      "assembly-list.updateWorkStatusToWorking",
       assemblyList,
       userId,
     );
@@ -66,7 +66,7 @@ export class AssemblyListService {
       );
 
     this.eventEmitter.emit(
-      'assembly-list.updateWorkStatusToFinished',
+      "assembly-list.updateWorkStatusToFinished",
       newCutList,
       userId,
     );
@@ -74,7 +74,7 @@ export class AssemblyListService {
     return this.assemblyListRepository.populateToFull(newCutList);
   }
 
-  @OnEvent('joint.updateWorkStatusToFinished', { async: true })
+  @OnEvent("joint.updateWorkStatusToFinished", { async: true })
   async handleWorkStatusToFinished(
     joint: JointEntity,
     userId: number,
@@ -94,7 +94,7 @@ export class AssemblyListService {
     return this.assemblyListRepository.populateToFull(assemblyList);
   }
 
-  @OnEvent('cut-list.updateWorkStatusToFinished', { async: true })
+  @OnEvent("cut-list.updateWorkStatusToFinished", { async: true })
   async handleCreateAssemblyList(
     cutList: CutListEntity,
     userId: number,
@@ -107,7 +107,7 @@ export class AssemblyListService {
     const newAssemblyList =
       await this.assemblyListRepository.populateToFull(assemblyList);
 
-    this.eventEmitter.emit('assembly-list.create', newAssemblyList, userId);
+    this.eventEmitter.emit("assembly-list.create", newAssemblyList, userId);
 
     return newAssemblyList;
   }

@@ -8,13 +8,13 @@ import {
   OneToMany,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { PartEntity, SpoolEntity } from '@database/entities';
-import { WeldEntity } from '@modules/weld/entities';
-import { JointWorkStatusEntity } from '@modules/joint/entities/joint-work-status.entity';
+} from "@mikro-orm/core";
+import { PartEntity, SpoolEntity } from "@database/entities";
+import { WeldEntity } from "@modules/weld/entities";
+import { JointWorkStatusEntity } from "@modules/joint/entities/joint-work-status.entity";
 
-@Entity({ tableName: 'joint' })
-@Check({ expression: 'part1_id != part2_id' })
+@Entity({ tableName: "joint" })
+@Check({ expression: "part1_id != part2_id" })
 export class JointEntity {
   @PrimaryKey()
   id!: number;
@@ -31,12 +31,12 @@ export class JointEntity {
   @Index()
   spool!: SpoolEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

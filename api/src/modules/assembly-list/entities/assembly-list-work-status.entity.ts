@@ -5,13 +5,13 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { AssemblyListEntity } from '@modules/assembly-list/entities';
-import { WorkStatusTypeEntity } from '@database/entities/work-status-type.entity';
-import { UserEntity } from '@modules/user/entities';
+} from "@mikro-orm/core";
+import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { WorkStatusTypeEntity } from "@database/entities/work-status-type.entity";
+import { UserEntity } from "@modules/user/entities";
 
-@Entity({ tableName: 'assembly_list_work_status' })
-@Index({ properties: ['assemblyList', 'workStatusType', 'createdAt'] })
+@Entity({ tableName: "assembly_list_work_status" })
+@Index({ properties: ["assemblyList", "workStatusType", "createdAt"] })
 export class AssemblyListWorkStatusEntity {
   @PrimaryKey()
   id!: number;
@@ -24,20 +24,20 @@ export class AssemblyListWorkStatusEntity {
   @Index()
   workStatusType!: WorkStatusTypeEntity;
 
-  @Property({ type: 'text', nullable: true })
+  @Property({ type: "text", nullable: true })
   notes?: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
 
-  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: 'set null' })
+  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: "set null" })
   @Index()
   createdBy?: UserEntity;
 

@@ -6,7 +6,23 @@
   ],
   "scripts": {
     "build": "npm --workspaces run build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "docker:up": "docker-compose up --build",
+    "docker:up:bg": "docker-compose up -d --build",
+    "docker:down": "docker-compose down -v",
+    "docker:restart": "docker-compose restart",
+    "docker:rebuild": "docker-compose down -v && docker-compose up --build",
+    "logs": "docker-compose logs -f",
+    "logs:api": "docker-compose logs -f api",
+    "logs:web": "docker-compose logs -f web",
+    "logs:db": "docker-compose logs -f db",
+    "exec:api": "docker-compose exec api sh",
+    "exec:web": "docker-compose exec web sh",
+    "exec:db": "docker-compose exec db mysql -u root -p",
+    "clean": "docker-compose down -v && docker system prune -f",
+    "clean:all": "docker-compose down -v && docker system prune -af",
+    "health": "docker-compose ps",
+    "install:all": "npm --workspaces install"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

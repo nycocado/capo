@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import ky from 'ky';
-import { API_ROUTES } from '@/routes';
+import { useState, useEffect } from "react";
+import ky from "ky";
+import { API_ROUTES } from "@/routes";
 
 const API_ERRORS = {
   UNAUTHORIZED: 401,
-  SESSION_EXPIRED: 'Session expired. Please login again.',
-  INVALID_DOCUMENT: 'Invalid document ID provided.',
-  EMPTY_DOCUMENT: 'Received empty PDF',
+  SESSION_EXPIRED: "Session expired. Please login again.",
+  INVALID_DOCUMENT: "Invalid document ID provided.",
+  EMPTY_DOCUMENT: "Received empty PDF",
 };
 
 export function usePDFViewer(document: string | null) {
@@ -27,7 +27,7 @@ export function usePDFViewer(document: string | null) {
 
       try {
         const response = await ky.get(API_ROUTES.documents.download(document), {
-          credentials: 'include',
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -47,7 +47,7 @@ export function usePDFViewer(document: string | null) {
         setPdfFile(url);
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : 'Unexpected error loading PDF';
+          err instanceof Error ? err.message : "Unexpected error loading PDF";
         setError(errorMessage);
         setPdfFile(null);
       } finally {

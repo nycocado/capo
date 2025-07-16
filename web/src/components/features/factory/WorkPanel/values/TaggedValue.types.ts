@@ -1,5 +1,5 @@
 export interface TaggedValueConfig {
-  type: 'tagged';
+  type: "tagged";
   label: string;
   value: string | number;
   tag: string;

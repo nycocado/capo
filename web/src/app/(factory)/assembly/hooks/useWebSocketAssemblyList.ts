@@ -1,10 +1,10 @@
-'use client';
-import { useEffect, useRef, useCallback } from 'react';
-import io from 'socket.io-client';
+"use client";
+import { useEffect, useRef, useCallback } from "react";
+import io from "socket.io-client";
 // Inferindo o tipo de Socket a partir do retorno de io
 type SocketType = ReturnType<typeof io>;
-import { AssemblyListDto } from '@/dtos';
-import { WS_EVENTS, WS_ROUTES } from '@/routes';
+import { AssemblyListDto } from "@/dtos";
+import { WS_EVENTS, WS_ROUTES } from "@/routes";
 
 interface UseWebSocketAssemblyListProps {
   onAssemblyListUpdate: (updatedAssemblyList: AssemblyListDto) => void;
@@ -30,7 +30,7 @@ export const useWebSocketAssemblyList = ({
 
     try {
       socketRef.current = io(WS_ROUTES.assemblyList, {
-        transports: ['websocket'],
+        transports: ["websocket"],
         autoConnect: true,
         reconnection: true,
         reconnectionDelay: 1000,
@@ -39,7 +39,7 @@ export const useWebSocketAssemblyList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.connect, () => {
-        console.log('WebSocket Assembly conectado ao servidor');
+        console.log("WebSocket Assembly conectado ao servidor");
         hasConnected.current = true;
 
         // Limpar timeout de reconexão se existir
@@ -50,10 +50,10 @@ export const useWebSocketAssemblyList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.disconnect, (reason: string) => {
-        console.log('WebSocket Assembly desconectado:', reason);
+        console.log("WebSocket Assembly desconectado:", reason);
 
         // Tentar reconectar após um delay se a desconexão não foi intencional
-        if (reason !== 'io client disconnect' && enabled) {
+        if (reason !== "io client disconnect" && enabled) {
           reconnectTimeoutRef.current = setTimeout(() => {
             if (enabled && !socketRef.current?.connected) {
               connect();
@@ -63,14 +63,14 @@ export const useWebSocketAssemblyList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.connect_error, (error: Error) => {
-        console.error('Erro de conexão WebSocket Assembly:', error);
+        console.error("Erro de conexão WebSocket Assembly:", error);
       });
 
       socketRef.current.on(
         WS_EVENTS.assemblyList.updateWorkStatus,
         (updatedAssemblyList: AssemblyListDto) => {
           console.log(
-            'Lista de montagem atualizada via WebSocket:',
+            "Lista de montagem atualizada via WebSocket:",
             updatedAssemblyList,
           );
           // Usar a referência atualizada
@@ -79,10 +79,10 @@ export const useWebSocketAssemblyList = ({
       );
 
       socketRef.current.on(WS_EVENTS.default.error, (error: Error) => {
-        console.error('Erro no WebSocket Assembly:', error);
+        console.error("Erro no WebSocket Assembly:", error);
       });
     } catch (error) {
-      console.error('Erro ao criar conexão WebSocket Assembly:', error);
+      console.error("Erro ao criar conexão WebSocket Assembly:", error);
     }
   }, [enabled]);
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Card, Spinner } from "react-bootstrap";
 
 interface PDFViewerProps {
   pdfFile?: string | null;
@@ -10,7 +10,7 @@ interface PDFViewerProps {
 
 const PDFViewer: React.FC<PDFViewerProps> = ({
   pdfFile,
-  height = '440px',
+  height = "440px",
   loading = false,
   error,
 }) => {
@@ -32,13 +32,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
           src={pdfFile}
           title="PDF Viewer"
           style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
+            position: "absolute",
+            width: "100%",
+            height: "100%",
           }}
         />
       ) : (
-        <div className="text-center text-white" style={{ color: '#666' }}>
+        <div className="text-center text-white" style={{ color: "#666" }}>
           No isometric selected.
         </div>
       )}

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { FittingEntity } from '@modules/fitting/entities';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, QueryOrder } from '@mikro-orm/mariadb';
+import { Injectable } from "@nestjs/common";
+import { FittingEntity } from "@modules/fitting/entities";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityRepository, QueryOrder } from "@mikro-orm/mariadb";
 
 @Injectable()
 export class FittingRepository {
@@ -11,10 +11,10 @@ export class FittingRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'part.workStatuses.workStatusType',
-    'material',
-    'fittingType',
-    'ports.diameter',
+    "part.workStatuses.workStatusType",
+    "material",
+    "fittingType",
+    "ports.diameter",
   ] as const;
 
   async findById(id: number): Promise<FittingEntity | null> {

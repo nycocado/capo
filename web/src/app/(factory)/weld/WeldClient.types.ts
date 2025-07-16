@@ -1,4 +1,4 @@
-import { Weld } from '@models/weld.interface';
+import { Weld } from "@models/weld.interface";
 
 export interface WeldClientProps {
   initialItems: Weld[];

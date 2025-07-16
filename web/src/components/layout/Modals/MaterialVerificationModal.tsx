@@ -1,14 +1,14 @@
-import React from 'react';
-import { Button } from 'react-bootstrap';
-import { BaseModal } from '@components/layout/Modals/BaseModal';
-import { WorkTable } from '@components/features/WorkTable/WorkTable';
+import React from "react";
+import { Button } from "react-bootstrap";
+import { BaseModal } from "@components/layout/Modals/BaseModal";
+import { WorkTable } from "@components/features/WorkTable/WorkTable";
 import {
   columnsPipeLengthVerification,
   columnsFittingVerification,
-} from '@components/features/WorkTable/WorkTable.columns';
-import { PipeLengthDto } from '@/dtos/pipe-length.dto';
-import { FittingDto } from '@/dtos/fitting.dto';
-import { MaterialVerificationModalProps } from '@components/layout/Modals/MaterialVerificationModal.types';
+} from "@components/features/WorkTable/WorkTable.columns";
+import { PipeLengthDto } from "@/dtos/pipe-length.dto";
+import { FittingDto } from "@/dtos/fitting.dto";
+import { MaterialVerificationModalProps } from "@components/layout/Modals/MaterialVerificationModal.types";
 
 export function MaterialVerificationModal(
   props: MaterialVerificationModalProps,
@@ -43,7 +43,7 @@ export function MaterialVerificationModal(
   const handleMaterialClick = (item: any) => {
     if (isConsultationMode || !item?.internalId) return;
 
-    if (currentStep === 'pipeLength') {
+    if (currentStep === "pipeLength") {
       handlePipeLengthClick(item as PipeLengthDto);
     } else {
       handleFittingClick(item as FittingDto);
@@ -53,30 +53,30 @@ export function MaterialVerificationModal(
   // Row states - different for consultation vs verification
   const materialRowStates = {
     initial: {
-      className: 'bg-dark text-light',
+      className: "bg-dark text-light",
       onClick: isConsultationMode ? undefined : handleMaterialClick,
     },
     finished: {
-      className: 'bg-success text-white',
+      className: "bg-success text-white",
       onClick: isConsultationMode ? undefined : handleMaterialClick,
     },
   };
 
   // Row state accessor
   const materialRowStateAccessor = (item: any) => {
-    if (!item?.internalId) return 'initial';
+    if (!item?.internalId) return "initial";
 
     // In consultation mode, all items are 'initial' (no green states)
-    if (isConsultationMode) return 'initial';
+    if (isConsultationMode) return "initial";
 
-    return currentStep === 'pipeLength'
+    return currentStep === "pipeLength"
       ? getPipeLengthState(item as PipeLengthDto)
       : getFittingState(item as FittingDto);
   };
 
   // Get columns
   const currentColumns =
-    currentStep === 'pipeLength'
+    currentStep === "pipeLength"
       ? columnsPipeLengthVerification
       : columnsFittingVerification;
 
@@ -142,7 +142,7 @@ export function MaterialVerificationModal(
             items={validData}
             handleRowClick={() => {}} // Empty handler since we use rowStates.onClick
             columns={currentColumns}
-            defaultSortColumn={currentStep === 'pipeLength' ? 'id' : 'type'}
+            defaultSortColumn={currentStep === "pipeLength" ? "id" : "type"}
             defaultSortDirection={null}
             hover={false}
             rowStates={materialRowStates}
@@ -159,10 +159,10 @@ export function MaterialVerificationModal(
           className="btn-lg px-4 text-white border-4"
         >
           {canGoToPrevious
-            ? 'Previous'
+            ? "Previous"
             : isConsultationMode
-              ? 'Close'
-              : 'Cancel'}
+              ? "Close"
+              : "Cancel"}
         </Button>
 
         {/* Right button */}
@@ -185,9 +185,9 @@ export function MaterialVerificationModal(
             disabled={!canContinue}
             className="btn-lg px-4 text-black border-4"
           >
-            {currentStep === 'pipeLength' && validData.length > 0
-              ? 'Continue to Fittings'
-              : 'Start Working'}
+            {currentStep === "pipeLength" && validData.length > 0
+              ? "Continue to Fittings"
+              : "Start Working"}
           </Button>
         )}
       </BaseModal.Footer>

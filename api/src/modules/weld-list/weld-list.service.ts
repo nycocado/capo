@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { IsometricEntity, WorkStatusType } from '@database/entities';
-import { WeldListEntity } from '@modules/weld-list/entities';
-import { WeldListRepository } from '@modules/weld-list/weld-list.repository';
-import { AssemblyListEntity } from '@modules/assembly-list/entities';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { WeldEntity } from '@modules/weld/entities';
+import { Injectable } from "@nestjs/common";
+import { IsometricEntity, WorkStatusType } from "@database/entities";
+import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
+import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
+import { WeldEntity } from "@modules/weld/entities";
 
 @Injectable()
 export class WeldListService {
@@ -44,7 +44,7 @@ export class WeldListService {
       userId,
     );
 
-    this.eventEmitter.emit('weld.updateWorkStatusToWorking', weldList, userId);
+    this.eventEmitter.emit("weld.updateWorkStatusToWorking", weldList, userId);
 
     return this.weldListRepository.populateToFull(newWeldList);
   }
@@ -59,7 +59,7 @@ export class WeldListService {
         userId,
       );
 
-    this.eventEmitter.emit('weld.updateWorkStatusToFinished', weldList, userId);
+    this.eventEmitter.emit("weld.updateWorkStatusToFinished", weldList, userId);
 
     return this.weldListRepository.populateToFull(newWeldList);
   }
@@ -82,7 +82,7 @@ export class WeldListService {
     return weldLists;
   }
 
-  @OnEvent('weld.updateWorkStatusToFinished', { async: true })
+  @OnEvent("weld.updateWorkStatusToFinished", { async: true })
   async handleWorkStatusToFinished(
     weld: WeldEntity,
     userId: number,
@@ -102,7 +102,7 @@ export class WeldListService {
     return this.weldListRepository.populateToFull(weldList);
   }
 
-  @OnEvent('assembly-list.updateWorkStatusToFinished', { async: true })
+  @OnEvent("assembly-list.updateWorkStatusToFinished", { async: true })
   async handleCreateWeldLists(
     assemblyList: AssemblyListEntity,
     userId: number,
@@ -115,7 +115,7 @@ export class WeldListService {
 
     const newWeldLists = await this.weldListRepository.findFullByIdsOrFail(ids);
 
-    this.eventEmitter.emit('weld-list.creates', newWeldLists);
+    this.eventEmitter.emit("weld-list.creates", newWeldLists);
 
     return newWeldLists;
   }

@@ -1,24 +1,24 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useAssemblyState } from './useAssemblyState';
-import { useWorkStatusAccessor } from './useWorkStatusAccessor';
+import React, { useState, useMemo, useCallback } from "react";
+import { useAssemblyState } from "./useAssemblyState";
+import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
-} from './useAssemblyEventHandlers';
-import { useFinishedItemsSorting } from './useFinishedItemsSorting';
+} from "./useAssemblyEventHandlers";
+import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 import {
   useRowStates,
   sortFinishedLast,
   filterBySearch,
-} from './useTableUtils';
-import { TAB_TYPES } from '@components/features/factory/WorkTabs';
-import { AssemblyListDto } from '@/dtos';
+} from "./useTableUtils";
+import { TAB_TYPES } from "@components/features/factory/WorkTabs";
+import { AssemblyListDto } from "@/dtos";
 
 // Hook for Assembly working table (WORKING tab)
 export function useAssemblyWorkingTable(
   workingAssemblyLists: AssemblyListDto[],
   search: string,
-  callbacks?: Pick<UseAssemblyTableCallbacks, 'onAssemblyListSelected'>,
+  callbacks?: Pick<UseAssemblyTableCallbacks, "onAssemblyListSelected">,
 ) {
   const {
     informationIds,
@@ -28,7 +28,9 @@ export function useAssemblyWorkingTable(
     hasInformationItems,
   } = useAssemblyState();
 
-  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(null);
+  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(
+    null,
+  );
   const rowStateAccessor = useWorkStatusAccessor(
     TAB_TYPES.WORKING,
     informationIds,
@@ -42,7 +44,7 @@ export function useAssemblyWorkingTable(
   // Type-safe wrapper for setSelectedItem
   const setSelectedItemGeneric = useCallback(
     (value: React.SetStateAction<AssemblyListDto | null>) => {
-      if (typeof value === 'function') {
+      if (typeof value === "function") {
         setSelectedItem((prev) => {
           const result = value(prev);
           return result as AssemblyListDto | null;

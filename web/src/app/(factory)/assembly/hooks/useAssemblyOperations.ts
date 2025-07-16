@@ -1,12 +1,12 @@
-import { useState, useCallback } from 'react';
-import ky from 'ky';
-import { API_ROUTES } from '@/routes';
-import { JointDto } from '@/dtos';
+import { useState, useCallback } from "react";
+import ky from "ky";
+import { API_ROUTES } from "@/routes";
+import { JointDto } from "@/dtos";
 
 const API_ERRORS = {
   UNAUTHORIZED: 401,
-  SESSION_EXPIRED: 'Session expired. Please login again.',
-  INVALID_JOINT_ID: 'Invalid joint ID',
+  SESSION_EXPIRED: "Session expired. Please login again.",
+  INVALID_JOINT_ID: "Invalid joint ID",
 } as const;
 
 export interface UseAssemblyOperationsProps {
@@ -31,7 +31,7 @@ export function useAssemblyOperations({
       try {
         const response = await ky.patch<JointDto>(
           API_ROUTES.joints.step(jointId),
-          { credentials: 'include' },
+          { credentials: "include" },
         );
 
         if (!response.ok) {
@@ -48,7 +48,7 @@ export function useAssemblyOperations({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : 'Unexpected error processing joint';
+            : "Unexpected error processing joint";
         onError?.(errorMessage);
         return false;
       } finally {

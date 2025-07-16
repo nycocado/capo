@@ -1,10 +1,10 @@
-import { Table } from 'react-bootstrap';
-import { motion } from 'framer-motion';
-import { WorkTableProps, SortDirection } from './WorkTable.types';
-import { useState, useMemo } from 'react';
-import { BarsArrowDownIcon } from '@heroicons/react/16/solid';
-import { BarsArrowUpIcon } from '@heroicons/react/16/solid';
-import { WorkTableRow } from './WorkTableRow';
+import { Table } from "react-bootstrap";
+import { motion } from "framer-motion";
+import { WorkTableProps, SortDirection } from "./WorkTable.types";
+import { useState, useMemo } from "react";
+import { BarsArrowDownIcon } from "@heroicons/react/16/solid";
+import { BarsArrowUpIcon } from "@heroicons/react/16/solid";
+import { WorkTableRow } from "./WorkTableRow";
 
 export function WorkTable(props: WorkTableProps) {
   const {
@@ -29,14 +29,14 @@ export function WorkTable(props: WorkTableProps) {
 
     if (sortColumn === columnId) {
       setSortDirection((prev) =>
-        prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc',
+        prev === "asc" ? "desc" : prev === "desc" ? null : "asc",
       );
-      if (sortDirection === 'desc') {
+      if (sortDirection === "desc") {
         setSortColumn(null);
       }
     } else {
       setSortColumn(columnId);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
@@ -51,7 +51,7 @@ export function WorkTable(props: WorkTableProps) {
       let valueA: unknown;
       let valueB: unknown;
 
-      if (typeof column.accessor === 'function') {
+      if (typeof column.accessor === "function") {
         valueA = column.accessor(a);
         valueB = column.accessor(b);
       } else {
@@ -63,15 +63,15 @@ export function WorkTable(props: WorkTableProps) {
       const isNumericB = !isNaN(Number(valueB));
 
       if (isNumericA && isNumericB) {
-        return sortDirection === 'asc'
+        return sortDirection === "asc"
           ? Number(valueA) - Number(valueB)
           : Number(valueB) - Number(valueA);
       }
 
-      const strA = String(valueA || '').toLowerCase();
-      const strB = String(valueB || '').toLowerCase();
+      const strA = String(valueA || "").toLowerCase();
+      const strB = String(valueB || "").toLowerCase();
 
-      return sortDirection === 'asc'
+      return sortDirection === "asc"
         ? strA.localeCompare(strB)
         : strB.localeCompare(strA);
     });
@@ -82,12 +82,12 @@ export function WorkTable(props: WorkTableProps) {
 
     return (
       <span className="ms-1">
-        {sortDirection === 'asc' ? (
-          <BarsArrowDownIcon style={{ height: '20px' }} />
-        ) : sortDirection === 'desc' ? (
-          <BarsArrowUpIcon style={{ height: '20px' }} />
+        {sortDirection === "asc" ? (
+          <BarsArrowDownIcon style={{ height: "20px" }} />
+        ) : sortDirection === "desc" ? (
+          <BarsArrowUpIcon style={{ height: "20px" }} />
         ) : (
-          ''
+          ""
         )}
       </span>
     );
@@ -97,18 +97,18 @@ export function WorkTable(props: WorkTableProps) {
     <div className="d-flex flex-column h-100">
       <div
         className="flex-grow-1 d-flex flex-column rounded-3 overflow-auto bg-dark"
-        style={{ height: '400px' }}
+        style={{ height: "400px" }}
       >
         <Table responsive variant="dark" hover={hover} className="mb-0">
-          <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
-            <tr className="bg-dark" style={{ borderBottom: '1px solid white' }}>
+          <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
+            <tr className="bg-dark" style={{ borderBottom: "1px solid white" }}>
               {columns.map((col) => (
                 <th
                   key={col.id}
-                  className={`text-center border-bottom border-light py-3 bg-dark ${col.className || ''} ${col.sortable ? 'cursor-pointer' : ''}`}
+                  className={`text-center border-bottom border-light py-3 bg-dark ${col.className || ""} ${col.sortable ? "cursor-pointer" : ""}`}
                   onClick={() => handleSort(col.id, col.sortable)}
                   style={{
-                    cursor: col.sortable ? 'pointer' : 'default',
+                    cursor: col.sortable ? "pointer" : "default",
                   }}
                 >
                   {col.header}

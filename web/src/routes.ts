@@ -1,14 +1,17 @@
-const API_URL = process.env.NEXT_PUBLIC_API_PROXY_URL!;
-const WS_URL = process.env.NEXT_PUBLIC_WS_PROXY_URL!;
+const API_URL =
+  typeof window === "undefined"
+    ? process.env.INTERNAL_API_URL!
+    : process.env.NEXT_PUBLIC_API_URL!;
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 
 export const ROUTES = {
-  home: '/',
-  login: '/login',
-  roles: '/roles',
-  cut: '/cut',
-  assembly: '/assembly',
-  weld: '/weld',
-  unauthorized: '/unauthorized',
+  home: "/",
+  login: "/login",
+  roles: "/roles",
+  cut: "/cut",
+  assembly: "/assembly",
+  weld: "/weld",
+  unauthorized: "/unauthorized",
 };
 
 export const API_ROUTES = {
@@ -92,20 +95,20 @@ export const WS_ROUTES = {
 
 export const WS_EVENTS = {
   default: {
-    connect: 'connect',
-    disconnect: 'disconnect',
-    connect_error: 'connect_error',
-    error: 'error',
+    connect: "connect",
+    disconnect: "disconnect",
+    connect_error: "connect_error",
+    error: "error",
   },
   cutList: {
-    updateWorkStatus: 'updateWorkStatus',
+    updateWorkStatus: "updateWorkStatus",
   },
   assemblyList: {
-    updateWorkStatus: 'updateWorkStatus',
-    create: 'createAssemblyList',
+    updateWorkStatus: "updateWorkStatus",
+    create: "createAssemblyList",
   },
   weldList: {
-    updatedWorkStatus: 'updateWorkStatus',
-    creates: 'createsWeldList',
+    updatedWorkStatus: "updateWorkStatus",
+    creates: "createsWeldList",
   },
 };

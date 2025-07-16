@@ -1,8 +1,8 @@
-import { Expose, plainToInstance, Transform } from 'class-transformer';
-import { PipeLengthResponseDto } from '@modules/pipe-length/dto';
-import { FittingResponseDto } from '@modules/fitting/dto';
-import { SpoolResponseDto } from '@shared/dto/spool-response.dto';
-import { buildDocumentUrl } from '@common/utils/url-builder';
+import { Expose, plainToInstance, Transform } from "class-transformer";
+import { PipeLengthResponseDto } from "@modules/pipe-length/dto";
+import { FittingResponseDto } from "@modules/fitting/dto";
+import { SpoolResponseDto } from "@shared/dto/spool-response.dto";
+import { buildDocumentUrl } from "@common/utils/url-builder";
 
 export class SheetResponseDto {
   @Expose()
@@ -11,16 +11,16 @@ export class SheetResponseDto {
   @Expose()
   number: number;
 
-  @Expose({ groups: ['assembly-list'] })
+  @Expose({ groups: ["assembly-list"] })
   @Transform(({ obj }) => {
     const revisions = obj.revisions;
     if (!revisions || revisions.length === 0) return undefined;
     const lastRevision = revisions[revisions.length - 1];
-    return buildDocumentUrl(lastRevision.document, 'rev');
+    return buildDocumentUrl(lastRevision.document, "rev");
   })
   document?: string;
 
-  @Expose({ groups: ['cut-list', 'assembly-list'] })
+  @Expose({ groups: ["cut-list", "assembly-list"] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
     if (!revisions || revisions.length === 0) return [];
@@ -38,7 +38,7 @@ export class SheetResponseDto {
   })
   pipeLengths?: PipeLengthResponseDto[];
 
-  @Expose({ groups: ['assembly-list'] })
+  @Expose({ groups: ["assembly-list"] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
     if (!revisions || revisions.length === 0) return [];
@@ -56,7 +56,7 @@ export class SheetResponseDto {
   })
   fittings?: FittingResponseDto[];
 
-  @Expose({ groups: ['assembly-list', 'weld-list'] })
+  @Expose({ groups: ["assembly-list", "weld-list"] })
   @Transform(({ obj, options }) => {
     const revisions = obj.revisions;
     if (!revisions || revisions.length === 0) return [];

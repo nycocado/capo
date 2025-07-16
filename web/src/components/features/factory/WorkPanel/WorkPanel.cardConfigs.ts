@@ -1,8 +1,8 @@
-import { CardConfig } from './WorkPanel.types';
-import { PipeLengthWithContext } from '@/interfaces';
-import { WeldRow } from '@/app/(factory)/weld/useWeldTable.types';
-import { WeldItemWithSpool } from '@/app/(factory)/weld/useWeldTable.types';
-import { AssemblyListDto } from '@/dtos';
+import { CardConfig } from "./WorkPanel.types";
+import { PipeLengthWithContext } from "@/interfaces";
+import { WeldRow } from "@/app/(factory)/weld/useWeldTable.types";
+import { WeldItemWithSpool } from "@/app/(factory)/weld/useWeldTable.types";
+import { AssemblyListDto } from "@/dtos";
 
 export interface CutCardHandlers {
   onHeatNumberClick?: () => void;
@@ -25,33 +25,33 @@ export const cutCardConfigs = (
     {
       items: [
         {
-          type: 'tagged',
-          label: 'Length',
-          value: selectedItem?.length?.toString() ?? '\u00A0',
-          tag: 'mm',
+          type: "tagged",
+          label: "Length",
+          value: selectedItem?.length?.toString() ?? "\u00A0",
+          tag: "mm",
         },
         {
-          type: 'double',
-          label: 'Diameter (DN)',
+          type: "double",
+          label: "Diameter (DN)",
           primaryValue:
-            selectedItem?.diameter?.nominalMm?.toString() ?? '\u00A0',
-          primaryTag: 'mm',
-          secondaryValue: selectedItem?.diameter?.nominalInch ?? '\u00A0',
-          secondaryTag: 'inch',
+            selectedItem?.diameter?.nominalMm?.toString() ?? "\u00A0",
+          primaryTag: "mm",
+          secondaryValue: selectedItem?.diameter?.nominalInch ?? "\u00A0",
+          secondaryTag: "inch",
         },
       ],
     },
     {
       items: [
         {
-          type: 'normal',
-          label: 'ID',
-          value: selectedItem?.internalId ?? '\u00A0',
+          type: "normal",
+          label: "ID",
+          value: selectedItem?.internalId ?? "\u00A0",
         },
         {
-          type: 'normal',
-          label: 'Heat Number',
-          value: selectedItem?.heatNumber ?? '\u00A0',
+          type: "normal",
+          label: "Heat Number",
+          value: selectedItem?.heatNumber ?? "\u00A0",
           onClick: handlers?.onHeatNumberClick,
         },
       ],
@@ -59,30 +59,30 @@ export const cutCardConfigs = (
     {
       items: [
         {
-          type: 'normal',
-          label: 'Isometric',
-          value: selectedItem?.isometricInfo?.internalId ?? '\u00A0',
+          type: "normal",
+          label: "Isometric",
+          value: selectedItem?.isometricInfo?.internalId ?? "\u00A0",
         },
         {
-          type: 'normal',
-          label: 'Sheet',
+          type: "normal",
+          label: "Sheet",
           value:
-            selectedItem?.isometricInfo?.sheetNumber?.toString() ?? '\u00A0',
+            selectedItem?.isometricInfo?.sheetNumber?.toString() ?? "\u00A0",
         },
       ],
     },
     {
       items: [
         {
-          type: 'normal',
-          label: 'Material',
-          value: selectedItem?.material?.name ?? '\u00A0',
+          type: "normal",
+          label: "Material",
+          value: selectedItem?.material?.name ?? "\u00A0",
         },
         {
-          type: 'tagged',
-          label: 'Thickness',
-          value: selectedItem?.thickness?.toString() ?? '\u00A0',
-          tag: 'mm',
+          type: "tagged",
+          label: "Thickness",
+          value: selectedItem?.thickness?.toString() ?? "\u00A0",
+          tag: "mm",
         },
       ],
     },
@@ -97,14 +97,14 @@ export const assemblyCardConfigs = (
     {
       items: [
         {
-          type: 'normal',
-          label: 'Assembly List',
-          value: selectedItem?.internalId ?? '\u00A0',
+          type: "normal",
+          label: "Assembly List",
+          value: selectedItem?.internalId ?? "\u00A0",
         },
         {
-          type: 'normal',
-          label: 'Isometric',
-          value: selectedItem?.isometric?.internalId ?? '\u00A0',
+          type: "normal",
+          label: "Isometric",
+          value: selectedItem?.isometric?.internalId ?? "\u00A0",
           onClick: handlers?.onIsometricClick,
         },
       ],
@@ -112,16 +112,21 @@ export const assemblyCardConfigs = (
     {
       items: [
         {
-          type: 'normal',
-          label: 'Sheets',
-          value: selectedItem?.isometric?.sheets?.map(s => s.number).join(', ') ?? '\u00A0',
+          type: "normal",
+          label: "Sheets",
+          value:
+            selectedItem?.isometric?.sheets?.map((s) => s.number).join(", ") ??
+            "\u00A0",
         },
         {
-          type: 'normal',
-          label: 'Total Spools',
-          value: selectedItem?.isometric?.sheets?.reduce((total, sheet) => {
-            return total + (sheet.spools?.length || 0);
-          }, 0)?.toString() ?? '\u00A0',
+          type: "normal",
+          label: "Total Spools",
+          value:
+            selectedItem?.isometric?.sheets
+              ?.reduce((total, sheet) => {
+                return total + (sheet.spools?.length || 0);
+              }, 0)
+              ?.toString() ?? "\u00A0",
         },
       ],
     },
@@ -136,50 +141,50 @@ export const weldCardConfigs = (
   {
     items: [
       {
-        type: 'normal',
-        label: 'Spool',
-        value: selectedRow?.spoolInternalId ?? '\u00A0',
+        type: "normal",
+        label: "Spool",
+        value: selectedRow?.spoolInternalId ?? "\u00A0",
       },
       {
-        type: 'normal',
-        label: 'TPI',
-        value: selectedWeld?.wps?.tpi?.toString() ?? '\u00A0',
-      },
-    ],
-  },
-  {
-    items: [
-      {
-        type: 'normal',
-        label: 'Isometric',
-        value: selectedRow?.isoInternalId ?? '\u00A0',
-      },
-      {
-        type: 'normal',
-        label: 'Sheet',
-        value: selectedRow?.sheetNumber?.toString() ?? '\u00A0',
+        type: "normal",
+        label: "TPI",
+        value: selectedWeld?.wps?.tpi?.toString() ?? "\u00A0",
       },
     ],
   },
   {
     items: [
       {
-        type: 'normal',
-        label: 'WPS',
+        type: "normal",
+        label: "Isometric",
+        value: selectedRow?.isoInternalId ?? "\u00A0",
+      },
+      {
+        type: "normal",
+        label: "Sheet",
+        value: selectedRow?.sheetNumber?.toString() ?? "\u00A0",
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        type: "normal",
+        label: "WPS",
         value:
           selectedWeld?.wps?.internalId ??
           selectedWeld?.wps?.document ??
           selectedWeld?.wps?.id?.toString() ??
-          '\u00A0',
+          "\u00A0",
         onClick: handlers?.onWPSClick,
       },
       {
-        type: 'normal',
-        label: 'Filler Material',
+        type: "normal",
+        label: "Filler Material",
         value:
           selectedWeld?.filler?.name ??
           selectedWeld?.filler?.id?.toString() ??
-          '\u00A0',
+          "\u00A0",
         onClick: handlers?.onFillerClick,
       },
     ],

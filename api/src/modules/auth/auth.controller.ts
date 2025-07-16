@@ -7,26 +7,26 @@ import {
   Req,
   Res,
   UseGuards,
-} from '@nestjs/common';
-import { UserRoleService } from '@modules/user-role';
-import { AuthService } from '@modules/auth/auth.service';
-import { ConfigService } from '@nestjs/config';
+} from "@nestjs/common";
+import { UserRoleService } from "@modules/user-role";
+import { AuthService } from "@modules/auth/auth.service";
+import { ConfigService } from "@nestjs/config";
 import {
   ApiHasRole,
   ApiLogin,
   ApiValidateToken,
-} from '@modules/auth/auth.swagger';
+} from "@modules/auth/auth.swagger";
 import {
   HasRoleResponseDto,
   LoginRequestDto,
   LoginResponseDto,
   ValidateResponseDto,
-} from '@modules/auth/dto';
-import { JwtCookieAuthGuard } from '@common/guards';
-import { Request } from 'express';
-import { User } from '@common/decorators';
+} from "@modules/auth/dto";
+import { JwtCookieAuthGuard } from "@common/guards";
+import { Request } from "express";
+import { User } from "@common/decorators";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(
     private readonly userRoleService: UserRoleService,
@@ -34,7 +34,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  @Post('login')
+  @Post("login")
   @ApiLogin()
   async login(
     @Body() loginDto: LoginRequestDto,
@@ -42,12 +42,12 @@ export class AuthController {
   ): Promise<LoginResponseDto> {
     const { internalId, password } = loginDto;
     const accessToken = await this.authService.login(internalId, password);
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const isProduction = this.configService.get("NODE_ENV") === "production";
 
-    res.cookie('token', accessToken, {
+    res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 8 * 60 * 60 * 1000,
     });
 
@@ -57,11 +57,11 @@ export class AuthController {
   }
 
   @UseGuards(JwtCookieAuthGuard)
-  @Get('validate')
+  @Get("validate")
   @ApiValidateToken()
   async validateToken(@Req() req: Request): Promise<ValidateResponseDto> {
-    const isProduction = this.configService.get('NODE_ENV') !== 'production';
-    const token: string = isProduction ? req.cookies['token'] : null;
+    const isProduction = this.configService.get("NODE_ENV") !== "production";
+    const token: string = isProduction ? req.cookies["token"] : null;
 
     return {
       token: token,
@@ -70,11 +70,11 @@ export class AuthController {
   }
 
   @UseGuards(JwtCookieAuthGuard)
-  @Get('has-role/:role')
+  @Get("has-role/:role")
   @ApiHasRole()
   async hasRole(
-    @Param('role') role: string,
-    @User('id') userId: number,
+    @Param("role") role: string,
+    @User("id") userId: number,
   ): Promise<HasRoleResponseDto> {
     const hasRole = await this.userRoleService.hasRole(userId, role);
 

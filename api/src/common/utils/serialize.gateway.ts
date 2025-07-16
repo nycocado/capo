@@ -1,5 +1,5 @@
-import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { wrap } from '@mikro-orm/core';
+import { ClassConstructor, plainToInstance } from "class-transformer";
+import { wrap } from "@mikro-orm/core";
 
 /**
  * Utility to serialize an entity for WebSocket gateways using class-transformer

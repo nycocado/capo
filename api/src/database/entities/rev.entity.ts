@@ -8,11 +8,11 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { SheetEntity, SpoolEntity, SpoolRevEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { SheetEntity, SpoolEntity, SpoolRevEntity } from "@database/entities";
 
-@Entity({ tableName: 'rev' })
-@Unique({ properties: ['sheet', 'revisionNumber'] })
+@Entity({ tableName: "rev" })
+@Unique({ properties: ["sheet", "revisionNumber"] })
 export class RevEntity {
   @PrimaryKey()
   id!: number;
@@ -28,12 +28,12 @@ export class RevEntity {
   @Index()
   sheet!: SheetEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

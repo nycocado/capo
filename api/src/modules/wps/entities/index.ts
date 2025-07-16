@@ -1,1 +1,1 @@
-export * from './wps.entity';
+export * from "./wps.entity";

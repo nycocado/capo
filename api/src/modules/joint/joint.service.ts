@@ -1,8 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { JointEntity } from '@modules/joint/entities';
-import { WorkStatusType } from '@database/entities';
-import { JointRepository } from '@modules/joint/joint.repository';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { JointEntity } from "@modules/joint/entities";
+import { WorkStatusType } from "@database/entities";
+import { JointRepository } from "@modules/joint/joint.repository";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class JointService {
@@ -31,7 +31,7 @@ export class JointService {
     );
 
     this.eventEmitter.emit(
-      'joint.updateWorkStatusToFinished',
+      "joint.updateWorkStatusToFinished",
       newJoint,
       userId,
     );

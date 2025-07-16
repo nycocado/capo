@@ -7,24 +7,24 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
-import { RoleEntity } from '@modules/role/entities';
-import { UserRoleEntity } from '@modules/user-role/entities';
-import { PartWorkStatusEntity } from '@database/entities';
-import { WeldWorkStatusEntity } from '@modules/weld/entities/weld-work-status.entity';
-import { JointWorkStatusEntity } from '@modules/joint/entities/joint-work-status.entity';
-import { CutListWorkStatusEntity } from '@modules/cut-list/entities/cut-list-work-status.entity';
-import { AssemblyListWorkStatusEntity } from '@modules/assembly-list/entities/assembly-list-work-status.entity';
-import { WeldListWorkStatusEntity } from '@modules/weld-list/entities/weld-list-work-status.entity';
+} from "@mikro-orm/core";
+import { ApiProperty } from "@nestjs/swagger";
+import { RoleEntity } from "@modules/role/entities";
+import { UserRoleEntity } from "@modules/user-role/entities";
+import { PartWorkStatusEntity } from "@database/entities";
+import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
+import { JointWorkStatusEntity } from "@modules/joint/entities/joint-work-status.entity";
+import { CutListWorkStatusEntity } from "@modules/cut-list/entities/cut-list-work-status.entity";
+import { AssemblyListWorkStatusEntity } from "@modules/assembly-list/entities/assembly-list-work-status.entity";
+import { WeldListWorkStatusEntity } from "@modules/weld-list/entities/weld-list-work-status.entity";
 
 export enum Gender {
-  M = 'M',
-  F = 'F',
-  O = 'O',
+  M = "M",
+  F = "F",
+  O = "O",
 }
 
-@Entity({ tableName: 'user' })
+@Entity({ tableName: "user" })
 export class UserEntity {
   @ApiProperty()
   @PrimaryKey()
@@ -43,7 +43,7 @@ export class UserEntity {
   name!: string;
 
   @ApiProperty()
-  @Property({ type: 'date' })
+  @Property({ type: "date" })
   birthDate!: Date;
 
   @ApiProperty()
@@ -54,12 +54,12 @@ export class UserEntity {
   @Property({ length: 255, nullable: true })
   photo?: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

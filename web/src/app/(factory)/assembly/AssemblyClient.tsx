@@ -1,12 +1,12 @@
-'use client';
-import { AssemblyListDto, UserDto } from '@/dtos';
-import { useCallback, useState } from 'react';
+"use client";
+import { AssemblyListDto, UserDto } from "@/dtos";
+import { useCallback, useState } from "react";
 import {
   TAB_TYPES,
   tabsAllWorking,
   TabType,
   WorkTabs,
-} from '@components/features/factory/WorkTabs';
+} from "@components/features/factory/WorkTabs";
 import {
   useAssemblyListOperations,
   useAssemblyListTable,
@@ -15,22 +15,22 @@ import {
   useAssemblyMaterialVerification,
   usePDFViewer,
   useWebSocketAssemblyList,
-} from '@/app/(factory)/assembly/hooks';
+} from "@/app/(factory)/assembly/hooks";
 import {
   extractWeldsFromAssemblyList,
   getAvailableSheets,
-} from '@/app/(factory)/assembly/utils/assemblyClientUtils';
-import NavBar from '@components/layout/NavBar/NavBar';
-import { Col, Container, Row } from 'react-bootstrap';
-import { ControlPanel } from '@components/features/factory/ControlPanel';
-import { WorkTable } from '@components/features/WorkTable';
-import { WorkGrid } from '@components/features/factory/WorkGrid';
-import { columnsAssemblyList } from '@components/features/WorkTable/WorkTable.columns';
-import { ErrorToast } from '@components/common/ErrorToast';
-import { assemblyButtonConfig } from '@components/features/factory/ControlPanel/ControlPanel.buttonConfig';
-import { MaterialVerificationModal } from '@components/layout/Modals';
-import PDFViewer from '@components/features/PDFViewer/PDFViewer';
-import { WeldWithContext } from '@/interfaces';
+} from "@/app/(factory)/assembly/utils/assemblyClientUtils";
+import NavBar from "@components/layout/NavBar/NavBar";
+import { Col, Container, Row } from "react-bootstrap";
+import { ControlPanel } from "@components/features/factory/ControlPanel";
+import { WorkTable } from "@components/features/WorkTable";
+import { WorkGrid } from "@components/features/factory/WorkGrid";
+import { columnsAssemblyList } from "@components/features/WorkTable/WorkTable.columns";
+import { ErrorToast } from "@components/common/ErrorToast";
+import { assemblyButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel.buttonConfig";
+import { MaterialVerificationModal } from "@components/layout/Modals";
+import PDFViewer from "@components/features/PDFViewer/PDFViewer";
+import { WeldWithContext } from "@/interfaces";
 
 export interface AssemblyClientProps {
   initialItems: AssemblyListDto[];
@@ -46,7 +46,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
   const [assemblyLists, setAssemblyLists] =
     useState<AssemblyListDto[]>(initialItems);
   const [activeTab, setActiveTab] = useState<TabType>(TAB_TYPES.ALL);
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>("");
   const [selectedAssemblyList, setSelectedAssemblyList] =
     useState<AssemblyListDto | null>(null);
   const [selectedSheetNumber, setSelectedSheetNumber] = useState<number | null>(
@@ -57,7 +57,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
   useWebSocketAssemblyList({
     onAssemblyListUpdate: (updatedAssemblyList) => {
       console.log(
-        'Assembly List atualizada via WebSocket:',
+        "Assembly List atualizada via WebSocket:",
         updatedAssemblyList,
       );
 
@@ -104,9 +104,9 @@ export default function AssemblyClient(props: AssemblyClientProps) {
             () => {
               // Callback executado APÓS completar material verification
               // Agora verifica se precisa fazer set-working ou só navegar
-              const currentState = assemblyList.workStatus?.name || 'to-do';
+              const currentState = assemblyList.workStatus?.name || "to-do";
 
-              if (currentState === 'to-do') {
+              if (currentState === "to-do") {
                 // Se é to-do, faz set-working primeiro
                 setWorking(assemblyList.id).then((success) => {
                   if (success) {
@@ -131,7 +131,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
             },
           );
         } catch (error) {
-          setErrorMsg('Failed to start material verification');
+          setErrorMsg("Failed to start material verification");
         }
       },
     },
@@ -140,7 +140,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
   // Working assembly lists (filtered from main list)
   const workingAssemblyLists = assemblyLists.filter(
     (al) =>
-      al.workStatus?.name === 'working' || al.workStatus?.name === 'finished',
+      al.workStatus?.name === "working" || al.workStatus?.name === "finished",
   );
 
   // Assembly working table hook (WORKING tab)
@@ -162,7 +162,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
   const jointOperations = useJointOperations({
     selectedAssemblyList,
     onJointProcessed: (jointId) => {
-      console.log('Joint processed:', jointId);
+      console.log("Joint processed:", jointId);
     },
     onError: (error) => setErrorMsg(error),
   });
@@ -245,14 +245,14 @@ export default function AssemblyClient(props: AssemblyClientProps) {
         selectedAssemblyList, // ← Passa o AssemblyListDto completo
       );
     } catch (error) {
-      setErrorMsg('Failed to open materials consultation');
+      setErrorMsg("Failed to open materials consultation");
     }
   }, [selectedAssemblyList, materialVerification]);
 
   // Handle isometric viewer
   const handleIsometricClick = useCallback(() => {
     if (!selectedAssemblyList || selectedSheetNumber === null) {
-      setErrorMsg('Please select a sheet to view the isometric');
+      setErrorMsg("Please select a sheet to view the isometric");
       return;
     }
 
@@ -261,13 +261,13 @@ export default function AssemblyClient(props: AssemblyClientProps) {
     );
 
     if (!currentSheet?.document) {
-      setErrorMsg('No document available for this sheet');
+      setErrorMsg("No document available for this sheet");
       return;
     }
 
     // Abrir PDF diretamente no navegador em nova aba
     const pdfUrl = `/api/documents/${currentSheet.document}/download`;
-    window.open(pdfUrl, '_blank');
+    window.open(pdfUrl, "_blank");
   }, [selectedAssemblyList, selectedSheetNumber]);
 
   // Control buttons configuration
@@ -286,7 +286,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
       <NavBar title="Assembly" fixed={true} />
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ height: 'calc(100vh - 56px)' }}
+        style={{ height: "calc(100vh - 56px)" }}
       >
         <Container fluid className="mx-4">
           <Row className="g-4">
@@ -323,8 +323,8 @@ export default function AssemblyClient(props: AssemblyClientProps) {
                           key={sheet.id}
                           className={`btn ${
                             selectedSheetNumber === sheet.number
-                              ? 'btn-primary'
-                              : 'btn-outline-light'
+                              ? "btn-primary"
+                              : "btn-outline-light"
                           } btn-sm`}
                           onClick={() => handleSheetSelect(sheet.number)}
                         >
@@ -356,7 +356,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
                   renderGroupTitle={(groupItems, groupIndex) => (
                     <div className="mb-3">
                       <h6 className="text-light mb-2 fw-bold">
-                        Spool:{' '}
+                        Spool:{" "}
                         {groupItems[0]?.spool.internalId ||
                           `Group ${groupIndex + 1}`}
                       </h6>
@@ -394,7 +394,7 @@ export default function AssemblyClient(props: AssemblyClientProps) {
 
       <ErrorToast
         show={showError}
-        message={errorMsg || ''}
+        message={errorMsg || ""}
         onClose={() => setErrorMsg(null)}
       />
     </>

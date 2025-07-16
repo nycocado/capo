@@ -1,5 +1,5 @@
-import { DiameterResponseDto } from '@shared/dto';
-import { Expose, Type } from 'class-transformer';
+import { DiameterResponseDto } from "@shared/dto";
+import { Expose, Type } from "class-transformer";
 
 export class PortResponseDto {
   @Expose()

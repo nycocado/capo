@@ -1,9 +1,9 @@
-import { WORK_STATES } from '@/app/(factory)/cut/constants';
-import { TAB_TYPES, TabType } from '@components/features/factory/WorkTabs';
-import { useCallback } from 'react';
-import { CutListDto, PipeLengthDto } from '@/dtos';
+import { WORK_STATES } from "@/app/(factory)/cut/constants";
+import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
+import { useCallback } from "react";
+import { CutListDto, PipeLengthDto } from "@/dtos";
 
-// Get work state from API workStatus
+// Get state from workStatus
 export const getWorkStatusState = (workStatus?: { name: string }): string => {
   if (!workStatus) return WORK_STATES.TO_DO;
 
@@ -19,7 +19,7 @@ export const getWorkStatusState = (workStatus?: { name: string }): string => {
   }
 };
 
-// Check if user can access a cut list
+// Check user access to cut list
 export const canUserAccessCutList = (
   cutList: CutListDto,
   currentUserId?: number,
@@ -34,6 +34,7 @@ export const canUserAccessCutList = (
   return !createdBy || createdBy === currentUserId;
 };
 
+// Hook for status accessor
 export const useWorkStatusAccessor = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -50,7 +51,7 @@ export const useWorkStatusAccessor = (
       if (activeTab === TAB_TYPES.ALL) {
         const cutList = item as CutListDto;
         if (!canUserAccessCutList(cutList, currentUserId)) {
-          return 'danger'; // Return danger state for restricted access
+          return "danger"; // Return danger state for restricted access
         }
       }
 

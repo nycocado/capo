@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { FittingEntity } from '@modules/fitting/entities';
-import { FittingRepository } from '@modules/fitting/fitting.repository';
+import { Injectable } from "@nestjs/common";
+import { FittingEntity } from "@modules/fitting/entities";
+import { FittingRepository } from "@modules/fitting/fitting.repository";
 
 @Injectable()
 export class FittingService {

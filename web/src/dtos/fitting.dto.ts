@@ -1,7 +1,7 @@
-import { MaterialDto } from './material.dto';
-import { FittingTypeDto } from './fitting-type.dto';
-import { PortDto } from './port.dto';
-import { WorkStatusDto } from './work-status.dto';
+import { MaterialDto } from "./material.dto";
+import { FittingTypeDto } from "./fitting-type.dto";
+import { PortDto } from "./port.dto";
+import { WorkStatusDto } from "./work-status.dto";
 
 export interface FittingDto {
   id: number;

@@ -1,16 +1,19 @@
-'use client';
-import { useEffect, useRef, useCallback } from 'react';
-import io from 'socket.io-client';
+// Client-side WebSocket hook
+"use client";
+import { useEffect, useRef, useCallback } from "react";
+import io from "socket.io-client";
 // Inferindo o tipo de Socket a partir do retorno de io
 type SocketType = ReturnType<typeof io>;
-import { CutListDto } from '@/dtos';
-import { WS_EVENTS, WS_ROUTES } from '@/routes';
+import { CutListDto } from "@/dtos";
+import { WS_EVENTS, WS_ROUTES } from "@/routes";
 
+// Props interface
 interface UseWebSocketCutListProps {
   onCutListUpdate: (updatedCutList: CutListDto) => void;
   enabled?: boolean;
 }
 
+// Hook for WebSocket connection
 export const useWebSocketCutList = ({
   onCutListUpdate,
   enabled = true,
@@ -25,12 +28,13 @@ export const useWebSocketCutList = ({
     onCutListUpdateRef.current = onCutListUpdate;
   }, [onCutListUpdate]);
 
+  // Connect to socket
   const connect = useCallback(() => {
     if (socketRef.current?.connected) return;
 
     try {
       socketRef.current = io(WS_ROUTES.cutList, {
-        transports: ['websocket'],
+        transports: ["websocket"],
         autoConnect: true,
         reconnection: true,
         reconnectionDelay: 1000,
@@ -39,7 +43,7 @@ export const useWebSocketCutList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.connect, () => {
-        console.log('WebSocket conectado ao servidor');
+        console.log("WebSocket conectado ao servidor");
         hasConnected.current = true;
 
         // Limpar timeout de reconexão se existir
@@ -50,10 +54,10 @@ export const useWebSocketCutList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.disconnect, (reason: string) => {
-        console.log('WebSocket desconectado:', reason);
+        console.log("WebSocket desconectado:", reason);
 
         // Tentar reconectar após um delay se a desconexão não foi intencional
-        if (reason !== 'io client disconnect' && enabled) {
+        if (reason !== "io client disconnect" && enabled) {
           reconnectTimeoutRef.current = setTimeout(() => {
             if (enabled && !socketRef.current?.connected) {
               connect();
@@ -63,14 +67,14 @@ export const useWebSocketCutList = ({
       });
 
       socketRef.current.on(WS_EVENTS.default.connect_error, (error: Error) => {
-        console.error('Erro de conexão WebSocket:', error);
+        console.error("Erro de conexão WebSocket:", error);
       });
 
       socketRef.current.on(
         WS_EVENTS.cutList.updateWorkStatus,
         (updatedCutList: CutListDto) => {
           console.log(
-            'Lista de cortes atualizada via WebSocket:',
+            "Lista de cortes atualizada via WebSocket:",
             updatedCutList,
           );
           // Usar a referência atualizada
@@ -79,13 +83,14 @@ export const useWebSocketCutList = ({
       );
 
       socketRef.current.on(WS_EVENTS.default.error, (error: Error) => {
-        console.error('Erro no WebSocket:', error);
+        console.error("Erro no WebSocket:", error);
       });
     } catch (error) {
-      console.error('Erro ao criar conexão WebSocket:', error);
+      console.error("Erro ao criar conexão WebSocket:", error);
     }
   }, [enabled]); // Removida dependência onCutListUpdate
 
+  // Disconnect socket
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
@@ -100,22 +105,26 @@ export const useWebSocketCutList = ({
     hasConnected.current = false;
   }, []);
 
+  // Check connection
   const isConnected = useCallback(() => {
     return socketRef.current?.connected || false;
   }, []);
 
+  // Join room
   const joinRoom = useCallback((room: string) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('join', room);
+      socketRef.current.emit("join", room);
     }
   }, []);
 
+  // Leave room
   const leaveRoom = useCallback((room: string) => {
     if (socketRef.current?.connected) {
-      socketRef.current.emit('leave', room);
+      socketRef.current.emit("leave", room);
     }
   }, []);
 
+  // Effect for connection management
   useEffect(() => {
     if (enabled) {
       connect();

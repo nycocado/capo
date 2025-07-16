@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { Button } from 'react-bootstrap';
+import { useRouter } from "next/navigation";
+import { Button } from "react-bootstrap";
 
 function UnauthorizedPage() {
   const router = useRouter();
@@ -13,7 +13,7 @@ function UnauthorizedPage() {
         <p className="text-lg">
           You do not have permission to access this page.
         </p>
-        <Button className="mt-3" onClick={() => router.push('/')}>
+        <Button className="mt-3" onClick={() => router.push("/")}>
           Go to Home
         </Button>
       </div>

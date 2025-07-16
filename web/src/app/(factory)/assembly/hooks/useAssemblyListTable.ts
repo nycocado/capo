@@ -1,18 +1,18 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useAssemblyState } from './useAssemblyState';
-import { useWorkStatusAccessor } from './useWorkStatusAccessor';
+import React, { useState, useMemo, useCallback } from "react";
+import { useAssemblyState } from "./useAssemblyState";
+import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
-} from './useAssemblyEventHandlers';
-import { useFinishedItemsSorting } from './useFinishedItemsSorting';
+} from "./useAssemblyEventHandlers";
+import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 import {
   useRowStates,
   sortFinishedLast,
   filterBySearch,
-} from './useTableUtils';
-import { TAB_TYPES } from '@components/features/factory/WorkTabs';
-import { AssemblyListDto } from '@/dtos';
+} from "./useTableUtils";
+import { TAB_TYPES } from "@components/features/factory/WorkTabs";
+import { AssemblyListDto } from "@/dtos";
 
 /**
  * Hook for AssemblyList table (ALL tab)
@@ -23,7 +23,7 @@ export function useAssemblyListTable(
   currentUserId?: number,
   callbacks?: Pick<
     UseAssemblyTableCallbacks,
-    'onAssemblyListSelected' | 'onAssemblyListSetWorking'
+    "onAssemblyListSelected" | "onAssemblyListSetWorking"
   >,
 ) {
   // Information overlay state management
@@ -36,7 +36,9 @@ export function useAssemblyListTable(
   } = useAssemblyState();
 
   // Selected item state
-  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(null);
+  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(
+    null,
+  );
 
   // Work status accessor
   const rowStateAccessor = useWorkStatusAccessor(
@@ -46,12 +48,16 @@ export function useAssemblyListTable(
   );
 
   // Finished items sorting
-  const { movedIds } = useFinishedItemsSorting(assemblyLists, [], rowStateAccessor);
+  const { movedIds } = useFinishedItemsSorting(
+    assemblyLists,
+    [],
+    rowStateAccessor,
+  );
 
   // Type-safe wrapper for setSelectedItem
   const setSelectedItemGeneric = useCallback(
     (value: React.SetStateAction<AssemblyListDto | null>) => {
-      if (typeof value === 'function') {
+      if (typeof value === "function") {
         setSelectedItem((prev) => {
           const result = value(prev);
           return result as AssemblyListDto | null;

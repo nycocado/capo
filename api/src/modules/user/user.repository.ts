@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { UserEntity } from '@modules/user/entities';
-import { EntityRepository } from '@mikro-orm/mariadb';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { UserEntity } from "@modules/user/entities";
+import { EntityRepository } from "@mikro-orm/mariadb";
 
 @Injectable()
 export class UserRepository {
@@ -10,7 +10,7 @@ export class UserRepository {
     private readonly userRepository: EntityRepository<UserEntity>,
   ) {}
 
-  private readonly FULL_POPULATE_FIELDS = ['userRoles.role'] as const;
+  private readonly FULL_POPULATE_FIELDS = ["userRoles.role"] as const;
 
   async findById(id: number): Promise<UserEntity | null> {
     return this.userRepository.findOne(id);

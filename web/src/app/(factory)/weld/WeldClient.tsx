@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import NavBar from '@components/layout/NavBar/NavBar';
-import { Col, Container, Row } from 'react-bootstrap';
-import { weldButtonConfig } from '@components/features/factory/ControlPanel/ControlPanel.buttonConfig';
-import { ControlPanel } from '@components/features/factory/ControlPanel';
+import NavBar from "@components/layout/NavBar/NavBar";
+import { Col, Container, Row } from "react-bootstrap";
+import { weldButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel.buttonConfig";
+import { ControlPanel } from "@components/features/factory/ControlPanel";
 import {
   tabsAllWorking,
   WorkTabs,
-} from '@components/features/factory/WorkTabs';
-import { WorkGrid } from '@components/features/factory/WorkGrid';
-import { WorkPanel } from '@components/features/factory/WorkPanel';
-import { WeldClientProps } from './WeldClient.types';
-import { WorkTable } from '@components/features/WorkTable';
-import { useWeldTable } from './useWeldTable';
-import { columnsWeld } from '@components/features/WorkTable/WorkTable.columns';
-import { weldCardConfigs } from '@components/features/factory/WorkPanel/WorkPanel.cardConfigs';
-import { ErrorToast } from '@components/common/ErrorToast';
-import { useState } from 'react';
-import { FormModal } from '@components/layout/Modals/FormModal';
-import { useWPSViewer } from './useWPSViewer';
+} from "@components/features/factory/WorkTabs";
+import { WorkGrid } from "@components/features/factory/WorkGrid";
+import { WorkPanel } from "@components/features/factory/WorkPanel";
+import { WeldClientProps } from "./WeldClient.types";
+import { WorkTable } from "@components/features/WorkTable";
+import { useWeldTable } from "./useWeldTable";
+import { columnsWeld } from "@components/features/WorkTable/WorkTable.columns";
+import { weldCardConfigs } from "@components/features/factory/WorkPanel/WorkPanel.cardConfigs";
+import { ErrorToast } from "@components/common/ErrorToast";
+import { useState } from "react";
+import { FormModal } from "@components/layout/Modals/FormModal";
+import { useWPSViewer } from "./useWPSViewer";
 
 function WeldClient({ initialItems, fetchError }: WeldClientProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(fetchError ?? null);
@@ -60,26 +60,26 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
   const handleWPSClick = () => {
     if (!selectedWeld) return;
     if (wpsFile && !wpsLoading && !wpsError) {
-      window.open(wpsFile, '_blank');
+      window.open(wpsFile, "_blank");
     } else if (wpsLoading) {
-      console.log('WPS PDF is still loading...');
+      console.log("WPS PDF is still loading...");
     } else if (wpsError) {
-      console.error('Cannot open WPS PDF due to error:', wpsError);
+      console.error("Cannot open WPS PDF due to error:", wpsError);
     } else {
-      console.log('No WPS PDF available to open');
+      console.log("No WPS PDF available to open");
     }
   };
 
   // Check if WPS/Filler can be edited
   const canEditWpsOrFiller =
-    selectedWeld && itemStateAccessor(selectedWeld) === 'finished';
+    selectedWeld && itemStateAccessor(selectedWeld) === "finished";
 
   const cards = weldCardConfigs(selectedRow, selectedWeld, {
     onWPSClick: canEditWpsOrFiller
-      ? () => formModal.openEdit(selectedWeld.id, 'wps')
+      ? () => formModal.openEdit(selectedWeld.id, "wps")
       : undefined,
     onFillerClick: canEditWpsOrFiller
-      ? () => formModal.openEdit(selectedWeld.id, 'filler')
+      ? () => formModal.openEdit(selectedWeld.id, "filler")
       : undefined,
   });
 
@@ -97,7 +97,7 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
       <NavBar title="Welding" fixed={true} />
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ height: 'calc(100vh - 56px)' }}
+        style={{ height: "calc(100vh - 56px)" }}
       >
         <Container fluid className="mx-4">
           <Row className="g-4">
@@ -115,10 +115,10 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
                 tabs={tabsAllWorking}
                 activeTab={activeTab}
                 setActiveTab={(tab: string) =>
-                  setActiveTab(tab as 'all' | 'working')
+                  setActiveTab(tab as "all" | "working")
                 }
               />
-              {activeTab === 'all' ? (
+              {activeTab === "all" ? (
                 <WorkTable
                   items={filteredRows}
                   columns={columnsWeld}
@@ -164,7 +164,7 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
 
       <ErrorToast
         show={showError}
-        message={errorMsg || ''}
+        message={errorMsg || ""}
         onClose={() => setErrorMsg(null)}
       />
     </>

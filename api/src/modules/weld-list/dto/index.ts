@@ -1,1 +1,1 @@
-export * from './weld-list-response.dto';
+export * from "./weld-list-response.dto";

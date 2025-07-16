@@ -8,18 +8,18 @@ import {
   OneToOne,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { PipeLengthEntity } from '@modules/pipe-length/entities';
-import { FittingEntity } from '@modules/fitting/entities';
-import { JointEntity } from '@modules/joint/entities';
-import { PartWorkStatusEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { FittingEntity } from "@modules/fitting/entities";
+import { JointEntity } from "@modules/joint/entities";
+import { PartWorkStatusEntity } from "@database/entities";
 
 export enum PartType {
-  PIPE_LENGTH = 'pipe_length',
-  FITTING = 'fitting',
+  PIPE_LENGTH = "pipe_length",
+  FITTING = "fitting",
 }
 
-@Entity({ tableName: 'part' })
+@Entity({ tableName: "part" })
 export class PartEntity {
   @PrimaryKey()
   id!: number;
@@ -33,12 +33,12 @@ export class PartEntity {
   @Index()
   number!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

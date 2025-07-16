@@ -1,1 +1,1 @@
-export * from './assembly-list.entity';
+export * from "./assembly-list.entity";

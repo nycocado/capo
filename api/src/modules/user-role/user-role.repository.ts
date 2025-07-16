@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { UserRoleEntity } from '@modules/user-role/entities';
-import { EntityRepository } from '@mikro-orm/mariadb';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { UserRoleEntity } from "@modules/user-role/entities";
+import { EntityRepository } from "@mikro-orm/mariadb";
 
 @Injectable()
 export class UserRoleRepository {

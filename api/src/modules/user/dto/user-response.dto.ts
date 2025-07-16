@@ -1,5 +1,5 @@
-import { Expose, Type } from 'class-transformer';
-import { UserRoleResponseDto } from '@modules/user-role/dto';
+import { Expose, Type } from "class-transformer";
+import { UserRoleResponseDto } from "@modules/user-role/dto";
 
 export class UserResponseDto {
   @Expose()

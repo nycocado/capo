@@ -1,6 +1,6 @@
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
-import { JointResponseDto } from '@modules/joint/dto';
-import { WeldResponseDto } from '@modules/weld/dto';
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+import { JointResponseDto } from "@modules/joint/dto";
+import { WeldResponseDto } from "@modules/weld/dto";
 
 export class SpoolResponseDto {
   @Expose()
@@ -9,11 +9,11 @@ export class SpoolResponseDto {
   @Expose()
   internalId: string;
 
-  @Expose({ groups: ['assembly-list'] })
+  @Expose({ groups: ["assembly-list"] })
   @Type(() => JointResponseDto)
   joints?: JointResponseDto[];
 
-  @Expose({ groups: ['weld-list'] })
+  @Expose({ groups: ["weld-list"] })
   @Type(() => WeldResponseDto)
   @Transform(({ obj, options }) => {
     const welds = obj.joints?.flatMap((joint: any) => joint.welds);

@@ -1,5 +1,5 @@
-import { SpoolDto } from './spool.dto';
-import { WorkStatusDto } from './work-status.dto';
+import { SpoolDto } from "./spool.dto";
+import { WorkStatusDto } from "./work-status.dto";
 
 export interface WeldListDto {
   id: number;
