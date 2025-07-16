@@ -1,4 +1,3 @@
-import { TabType, TAB_TYPES } from "@components/features/factory/WorkTabs";
 import {
   columnsCutList,
   columnsPipeLengthDto,
@@ -7,6 +6,7 @@ import {
 } from "@components/features/WorkTable/WorkTable.columns";
 import * as React from "react";
 import { Column } from "@components/features/WorkTable/WorkTable";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 export interface SearchFieldConfig {
   id: string;
