@@ -11,9 +11,9 @@ import {
   sortFinishedLast,
   filterBySearch,
 } from "./useTableUtils";
-import { TAB_TYPES } from "@components/features/factory/WorkTabs";
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns";
+import { TAB_TYPES } from "@components/features/WorkTabs";
 
 // Hook for cut list table in all tab
 export function useCutListTable(

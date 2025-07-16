@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CutListDto, PipeLengthDto } from "@/dtos";
-import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 // Hook for client state in cut
 export const useCutClientState = (

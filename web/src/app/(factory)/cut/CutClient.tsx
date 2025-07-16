@@ -1,16 +1,8 @@
 "use client";
 // Import DTOs and components
 import { CutListDto, UserDto } from "@/dtos";
-import {
-  TAB_TYPES,
-  tabsAllWorking,
-  TabType,
-  WorkTabs,
-} from "@components/features/factory/WorkTabs";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
-import { WorkPanel } from "@components/features/factory/WorkPanel";
-import { ControlPanel } from "@components/features/factory/ControlPanel";
 import { WorkTable } from "@components/features/WorkTable";
 import {
   columnsCutList,
@@ -20,6 +12,9 @@ import { ComponentLabelModal, InputModal } from "@components/layout/Modals";
 import { ErrorToast } from "@components/common/ErrorToast";
 import { useCutWorkflow } from "./hooks/useCutWorkflow";
 import { memo } from "react";
+import { WorkPanel } from "@components/features/WorkPanel";
+import { ControlPanel } from "@components/features/ControlPanel";
+import { TAB_TYPES, tabsAllWorking, TabType, WorkTabs } from "@components/features/WorkTabs";
 
 // Props interface for CutClient
 export interface CutClientProps {

@@ -1,13 +1,30 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
 import React from "react";
-import { ComponentLabelModalProps } from "@components/layout/Modals/ComponentLabelModal.types";
 import {
   DoubleValue,
+  DoubleValueConfig,
   NormalValue,
+  NormalValueConfig,
   TaggedValue,
-  ValueConfig,
+  TaggedValueConfig,
 } from "@components/features/factory/WorkPanel";
 import { BaseModal } from "@components/layout/Modals/BaseModal";
+
+export type ValueConfig =
+  | TaggedValueConfig
+  | NormalValueConfig
+  | DoubleValueConfig;
+
+export interface ComponentLabelModalProps {
+  show: boolean;
+  onHide: () => void;
+  onConfirm: () => void;
+  title: string;
+  value: string;
+  values?: ValueConfig[];
+  valueCardClassName?: string;
+  valueTextStyle?: React.CSSProperties;
+}
 
 export function ComponentLabelModal(props: ComponentLabelModalProps) {
   const {

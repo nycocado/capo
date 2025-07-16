@@ -1,6 +1,19 @@
 import React, { forwardRef } from "react";
-import { motion } from "framer-motion";
-import { WorkTableRowProps } from "./WorkTableRow.types";
+import { HTMLMotionProps, motion } from "framer-motion";
+import { Column } from "@components/features/WorkTable/WorkTable";
+
+export interface WorkTableRowProps extends HTMLMotionProps<"tr"> {
+  item: any;
+  columns: Column<any>[];
+  handleRowClick: (item: any) => void;
+  rowStates?: Record<string, RowStateConfig<any>>;
+  rowStateAccessor?: (item: any) => string;
+}
+
+export interface RowStateConfig<T> {
+  className?: string;
+  onClick?: (item: T) => void;
+}
 
 export const WorkTableRow = forwardRef(function WorkTableRow(
   props: WorkTableRowProps,

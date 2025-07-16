@@ -4,8 +4,8 @@ import {
   canUserAccessCutList,
 } from "./useWorkStatusAccessor";
 import { WORK_STATES } from "../constants";
-import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
 import { CutListDto, PipeLengthDto } from "@/dtos";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 // Interface for callbacks
 export interface UseCutTableCallbacks {
@@ -215,7 +215,7 @@ export const useCutEventHandlers = (
         handleWorkClick(todoItem);
       }
     }
-  }, [activeTab, items, informationIds, handleWorkClick, callbacks]);
+  }, [activeTab, items, rowStateAccessor, callbacks, handleWorkClick, informationIds]);
 
   // Check if all items finished
   const areAllWorkingItemsFinished = useCallback(() => {

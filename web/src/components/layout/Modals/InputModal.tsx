@@ -1,7 +1,22 @@
 import { Button, Form, Spinner } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 import { BaseModal } from "./BaseModal";
-import { InputModalProps } from "@components/layout/Modals/InputModal.types";
+
+export interface InputModalProps {
+  show: boolean;
+  onHide: () => void;
+  onConfirm: (value: string) => void;
+  title: string;
+  label?: string;
+  placeholder?: string;
+  initialValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  inputType?: "text" | "number";
+  confirmText?: string;
+  cancelText?: string;
+  isLoading?: boolean;
+}
 
 export function InputModal(props: InputModalProps) {
   const {

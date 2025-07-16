@@ -1,6 +1,18 @@
 import { Modal } from "react-bootstrap";
 import React from "react";
-import { BaseModalProps } from "@components/layout/Modals/BaseModal.types";
+
+export interface BaseModalProps {
+  show: boolean;
+  onHide: () => void;
+  title: string;
+  titleClassName?: string;
+  size?: "sm" | "lg" | "xl" | undefined;
+  centered?: boolean;
+  backdrop?: "static" | boolean;
+  keyboard?: boolean;
+  contentClassName?: string;
+  children: React.ReactNode;
+}
 
 export function BaseModal(props: BaseModalProps) {
   const {

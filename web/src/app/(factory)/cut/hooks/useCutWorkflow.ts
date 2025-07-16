@@ -14,7 +14,6 @@ import {
   extractPipeLengthsFromCutList,
   validateHeatNumber,
 } from "../utils/cutClientUtils";
-import { TAB_TYPES } from "@components/features/factory/WorkTabs";
 import { CutListDto, PipeLengthDto, UserDto } from "@/dtos";
 import { WORK_STATES } from "../constants";
 import {
@@ -22,6 +21,7 @@ import {
   columnsPipeLengthDto,
 } from "@components/features/WorkTable/WorkTable.columns";
 import { PipeLengthWithContext } from "@/interfaces";
+import { TAB_TYPES } from "@components/features/WorkTabs";
 
 export interface UseCutWorkflowProps {
   initialItems: CutListDto[];

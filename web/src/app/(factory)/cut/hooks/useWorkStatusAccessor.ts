@@ -1,7 +1,7 @@
 import { WORK_STATES } from "@/app/(factory)/cut/constants";
-import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
 import { useCallback } from "react";
 import { CutListDto, PipeLengthDto } from "@/dtos";
+import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 
 // Get state from workStatus
 export const getWorkStatusState = (workStatus?: { name: string }): string => {

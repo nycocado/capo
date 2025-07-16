@@ -4,5 +4,4 @@ export {
   getSearchFieldLabel,
   tabSearchFieldMapping,
 } from "./ControlPanel.searchConfig";
-export * from "./ControlPanel.types";
 export * from "./ControlPanel.buttonConfig";

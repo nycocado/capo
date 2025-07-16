@@ -1,9 +1,24 @@
 import React from "react";
 import { Card, CardBody, Row, Col } from "react-bootstrap";
-import { NormalValue } from "./values/NormalValue";
-import { TaggedValue } from "./values/TaggedValue";
-import { DoubleValue } from "./values/DoubleValue";
-import { WorkPanelProps } from "./WorkPanel.types";
+import { NormalValue, NormalValueConfig } from "./values/NormalValue";
+import { TaggedValue, TaggedValueConfig } from "./values/TaggedValue";
+import { DoubleValue, DoubleValueConfig } from "./values/DoubleValue";
+
+export type ValueConfig =
+  | NormalValueConfig
+  | TaggedValueConfig
+  | DoubleValueConfig;
+
+export interface CardConfig {
+  key?: string;
+  className?: string;
+  items: ValueConfig[];
+}
+
+export interface WorkPanelProps {
+  cards: CardConfig[];
+  containerClassName?: string;
+}
 
 export function WorkPanel({ cards, containerClassName }: WorkPanelProps) {
   return (

@@ -1,8 +1,8 @@
-import { CardConfig } from "./WorkPanel.types";
 import { PipeLengthWithContext } from "@/interfaces";
 import { WeldRow } from "@/app/(factory)/weld/useWeldTable.types";
 import { WeldItemWithSpool } from "@/app/(factory)/weld/useWeldTable.types";
 import { AssemblyListDto } from "@/dtos";
+import { CardConfig } from "@components/features/factory/WorkPanel/WorkPanel";
 
 export interface CutCardHandlers {
   onHeatNumberClick?: () => void;

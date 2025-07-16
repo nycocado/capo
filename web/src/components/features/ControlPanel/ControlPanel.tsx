@@ -10,12 +10,30 @@ import {
   Dropdown,
   DropdownButton,
 } from "react-bootstrap";
-import { ControlPanelProps } from "@components/features/factory/ControlPanel/ControlPanel.types";
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import {
   getSearchFields,
-  getSearchFieldLabel,
+  getSearchFieldLabel, tabSearchFieldMapping
 } from "./ControlPanel.searchConfig";
+import { TabType } from "@components/features/factory/WorkTabs";
+
+export interface ControlButtonConfig {
+  variant: string;
+  label: string;
+  onClick?: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface ControlPanelProps {
+  search: string;
+  setSearch: (value: string) => void;
+  buttons: ControlButtonConfig[];
+  searchField: string;
+  setSearchField: (value: string) => void;
+  activeTab: TabType;
+  context: keyof typeof tabSearchFieldMapping;
+}
 
 export function ControlPanel({
   search,

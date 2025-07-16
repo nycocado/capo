@@ -1,9 +1,9 @@
 import { PipeLengthWithContext } from "@/interfaces";
 import { PipeLengthDto } from "@/dtos";
 import { useMemo } from "react";
-import { cutCardConfigs } from "@components/features/factory/WorkPanel/WorkPanel.cardConfigs";
-import { cutButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel.buttonConfig";
 import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";
+import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
+import { cutButtonConfig } from "@components/features/ControlPanel";
 
 // Hook to manage UI configurations for cards, buttons, modals
 export const useUIConfigurations = (

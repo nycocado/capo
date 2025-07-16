@@ -1,10 +1,34 @@
 import { Table } from "react-bootstrap";
 import { motion } from "framer-motion";
-import { WorkTableProps, SortDirection } from "./WorkTable.types";
 import { useState, useMemo } from "react";
 import { BarsArrowDownIcon } from "@heroicons/react/16/solid";
 import { BarsArrowUpIcon } from "@heroicons/react/16/solid";
-import { WorkTableRow } from "./WorkTableRow";
+import { RowStateConfig, WorkTableRow } from "./WorkTableRow";
+import * as React from "react";
+
+export type SortDirection = "asc" | "desc" | null;
+
+export interface Column<T> {
+  id: string;
+  header: string;
+  subheader?: string;
+  accessor: keyof T | ((item: T) => React.ReactNode);
+  className?: string;
+  sortable?: boolean;
+  searchable?: boolean;
+  iterable?: boolean;
+}
+
+export interface WorkTableProps {
+  items: any[];
+  handleRowClick: (item: any) => void;
+  columns: Column<any>[];
+  defaultSortColumn?: string;
+  defaultSortDirection?: SortDirection;
+  hover?: boolean;
+  rowStates?: Record<string, RowStateConfig<any>>;
+  rowStateAccessor?: (item: any) => string;
+}
 
 export function WorkTable(props: WorkTableProps) {
   const {
