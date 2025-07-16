@@ -1,6 +1,6 @@
-import { MaterialDto } from './material.dto';
-import { DiameterDto } from './diameter.dto';
-import { WorkStatusDto } from './work-status.dto';
+import { MaterialDto } from "./material.dto";
+import { DiameterDto } from "./diameter.dto";
+import { WorkStatusDto } from "./work-status.dto";
 
 export interface PipeLengthDto {
   id: number;

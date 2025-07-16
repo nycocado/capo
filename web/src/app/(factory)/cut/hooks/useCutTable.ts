@@ -1,19 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useCutState } from './useCutState';
-import { useWorkStatusAccessor } from './useWorkStatusAccessor';
+import { useState, useEffect, useMemo } from "react";
+import { useCutState } from "./useCutState";
+import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useCutEventHandlers,
   UseCutTableCallbacks,
-} from './useCutEventHandlers';
-import { useFinishedItemsSorting } from './useFinishedItemsSorting';
+} from "./useCutEventHandlers";
+import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 import {
   useRowStates,
   sortFinishedLast,
   filterBySearch,
-} from './useTableUtils';
-import { type TabType } from '@components/features/factory/WorkTabs';
-import { CutListDto, PipeLengthDto } from '@/dtos';
+} from "./useTableUtils";
+import { type TabType } from "@components/features/factory/WorkTabs";
+import { CutListDto, PipeLengthDto } from "@/dtos";
 
+// Hook for general cut table management
 export function useCutTable(
   items: (PipeLengthDto | CutListDto)[],
   activeTab: TabType,
@@ -51,11 +52,13 @@ export function useCutTable(
     callbacks,
   );
 
+  // Row states
   const rowStates = useRowStates(activeTab, handleRowClick);
 
+  // Filtered and sorted table items
   const tableItems = useMemo(() => {
     const sortedItems = sortFinishedLast(items, movedIds);
-    return filterBySearch(sortedItems, search);
+    return filterBySearch(sortedItems, search, "id");
   }, [items, movedIds, search]);
 
   useEffect(() => {

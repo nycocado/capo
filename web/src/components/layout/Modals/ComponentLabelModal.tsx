@@ -1,13 +1,13 @@
-import { Button, Card, Col, Row } from 'react-bootstrap';
-import React from 'react';
-import { ComponentLabelModalProps } from '@components/layout/Modals/ComponentLabelModal.types';
+import { Button, Card, Col, Row } from "react-bootstrap";
+import React from "react";
+import { ComponentLabelModalProps } from "@components/layout/Modals/ComponentLabelModal.types";
 import {
   DoubleValue,
   NormalValue,
   TaggedValue,
   ValueConfig,
-} from '@components/features/factory/WorkPanel';
-import { BaseModal } from '@components/layout/Modals/BaseModal';
+} from "@components/features/factory/WorkPanel";
+import { BaseModal } from "@components/layout/Modals/BaseModal";
 
 export function ComponentLabelModal(props: ComponentLabelModalProps) {
   const {
@@ -17,15 +17,15 @@ export function ComponentLabelModal(props: ComponentLabelModalProps) {
     title,
     value,
     values,
-    valueCardClassName = 'bg-surface text-light rounded-3 py-3',
-    valueTextStyle = { letterSpacing: '25px', textIndent: '25px' },
+    valueCardClassName = "bg-surface text-light rounded-3 py-3",
+    valueTextStyle = { letterSpacing: "25px", textIndent: "25px" },
   } = props;
 
   const renderValue = (config: ValueConfig, index: number) => {
     const clickProps = config.onClick ? { onClick: config.onClick } : {};
 
     switch (config.type) {
-      case 'tagged':
+      case "tagged":
         return (
           <Col key={index} {...clickProps}>
             <TaggedValue
@@ -36,14 +36,14 @@ export function ComponentLabelModal(props: ComponentLabelModalProps) {
           </Col>
         );
 
-      case 'normal':
+      case "normal":
         return (
           <Col key={index} {...clickProps}>
             <NormalValue label={config.label} value={config.value} />
           </Col>
         );
 
-      case 'double':
+      case "double":
         return (
           <Col key={index} {...clickProps}>
             <DoubleValue

@@ -8,12 +8,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
-import { SpoolEntity } from '@database/entities';
-import { WeldListWorkStatusEntity } from '@modules/weld-list/entities/weld-list-work-status.entity';
+} from "@mikro-orm/core";
+import { ApiProperty } from "@nestjs/swagger";
+import { SpoolEntity } from "@database/entities";
+import { WeldListWorkStatusEntity } from "@modules/weld-list/entities/weld-list-work-status.entity";
 
-@Entity({ tableName: 'weld_list' })
+@Entity({ tableName: "weld_list" })
 export class WeldListEntity {
   @ApiProperty()
   @PrimaryKey()
@@ -29,12 +29,12 @@ export class WeldListEntity {
   @Index()
   spool!: SpoolEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

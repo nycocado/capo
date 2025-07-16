@@ -1,9 +1,9 @@
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
 import {
   DiameterResponseDto,
   MaterialResponseDto,
   WorkStatusResponseDto,
-} from '@shared/dto';
+} from "@shared/dto";
 
 export class PipeLengthResponseDto {
   @Expose()

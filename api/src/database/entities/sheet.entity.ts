@@ -9,17 +9,17 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { IsometricEntity, RevEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { IsometricEntity, RevEntity } from "@database/entities";
 
-@Entity({ tableName: 'sheet' })
-@Unique({ properties: ['isometric', 'number'] })
+@Entity({ tableName: "sheet" })
+@Unique({ properties: ["isometric", "number"] })
 export class SheetEntity {
   @PrimaryKey()
   id!: number;
 
   @Property()
-  @Check({ expression: 'number > 0' })
+  @Check({ expression: "number > 0" })
   @Index()
   number!: number;
 
@@ -27,12 +27,12 @@ export class SheetEntity {
   @Index()
   isometric!: IsometricEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

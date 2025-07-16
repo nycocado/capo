@@ -1,14 +1,15 @@
-import { useMemo } from 'react';
-import { TAB_TYPES, type TabType } from '@components/features/factory/WorkTabs';
-import { PipeLengthWithContext } from '@/interfaces';
-import { CutListDto, PipeLengthDto } from '@/dtos';
+import { useMemo } from "react";
+import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
+import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto, PipeLengthDto } from "@/dtos";
 
-// Hook to manage pipe length selection and enrichment
+// Hook to select and enrich pipe length
 export const usePipeLengthSelection = (
   selectedPipeLength: PipeLengthDto | null,
   cutLists: CutListDto[],
   activeTab: TabType,
 ) => {
+  // Enriched selected item
   const enrichedSelectedItem: PipeLengthWithContext | null = useMemo(() => {
     if (!selectedPipeLength || activeTab !== TAB_TYPES.WORKING) return null;
 

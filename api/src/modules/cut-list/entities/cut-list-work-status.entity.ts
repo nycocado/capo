@@ -5,13 +5,13 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { WorkStatusTypeEntity } from '@database/entities/work-status-type.entity';
-import { UserEntity } from '@modules/user/entities';
-import { CutListEntity } from '@modules/cut-list/entities';
+} from "@mikro-orm/core";
+import { WorkStatusTypeEntity } from "@database/entities/work-status-type.entity";
+import { UserEntity } from "@modules/user/entities";
+import { CutListEntity } from "@modules/cut-list/entities";
 
-@Entity({ tableName: 'cut_list_work_status' })
-@Index({ properties: ['cutList', 'workStatusType', 'createdAt'] })
+@Entity({ tableName: "cut_list_work_status" })
+@Index({ properties: ["cutList", "workStatusType", "createdAt"] })
 export class CutListWorkStatusEntity {
   @PrimaryKey({ hidden: true })
   id!: number;
@@ -24,19 +24,19 @@ export class CutListWorkStatusEntity {
   @Index()
   workStatusType!: WorkStatusTypeEntity;
 
-  @Property({ type: 'text', nullable: true })
+  @Property({ type: "text", nullable: true })
   notes?: string;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     hidden: true,
   })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
     hidden: true,
   })
@@ -44,7 +44,7 @@ export class CutListWorkStatusEntity {
 
   @ManyToOne(() => UserEntity, {
     nullable: true,
-    deleteRule: 'set null',
+    deleteRule: "set null",
   })
   @Index()
   createdBy?: UserEntity;

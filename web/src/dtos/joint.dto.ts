@@ -1,7 +1,7 @@
-import { PipeLengthDto } from './pipe-length.dto';
-import { FittingDto } from './fitting.dto';
-import { WeldDto } from './weld.dto';
-import { WorkStatusDto } from './work-status.dto';
+import { PipeLengthDto } from "./pipe-length.dto";
+import { FittingDto } from "./fitting.dto";
+import { WeldDto } from "./weld.dto";
+import { WorkStatusDto } from "./work-status.dto";
 
 export interface JointDto {
   id: number;

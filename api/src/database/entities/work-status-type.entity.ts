@@ -5,18 +5,18 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { PartWorkStatusEntity } from '@database/entities';
-import { WeldWorkStatusEntity } from '@modules/weld/entities/weld-work-status.entity';
-import { JointWorkStatusEntity } from '@modules/joint/entities/joint-work-status.entity';
+} from "@mikro-orm/core";
+import { PartWorkStatusEntity } from "@database/entities";
+import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
+import { JointWorkStatusEntity } from "@modules/joint/entities/joint-work-status.entity";
 
 export const WorkStatusType = {
-  TO_DO: 'to-do',
-  WORKING: 'working',
-  FINISHED: 'finished',
+  TO_DO: "to-do",
+  WORKING: "working",
+  FINISHED: "finished",
 };
 
-@Entity({ tableName: 'work_status_type' })
+@Entity({ tableName: "work_status_type" })
 export class WorkStatusTypeEntity {
   @PrimaryKey()
   id!: number;
@@ -25,12 +25,12 @@ export class WorkStatusTypeEntity {
   @Unique()
   name!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

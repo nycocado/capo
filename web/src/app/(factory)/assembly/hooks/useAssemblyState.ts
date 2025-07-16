@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export const useAssemblyState = () => {
   const [informationIds, setInformationIds] = useState<Set<number>>(new Set());
 
   const toggleInformation = useCallback((id: number) => {
-    setInformationIds(prev => {
+    setInformationIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -17,7 +17,7 @@ export const useAssemblyState = () => {
   }, []);
 
   const removeFromInformation = useCallback((id: number) => {
-    setInformationIds(prev => {
+    setInformationIds((prev) => {
       const newSet = new Set(prev);
       newSet.delete(id);
       return newSet;

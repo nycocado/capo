@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { AssemblyListEntity } from '@modules/assembly-list/entities';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { AssemblyListEntity } from "@modules/assembly-list/entities";
 import {
   EntityRepository,
   LoadStrategy,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
+} from "@mikro-orm/mariadb";
 import {
   IsometricEntity,
   WorkStatusType,
   WorkStatusTypeEntity,
-} from '@database/entities';
-import { UserEntity } from '@modules/user/entities';
-import { AssemblyListWorkStatusEntity } from '@modules/assembly-list/entities/assembly-list-work-status.entity';
+} from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
+import { AssemblyListWorkStatusEntity } from "@modules/assembly-list/entities/assembly-list-work-status.entity";
 
 @Injectable()
 export class AssemblyListRepository {
@@ -23,34 +23,34 @@ export class AssemblyListRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part1.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.part',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.material',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.diameter',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.part.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part1.fitting.part',
-    'isometric.sheets.revisions.spools.joints.part1.fitting.material',
-    'isometric.sheets.revisions.spools.joints.part1.fitting.fittingType',
-    'isometric.sheets.revisions.spools.joints.part1.fitting.ports.diameter',
-    'isometric.sheets.revisions.spools.joints.part1.fitting.part.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part2.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.part',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.material',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.diameter',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.part.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part2.fitting.part',
-    'isometric.sheets.revisions.spools.joints.part2.fitting.material',
-    'isometric.sheets.revisions.spools.joints.part2.fitting.fittingType',
-    'isometric.sheets.revisions.spools.joints.part2.fitting.ports.diameter',
-    'isometric.sheets.revisions.spools.joints.part2.fitting.part.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.welds.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.workStatuses.workStatusType',
+    "workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part1.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.part",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.material",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.diameter",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.part.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part1.fitting.part",
+    "isometric.sheets.revisions.spools.joints.part1.fitting.material",
+    "isometric.sheets.revisions.spools.joints.part1.fitting.fittingType",
+    "isometric.sheets.revisions.spools.joints.part1.fitting.ports.diameter",
+    "isometric.sheets.revisions.spools.joints.part1.fitting.part.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part2.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.part",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.material",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.diameter",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.part.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part2.fitting.part",
+    "isometric.sheets.revisions.spools.joints.part2.fitting.material",
+    "isometric.sheets.revisions.spools.joints.part2.fitting.fittingType",
+    "isometric.sheets.revisions.spools.joints.part2.fitting.ports.diameter",
+    "isometric.sheets.revisions.spools.joints.part2.fitting.part.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.welds.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.workStatuses.workStatusType",
   ] as const;
 
   private readonly MINIMAL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'isometric.sheets.revisions',
+    "workStatuses.workStatusType",
+    "isometric.sheets.revisions",
   ] as const;
 
   async findMinimalByJointIdOrFail(
@@ -211,7 +211,7 @@ export class AssemblyListRepository {
     const em = this.assemblyListRepository.getEntityManager();
 
     const assemblyList = new AssemblyListEntity(
-      'default',
+      "default",
       em.getReference(IsometricEntity, isometricId),
     );
 
@@ -231,7 +231,7 @@ export class AssemblyListRepository {
     em.persist(assemblyList);
     await em.flush();
 
-    assemblyList.internalId = `AL${assemblyList.id.toString().padStart(4, '0')}`;
+    assemblyList.internalId = `AL${assemblyList.id.toString().padStart(4, "0")}`;
     em.persist(assemblyList);
     await em.flush();
     return assemblyList;

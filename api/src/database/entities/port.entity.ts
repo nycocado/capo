@@ -6,12 +6,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { FittingEntity } from '@modules/fitting/entities';
-import { DiameterEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { FittingEntity } from "@modules/fitting/entities";
+import { DiameterEntity } from "@database/entities";
 
-@Entity({ tableName: 'port' })
-@Unique({ properties: ['fitting', 'number'] })
+@Entity({ tableName: "port" })
+@Unique({ properties: ["fitting", "number"] })
 export class PortEntity {
   @PrimaryKey()
   id!: number;
@@ -27,12 +27,12 @@ export class PortEntity {
   @Index()
   diameter!: DiameterEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

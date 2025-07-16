@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { ItemStateConfig } from './WorkGridItem.types';
-import { HTMLMotionProps } from 'framer-motion';
+import * as React from "react";
+import { ItemStateConfig } from "./WorkGridItem.types";
+import { HTMLMotionProps } from "framer-motion";
 
-export interface WorkGridProps extends HTMLMotionProps<'div'> {
+export interface WorkGridProps extends HTMLMotionProps<"div"> {
   items: any[];
   accessor: keyof any | ((item: any) => React.ReactNode);
   handleItemClick: (item: any) => void;

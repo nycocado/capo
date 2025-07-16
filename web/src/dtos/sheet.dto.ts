@@ -1,6 +1,6 @@
-import { PipeLengthDto } from './pipe-length.dto';
-import { FittingDto } from './fitting.dto';
-import { SpoolDto } from './spool.dto';
+import { PipeLengthDto } from "./pipe-length.dto";
+import { FittingDto } from "./fitting.dto";
+import { SpoolDto } from "./spool.dto";
 
 export interface SheetDto {
   id: number;

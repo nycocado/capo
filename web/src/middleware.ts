@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { API_ROUTES, ROUTES } from './routes';
-import ky from 'ky';
-import { HasRoleDto, RoleDto, ValidateResDto } from '@/interfaces';
+import { NextRequest, NextResponse } from "next/server";
+import { API_ROUTES, ROUTES } from "./routes";
+import ky from "ky";
+import { HasRoleDto, RoleDto, ValidateResDto } from "@/dtos";
 
 export const config = {
-  matcher: ['/', '/login', '/roles', '/cut', '/assembly', '/weld'],
+  matcher: ["/", "/login", "/roles", "/cut", "/assembly", "/weld"],
 };
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get('token')?.value;
+  const token = req.cookies.get("token")?.value;
   const isLoginPage = pathname === ROUTES.login;
 
   if (isLoginPage) {
@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(ROUTES.login, req.url));
   }
 
-  if (pathname === '/') {
+  if (pathname === "/") {
     return NextResponse.redirect(new URL(ROUTES.roles, req.url));
   }
 
@@ -39,9 +39,9 @@ export async function middleware(req: NextRequest) {
     });
 
   const pageRolesMap: Record<string, string> = {
-    [ROUTES.cut]: 'cutting-operator',
-    [ROUTES.assembly]: 'pipe-fitter',
-    [ROUTES.weld]: 'welder',
+    [ROUTES.cut]: "cutting-operator",
+    [ROUTES.assembly]: "pipe-fitter",
+    [ROUTES.weld]: "welder",
   };
 
   if (pathname in pageRolesMap) {

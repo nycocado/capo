@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { WpsEntity } from '@modules/wps/entities';
-import { WpsRepository } from '@modules/wps/wps.repository';
+import { Injectable } from "@nestjs/common";
+import { WpsEntity } from "@modules/wps/entities";
+import { WpsRepository } from "@modules/wps/wps.repository";
 
 @Injectable()
 export class WpsService {

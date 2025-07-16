@@ -1,9 +1,9 @@
-import { FillerMaterial } from '@models/filler-material.interface';
-import { Wps } from '@models/wps.interface';
+import { FillerMaterial } from "@models/filler-material.interface";
+import { Wps } from "@models/wps.interface";
 
 // Estados básicos
-export type WeldRowState = 'initial' | 'working' | 'finished';
-export type WeldItemState = 'initial' | 'finished';
+export type WeldRowState = "initial" | "working" | "finished";
+export type WeldItemState = "initial" | "finished";
 
 // Tipos para linhas da tabela
 export type WeldRow = {
@@ -64,16 +64,16 @@ export interface SheetSpools {
 
 // Ações do reducer
 export type WeldAction =
-  | { type: 'setRowWorking'; rowKey: string }
-  | { type: 'setRowFinished'; rowKey: string }
-  | { type: 'setWeldFinished'; weldId: number; finished: boolean }
+  | { type: "setRowWorking"; rowKey: string }
+  | { type: "setRowFinished"; rowKey: string }
+  | { type: "setWeldFinished"; weldId: number; finished: boolean }
   | {
-      type: 'updateWeldData';
+      type: "updateWeldData";
       weldId: number;
       filler?: FillerMaterial;
       wps?: Wps;
     }
-  | { type: 'selectWeld'; weld: WeldItemWithSpool | null }; // Nova ação para seleção
+  | { type: "selectWeld"; weld: WeldItemWithSpool | null }; // Nova ação para seleção
 
 // Estado do gerenciamento
 export interface WeldStateManagement {

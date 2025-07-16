@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { API_ROUTES } from '@/routes';
-import Cookies from 'js-cookie';
-import { Wps } from '@models/wps.interface';
-import { FillerMaterial } from '@models/filler-material.interface';
+import { useState, useCallback } from "react";
+import { API_ROUTES } from "@/routes";
+import Cookies from "js-cookie";
+import { Wps } from "@models/wps.interface";
+import { FillerMaterial } from "@models/filler-material.interface";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -25,11 +25,11 @@ export function useWeldOperations({
     async (route: string, body: object, errorContext: string) => {
       setIsSubmitting(true);
       try {
-        const token = Cookies.get('token');
+        const token = Cookies.get("token");
         const response = await fetch(`${API_URL}${route}`, {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(body),
@@ -38,7 +38,7 @@ export function useWeldOperations({
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           if (response.status === 401) {
-            throw new Error('Session expired. Please login again.');
+            throw new Error("Session expired. Please login again.");
           }
           throw new Error(errorData.message || `API Error: ${response.status}`);
         }
@@ -63,22 +63,22 @@ export function useWeldOperations({
   const fetchOptions = useCallback(
     async (endpoint: string) => {
       try {
-        const token = Cookies.get('token');
+        const token = Cookies.get("token");
         const response = await fetch(`${API_URL}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch options');
+          throw new Error("Failed to fetch options");
         }
 
         return await response.json();
       } catch (error) {
         onError?.(
-          error instanceof Error ? error.message : 'Failed to fetch options',
+          error instanceof Error ? error.message : "Failed to fetch options",
         );
         return [];
       }
@@ -111,7 +111,7 @@ export function useWeldOperations({
           wpsId,
           fillerMaterialId,
         },
-        'processing weld',
+        "processing weld",
       );
     },
     [performOperation],
@@ -125,7 +125,7 @@ export function useWeldOperations({
           weldId,
           wpsId,
         },
-        'editing WPS',
+        "editing WPS",
       );
     },
     [performOperation],
@@ -139,7 +139,7 @@ export function useWeldOperations({
           weldId,
           fillerMaterialId,
         },
-        'editing Filler Material',
+        "editing Filler Material",
       );
     },
     [performOperation],

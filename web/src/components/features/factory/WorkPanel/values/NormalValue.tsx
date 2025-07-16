@@ -1,5 +1,5 @@
-import React from 'react';
-import { NormalValueProps } from './NormalValue.types';
+import React from "react";
+import { NormalValueProps } from "./NormalValue.types";
 
 export function NormalValue({ label, value }: NormalValueProps) {
   return (

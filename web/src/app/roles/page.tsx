@@ -1,10 +1,8 @@
-import { cookies } from 'next/headers';
-import RolesClient from '@/app/roles/RolesClient';
-import { API_ROUTES, ROUTES } from '@/routes';
-import ky from 'ky';
-import { RoleDto } from '@/interfaces';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+import { cookies } from "next/headers";
+import RolesClient from "@/app/roles/RolesClient";
+import { API_ROUTES, ROUTES } from "@/routes";
+import ky from "ky";
+import { RoleDto } from "@/dtos";
 
 export interface Role {
   id: string;
@@ -13,14 +11,14 @@ export interface Role {
 }
 
 const fixedRoles: Role[] = [
-  { id: 'cutting-operator', title: 'Cutting Operator', route: ROUTES.cut },
-  { id: 'pipe-fitter', title: 'Pipe Fitter', route: ROUTES.assembly },
-  { id: 'welder', title: 'Welder', route: ROUTES.weld },
+  { id: "cutting-operator", title: "Cutting Operator", route: ROUTES.cut },
+  { id: "pipe-fitter", title: "Pipe Fitter", route: ROUTES.assembly },
+  { id: "welder", title: "Welder", route: ROUTES.weld },
 ];
 
 export default async function RolesPage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+  const token = cookieStore.get("token")?.value;
 
   try {
     const res = await ky

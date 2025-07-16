@@ -1,4 +1,6 @@
-import React from 'react';
+import React from "react";
+import { TabType } from "@components/features/factory/WorkTabs";
+import { tabSearchFieldMapping } from "./ControlPanel.searchConfig";
 
 export interface ControlButtonConfig {
   variant: string;
@@ -12,5 +14,8 @@ export interface ControlPanelProps {
   search: string;
   setSearch: (value: string) => void;
   buttons: ControlButtonConfig[];
-  tag: string;
+  searchField: string;
+  setSearchField: (value: string) => void;
+  activeTab: TabType;
+  context: keyof typeof tabSearchFieldMapping;
 }

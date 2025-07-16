@@ -1,24 +1,24 @@
-import { useState, useMemo, useReducer, useCallback, useEffect } from 'react';
-import { Weld } from '@models/weld.interface';
+import { useState, useMemo, useReducer, useCallback, useEffect } from "react";
+import { Weld } from "@models/weld.interface";
 import {
   IsoItem,
   SheetSpools,
   SpoolData,
   WeldRow,
   WeldItemWithSpool,
-} from './WeldClient.types';
-import { useFormModal } from './useFormModal';
-import { useWeldOperations } from './useWeldOperations';
+} from "./WeldClient.types";
+import { useFormModal } from "./useFormModal";
+import { useWeldOperations } from "./useWeldOperations";
 
-type WeldRowState = 'initial' | 'working' | 'finished';
-type WeldItemState = 'initial' | 'finished';
+type WeldRowState = "initial" | "working" | "finished";
+type WeldItemState = "initial" | "finished";
 
 type WeldAction =
-  | { type: 'setRowWorking'; rowKey: string }
-  | { type: 'setRowFinished'; rowKey: string }
-  | { type: 'setWeldFinished'; weldId: number; finished: boolean }
-  | { type: 'updateWeldData'; weldId: number; filler?: any; wps?: any }
-  | { type: 'selectWeld'; weld: WeldItemWithSpool | null };
+  | { type: "setRowWorking"; rowKey: string }
+  | { type: "setRowFinished"; rowKey: string }
+  | { type: "setWeldFinished"; weldId: number; finished: boolean }
+  | { type: "updateWeldData"; weldId: number; filler?: any; wps?: any }
+  | { type: "selectWeld"; weld: WeldItemWithSpool | null };
 
 interface WeldStateManagement {
   rowStates: Record<string, WeldRowState>;
@@ -37,40 +37,40 @@ const weldReducer = (
   action: WeldAction,
 ): WeldStateManagement => {
   switch (action.type) {
-    case 'setRowWorking': {
+    case "setRowWorking": {
       const hasWorkingRow = Object.values(state.rowStates).some(
-        (s) => s === 'working',
+        (s) => s === "working",
       );
-      if (hasWorkingRow && state.rowStates[action.rowKey] !== 'working') {
+      if (hasWorkingRow && state.rowStates[action.rowKey] !== "working") {
         return state;
       }
       return {
         ...state,
         rowStates: {
           ...state.rowStates,
-          [action.rowKey]: 'working',
+          [action.rowKey]: "working",
         },
       };
     }
-    case 'setRowFinished': {
+    case "setRowFinished": {
       return {
         ...state,
         rowStates: {
           ...state.rowStates,
-          [action.rowKey]: 'finished',
+          [action.rowKey]: "finished",
         },
       };
     }
-    case 'setWeldFinished': {
+    case "setWeldFinished": {
       return {
         ...state,
         weldStates: {
           ...state.weldStates,
-          [action.weldId]: action.finished ? 'finished' : 'initial',
+          [action.weldId]: action.finished ? "finished" : "initial",
         },
       };
     }
-    case 'updateWeldData': {
+    case "updateWeldData": {
       return {
         ...state,
         updatedWelds: {
@@ -82,7 +82,7 @@ const weldReducer = (
         },
       };
     }
-    case 'selectWeld': {
+    case "selectWeld": {
       return {
         ...state,
         selectedWeldId: action.weld?.id || null,
@@ -132,8 +132,8 @@ export function useWeldTable(
   callbacks?: UseWeldTableCallbacks,
 ) {
   // UI State
-  const [activeTab, setActiveTab] = useState<'all' | 'working'>('all');
-  const [search, setSearch] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<"all" | "working">("all");
+  const [search, setSearch] = useState<string>("");
   const [selectedSpool, setSelectedSpool] = useState<number | null>(null);
   const [selectedIso, setSelectedIso] = useState<IsoItem | null>(null);
   const [sheetNumber, setSheetNumber] = useState<number | null>(null);
@@ -152,14 +152,14 @@ export function useWeldTable(
     useWeldOperations({
       onSuccess: (weldId, wpsData, fillerData) => {
         dispatch({
-          type: 'updateWeldData',
+          type: "updateWeldData",
           weldId,
           filler: fillerData,
           wps: wpsData,
         });
 
         dispatch({
-          type: 'setWeldFinished',
+          type: "setWeldFinished",
           weldId: weldId,
           finished: true,
         });
@@ -216,9 +216,9 @@ export function useWeldTable(
   // Get working rows
   const workingRows = useMemo(() => {
     return Object.entries(stateManagement.rowStates)
-      .filter(([_, state]) => state === 'working' || state === 'finished')
+      .filter(([_, state]) => state === "working" || state === "finished")
       .map(([rowKey, _]) => {
-        const [spoolId, isoId, sheetNumber] = rowKey.split('-');
+        const [spoolId, isoId, sheetNumber] = rowKey.split("-");
         return {
           spoolId: parseInt(spoolId),
           isoId,
@@ -230,14 +230,14 @@ export function useWeldTable(
   // Get finished row keys for moving to bottom
   const finishedRowKeys = useMemo(() => {
     return Object.entries(stateManagement.rowStates)
-      .filter(([_, state]) => state === 'finished')
+      .filter(([_, state]) => state === "finished")
       .map(([rowKey, _]) => rowKey);
   }, [stateManagement.rowStates]);
 
   // Filter rows based on search and active tab with sorting
   const filteredRows = useMemo(() => {
     let filtered =
-      activeTab === 'all'
+      activeTab === "all"
         ? weldRows
         : weldRows.filter((row) =>
             workingRows.some(
@@ -314,14 +314,14 @@ export function useWeldTable(
   const getRowState = useCallback(
     (spoolId: number, isoId: string, sheetNumber: number): WeldRowState => {
       const rowKey = generateRowKey(spoolId, isoId, sheetNumber);
-      return stateManagement.rowStates[rowKey] || 'initial';
+      return stateManagement.rowStates[rowKey] || "initial";
     },
     [stateManagement.rowStates],
   );
 
   const getWeldState = useCallback(
     (weldId: number): WeldItemState => {
-      return stateManagement.weldStates[weldId] || 'initial';
+      return stateManagement.weldStates[weldId] || "initial";
     },
     [stateManagement.weldStates],
   );
@@ -341,7 +341,7 @@ export function useWeldTable(
 
     return workingTabRows.every((row) => {
       const rowState = getRowState(row.spoolId, row.isoId, row.sheetNumber);
-      return rowState === 'finished';
+      return rowState === "finished";
     });
   }, [weldRows, workingRows, getRowState]);
 
@@ -349,12 +349,12 @@ export function useWeldTable(
   const canSelectRow = useCallback(
     (spoolId: number, isoId: string, sheetNumber: number): boolean => {
       const hasWorkingRow = Object.values(stateManagement.rowStates).some(
-        (state) => state === 'working',
+        (state) => state === "working",
       );
       if (!hasWorkingRow) return true;
 
       const rowState = getRowState(spoolId, isoId, sheetNumber);
-      return rowState === 'working' || rowState === 'finished';
+      return rowState === "working" || rowState === "finished";
     },
     [stateManagement.rowStates, getRowState],
   );
@@ -365,11 +365,11 @@ export function useWeldTable(
       return;
 
     const rowState = getRowState(selectedSpool, selectedIso.id, sheetNumber);
-    if (rowState !== 'working') return;
+    if (rowState !== "working") return;
 
     const sortedWeldItems = [...weldItems].sort((a, b) => a.id - b.id);
     const nextWeldToFinish = sortedWeldItems.find(
-      (weld) => getWeldState(weld.id) === 'initial',
+      (weld) => getWeldState(weld.id) === "initial",
     );
 
     if (nextWeldToFinish) {
@@ -388,17 +388,17 @@ export function useWeldTable(
 
   // Main Next button handler
   const handleNext = useCallback(() => {
-    if (activeTab === 'all') {
+    if (activeTab === "all") {
       if (selectedRow) {
-        setActiveTab('working');
+        setActiveTab("working");
       }
-    } else if (activeTab === 'working') {
+    } else if (activeTab === "working") {
       if (areAllWorkingRowsFinished()) {
-        setActiveTab('all');
+        setActiveTab("all");
         setSelectedSpool(null);
         setSelectedIso(null);
         setSheetNumber(null);
-        dispatch({ type: 'selectWeld', weld: null });
+        dispatch({ type: "selectWeld", weld: null });
       } else {
         handleNextWorkflow();
       }
@@ -411,16 +411,16 @@ export function useWeldTable(
       if (!canSelectRow(row.spoolId, row.isoId, row.sheetNumber)) return;
 
       const rowKey = generateRowKey(row.spoolId, row.isoId, row.sheetNumber);
-      const currentState = stateManagement.rowStates[rowKey] || 'initial';
+      const currentState = stateManagement.rowStates[rowKey] || "initial";
 
-      if (currentState === 'initial') {
+      if (currentState === "initial") {
         const iso = isometricItems.find((i) => i.id === row.isoId);
         if (iso) {
           setSelectedSpool(row.spoolId);
           setSelectedIso(iso);
           setSheetNumber(row.sheetNumber);
-          dispatch({ type: 'setRowWorking', rowKey });
-          setActiveTab('working');
+          dispatch({ type: "setRowWorking", rowKey });
+          setActiveTab("working");
         }
       } else {
         const iso = isometricItems.find((i) => i.id === row.isoId);
@@ -428,8 +428,8 @@ export function useWeldTable(
           setSelectedSpool(row.spoolId);
           setSelectedIso(iso);
           setSheetNumber(row.sheetNumber);
-          if (currentState === 'working' || currentState === 'finished') {
-            setActiveTab('working');
+          if (currentState === "working" || currentState === "finished") {
+            setActiveTab("working");
           }
         }
       }
@@ -450,15 +450,15 @@ export function useWeldTable(
         return;
 
       const rowState = getRowState(selectedSpool, selectedIso.id, sheetNumber);
-      dispatch({ type: 'selectWeld', weld: item });
+      dispatch({ type: "selectWeld", weld: item });
 
-      if (rowState !== 'working') {
+      if (rowState !== "working") {
         return;
       }
 
-      const currentState = stateManagement.weldStates[item.id] || 'initial';
+      const currentState = stateManagement.weldStates[item.id] || "initial";
 
-      if (currentState === 'initial') {
+      if (currentState === "initial") {
         formModal.openProcess(item.id);
       }
     },
@@ -481,15 +481,15 @@ export function useWeldTable(
           const rowKey = generateRowKey(spool.id, item.id, sheet.number);
           const currentRowState = stateManagement.rowStates[rowKey];
 
-          if (currentRowState === 'working') {
+          if (currentRowState === "working") {
             const allWeldIds = spool.welds.map((weld) => weld.id);
 
             const allWeldsFinished = allWeldIds.every(
-              (weldId) => stateManagement.weldStates[weldId] === 'finished',
+              (weldId) => stateManagement.weldStates[weldId] === "finished",
             );
 
             if (allWeldsFinished && allWeldIds.length > 0) {
-              dispatch({ type: 'setRowFinished', rowKey });
+              dispatch({ type: "setRowFinished", rowKey });
             }
           }
         });
@@ -518,7 +518,7 @@ export function useWeldTable(
   // Auto-select weld when row changes
   useEffect(() => {
     if (!selectedRow) {
-      dispatch({ type: 'selectWeld', weld: null });
+      dispatch({ type: "selectWeld", weld: null });
       return;
     }
 
@@ -528,21 +528,21 @@ export function useWeldTable(
       selectedRow.sheetNumber,
     );
 
-    if (rowState === 'working') {
+    if (rowState === "working") {
       if (!selectedWeld || !weldItems.find((w) => w.id === selectedWeld.id)) {
         const availableWeld = weldItems.find(
-          (weld) => getWeldState(weld.id) === 'initial',
+          (weld) => getWeldState(weld.id) === "initial",
         );
         if (availableWeld) {
-          dispatch({ type: 'selectWeld', weld: availableWeld });
+          dispatch({ type: "selectWeld", weld: availableWeld });
         } else if (weldItems.length > 0) {
-          dispatch({ type: 'selectWeld', weld: weldItems[0] });
+          dispatch({ type: "selectWeld", weld: weldItems[0] });
         }
       }
-    } else if (rowState === 'finished') {
+    } else if (rowState === "finished") {
       if (!selectedWeld && weldItems.length > 0) {
         dispatch({
-          type: 'selectWeld',
+          type: "selectWeld",
           weld: weldItems[weldItems.length - 1],
         });
       }
@@ -553,13 +553,13 @@ export function useWeldTable(
   const rowStates = useMemo(
     () => ({
       initial: {
-        className: 'bg-dark text-light',
+        className: "bg-dark text-light",
       },
       working: {
-        className: 'bg-primary text-white',
+        className: "bg-primary text-white",
       },
       finished: {
-        className: 'bg-success text-white',
+        className: "bg-success text-white",
       },
     }),
     [],
@@ -577,16 +577,16 @@ export function useWeldTable(
     () => ({
       initial: {
         className: isSubmitting
-          ? 'bg-secondary text-white'
-          : 'bg-dark text-light',
+          ? "bg-secondary text-white"
+          : "bg-dark text-light",
         onClick: (item: WeldItemWithSpool) => {
           handleWeldClick(item);
         },
       },
       finished: {
-        className: 'bg-success text-white',
+        className: "bg-success text-white",
         onClick: (item: WeldItemWithSpool) => {
-          dispatch({ type: 'selectWeld', weld: item });
+          dispatch({ type: "selectWeld", weld: item });
         },
       },
     }),
@@ -595,7 +595,7 @@ export function useWeldTable(
 
   const itemStateAccessor = useCallback(
     (item: WeldItemWithSpool): WeldItemState => {
-      if (!item?.id) return 'initial';
+      if (!item?.id) return "initial";
       return getWeldState(item.id);
     },
     [getWeldState],

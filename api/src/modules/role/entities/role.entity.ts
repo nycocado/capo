@@ -6,12 +6,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from '@modules/user/entities';
-import { UserRoleEntity } from '@modules/user-role/entities';
+} from "@mikro-orm/core";
+import { ApiProperty } from "@nestjs/swagger";
+import { UserEntity } from "@modules/user/entities";
+import { UserRoleEntity } from "@modules/user-role/entities";
 
-@Entity({ tableName: 'role' })
+@Entity({ tableName: "role" })
 export class RoleEntity {
   @PrimaryKey({ hidden: true })
   id!: number;
@@ -21,12 +21,12 @@ export class RoleEntity {
   @Unique()
   name!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

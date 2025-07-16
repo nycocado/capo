@@ -1,2 +1,2 @@
-export * from './mikroorm.config';
-export * from './swagger.config';
+export * from "./mikroorm.config";
+export * from "./swagger.config";

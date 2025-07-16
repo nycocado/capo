@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { WorkGridProps } from './WorkGrid.types';
-import { WorkGridItem } from './WorkGridItem';
+import React from "react";
+import { motion } from "framer-motion";
+import { WorkGridProps } from "./WorkGrid.types";
+import { WorkGridItem } from "./WorkGridItem";
 
 export function WorkGrid(props: WorkGridProps) {
   const {
@@ -32,7 +32,7 @@ export function WorkGrid(props: WorkGridProps) {
     <div className="d-flex flex-column h-100">
       <div
         className="flex-grow-1 d-flex flex-column rounded-3 overflow-auto bg-dark"
-        style={{ height: '400px' }}
+        style={{ height: "400px" }}
       >
         {groups.map((groupItems, gi) => (
           <React.Fragment key={gi}>

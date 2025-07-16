@@ -1,10 +1,10 @@
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
 import {
   MaterialResponseDto,
   PortResponseDto,
   WorkStatusResponseDto,
-} from '@shared/dto';
-import { FittingTypeResponseDto } from '@modules/fitting/dto/fitting-type-response.dto';
+} from "@shared/dto";
+import { FittingTypeResponseDto } from "@modules/fitting/dto/fitting-type-response.dto";
 
 export class FittingResponseDto {
   @Expose()

@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
-import ky from 'ky';
-import { API_ROUTES } from '@/routes';
-import { AssemblyListDto } from '@/dtos';
+import { useCallback } from "react";
+import ky from "ky";
+import { API_ROUTES } from "@/routes";
+import { AssemblyListDto } from "@/dtos";
 
 interface UseAssemblyListOperationsProps {
   onSuccess?: (updatedAssemblyList: AssemblyListDto) => void;
@@ -18,13 +18,13 @@ export const useAssemblyListOperations = ({
         const response = await ky.patch(
           API_ROUTES.assemblyLists.setWorking(assemblyListId),
           {
-            credentials: 'include',
+            credentials: "include",
           },
         );
 
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Session expired. Please login again.');
+            throw new Error("Session expired. Please login again.");
           }
           throw new Error(`API Error: ${response.status}`);
         }
@@ -36,7 +36,7 @@ export const useAssemblyListOperations = ({
         const errorMessage =
           error instanceof Error
             ? error.message
-            : 'Unexpected error setting assembly list to working';
+            : "Unexpected error setting assembly list to working";
         onError?.(errorMessage);
         return false;
       }

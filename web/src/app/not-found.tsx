@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from 'react-bootstrap';
-import { useRouter } from 'next/navigation';
+import { Button } from "react-bootstrap";
+import { useRouter } from "next/navigation";
 
 function NotFound() {
   const router = useRouter();
@@ -13,7 +13,7 @@ function NotFound() {
         <p className="text-lg mt-3">
           The page you are looking for does not exist.
         </p>
-        <Button className="mt-3" onClick={() => router.push('/')}>
+        <Button className="mt-3" onClick={() => router.push("/")}>
           Go to Home
         </Button>
       </div>

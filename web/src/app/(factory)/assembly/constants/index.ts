@@ -1,8 +1,8 @@
 export const WORK_STATES = {
-  TO_DO: 'to-do',
-  WORKING: 'working',
-  FINISHED: 'finished',
-  INFORMATION: 'information',
+  TO_DO: "to-do",
+  WORKING: "working",
+  FINISHED: "finished",
+  INFORMATION: "information",
 } as const;
 
 export const TIMING = {

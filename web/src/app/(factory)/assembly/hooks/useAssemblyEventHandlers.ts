@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   getWorkStatusState,
   canUserAccessAssemblyList,
-} from './useWorkStatusAccessor';
-import { WORK_STATES } from '../constants';
-import { TAB_TYPES, type TabType } from '@components/features/factory/WorkTabs';
-import { AssemblyListDto } from '@/dtos';
+} from "./useWorkStatusAccessor";
+import { WORK_STATES } from "../constants";
+import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
+import { AssemblyListDto } from "@/dtos";
 
 export interface UseAssemblyTableCallbacks {
   onAssemblyListSelected?: (assemblyList: AssemblyListDto) => void;
@@ -31,7 +31,7 @@ export const useAssemblyEventHandlers = (
 
       if (activeTab === TAB_TYPES.ALL) {
         // Block access if assembly list is restricted
-        if (currentState === 'danger') {
+        if (currentState === "danger") {
           return; // Do nothing for restricted assembly lists
         }
 
@@ -43,7 +43,8 @@ export const useAssemblyEventHandlers = (
 
       if (activeTab === TAB_TYPES.WORKING) {
         // Block if other information items exist
-        const hasOtherInformation = hasInformationItems() && !informationIds.has(item.id);
+        const hasOtherInformation =
+          hasInformationItems() && !informationIds.has(item.id);
 
         // Block if other working items exist
         const hasOtherWorkingItems = items.some((i) => {

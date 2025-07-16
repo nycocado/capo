@@ -2,11 +2,11 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-} from '@nestjs/common';
-import { WeldEntity } from '@modules/weld/entities';
-import { WorkStatusType } from '@database/entities';
-import { WeldRepository } from '@modules/weld/weld.repository';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+} from "@nestjs/common";
+import { WeldEntity } from "@modules/weld/entities";
+import { WorkStatusType } from "@database/entities";
+import { WeldRepository } from "@modules/weld/weld.repository";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class WeldService {
@@ -42,7 +42,7 @@ export class WeldService {
       notes,
     );
 
-    this.eventEmitter.emit('weld.updateWorkStatusToFinished', newWeld, userId);
+    this.eventEmitter.emit("weld.updateWorkStatusToFinished", newWeld, userId);
 
     return newWeld;
   }

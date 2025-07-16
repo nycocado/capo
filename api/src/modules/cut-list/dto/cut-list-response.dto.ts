@@ -1,6 +1,6 @@
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
-import { IsometricResponseDto } from '@shared/dto/isometric-response.dto';
-import { WorkStatusResponseDto } from '@shared/dto';
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
+import { IsometricResponseDto } from "@shared/dto/isometric-response.dto";
+import { WorkStatusResponseDto } from "@shared/dto";
 
 export class CutListResponseDto {
   @Expose()

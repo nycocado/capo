@@ -1,5 +1,5 @@
 export interface DoubleValueConfig {
-  type: 'double';
+  type: "double";
   label: string;
   primaryValue: string | number;
   primaryTag: string;

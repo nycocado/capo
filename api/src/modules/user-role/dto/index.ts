@@ -1,1 +1,1 @@
-export * from './user-role-response.dto';
+export * from "./user-role-response.dto";

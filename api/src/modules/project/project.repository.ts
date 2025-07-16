@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { ProjectEntity } from '@modules/project/entities';
-import { EntityRepository } from '@mikro-orm/mariadb';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { ProjectEntity } from "@modules/project/entities";
+import { EntityRepository } from "@mikro-orm/mariadb";
 
 @Injectable()
 export class ProjectRepository {

@@ -1,9 +1,9 @@
-import { PipeLengthDto } from '@/dtos/pipe-length.dto';
-import { FittingDto } from '@/dtos/fitting.dto';
+import { PipeLengthDto } from "@/dtos/pipe-length.dto";
+import { FittingDto } from "@/dtos/fitting.dto";
 
 export interface MaterialVerificationModalProps {
   showModal: boolean;
-  currentStep: 'pipeLength' | 'fitting';
+  currentStep: "pipeLength" | "fitting";
   currentStepData: any[];
   currentStepTitle: string;
   canContinue: boolean;
@@ -18,6 +18,6 @@ export interface MaterialVerificationModalProps {
   handleNext: () => void;
   handlePrevious: () => void;
   handleCancel: () => void;
-  getPipeLengthState: (pipeLength: PipeLengthDto) => 'initial' | 'finished';
-  getFittingState: (fitting: FittingDto) => 'initial' | 'finished';
+  getPipeLengthState: (pipeLength: PipeLengthDto) => "initial" | "finished";
+  getFittingState: (fitting: FittingDto) => "initial" | "finished";
 }

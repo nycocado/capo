@@ -1,27 +1,27 @@
-'use client';
-import Image from 'next/image';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { API_ROUTES, ROUTES } from '@/routes';
-import { LoginResDto } from '@/interfaces';
-import ky from 'ky';
+"use client";
+import Image from "next/image";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { API_ROUTES, ROUTES } from "@/routes";
+import { LoginResDto } from "@/dtos";
+import ky from "ky";
 
 function LoginPage() {
-  const [internalId, setInternalId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [internalId, setInternalId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await ky.post<LoginResDto>(API_ROUTES.auth.login, {
-        credentials: 'include',
+        credentials: "include",
         json: {
           internalId,
           password,
@@ -30,7 +30,7 @@ function LoginPage() {
 
       router.push(ROUTES.roles);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -42,13 +42,13 @@ function LoginPage() {
           md={7}
           className="d-flex flex-column justify-content-center align-items-center bg-light"
         >
-          <div className={error ? '' : 'mb-4'}>
+          <div className={error ? "" : "mb-4"}>
             <h1 className="display-4 fw-medium text-center">Welcome Back</h1>
             {error && <Alert variant="danger">{error}</Alert>}
           </div>
           <Form
             className="w-50 px-5"
-            style={{ maxWidth: '400px' }}
+            style={{ maxWidth: "400px" }}
             onSubmit={handleSubmit}
           >
             <Form.Group controlId="formUser" className="mb-3">
@@ -78,7 +78,7 @@ function LoginPage() {
                 type="submit"
                 disabled={loading}
               >
-                {loading ? 'Loading...' : 'Login'}
+                {loading ? "Loading..." : "Login"}
               </Button>
             </div>
             <div className="text-center mt-3">
@@ -92,7 +92,7 @@ function LoginPage() {
           md={5}
           className={`d-flex flex-column justify-content-center align-items-center text-center bg-dark`}
         >
-          <div className="w-100 px-5" style={{ maxWidth: '600px' }}>
+          <div className="w-100 px-5" style={{ maxWidth: "600px" }}>
             <Image
               src="/logo.svg"
               alt="CAPO Logo"
@@ -100,9 +100,9 @@ function LoginPage() {
               height={0}
               sizes="100vw"
               style={{
-                width: '100%',
-                height: 'auto',
-                margin: '0 auto',
+                width: "100%",
+                height: "auto",
+                margin: "0 auto",
               }}
             />
           </div>

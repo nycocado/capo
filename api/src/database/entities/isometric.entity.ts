@@ -8,12 +8,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ProjectEntity } from '@modules/project/entities';
-import { SheetEntity } from '@database/entities';
-import { CutListEntity } from '@modules/cut-list/entities';
+} from "@mikro-orm/core";
+import { ProjectEntity } from "@modules/project/entities";
+import { SheetEntity } from "@database/entities";
+import { CutListEntity } from "@modules/cut-list/entities";
 
-@Entity({ tableName: 'isometric' })
+@Entity({ tableName: "isometric" })
 export class IsometricEntity {
   @PrimaryKey()
   id!: number;
@@ -26,12 +26,12 @@ export class IsometricEntity {
   @Index()
   project!: ProjectEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

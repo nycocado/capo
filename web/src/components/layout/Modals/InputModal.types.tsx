@@ -8,7 +8,7 @@ export interface InputModalProps {
   initialValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
-  inputType?: 'text' | 'number';
+  inputType?: "text" | "number";
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;

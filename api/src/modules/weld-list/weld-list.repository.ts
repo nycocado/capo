@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { WeldListEntity } from '@modules/weld-list/entities';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { WeldListEntity } from "@modules/weld-list/entities";
 import {
   EntityRepository,
   LoadStrategy,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
+} from "@mikro-orm/mariadb";
 import {
   SpoolEntity,
   WorkStatusType,
   WorkStatusTypeEntity,
-} from '@database/entities';
-import { UserEntity } from '@modules/user/entities';
-import { WeldListWorkStatusEntity } from '@modules/weld-list/entities/weld-list-work-status.entity';
+} from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
+import { WeldListWorkStatusEntity } from "@modules/weld-list/entities/weld-list-work-status.entity";
 
 @Injectable()
 export class WeldListRepository {
@@ -23,15 +23,15 @@ export class WeldListRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'spool.joints.welds.workStatuses.workStatusType',
-    'spool.joints.welds.fillerMaterial',
-    'spool.joints.welds.wps',
+    "workStatuses.workStatusType",
+    "spool.joints.welds.workStatuses.workStatusType",
+    "spool.joints.welds.fillerMaterial",
+    "spool.joints.welds.wps",
   ] as const;
 
   private readonly MINIMAL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'spool',
+    "workStatuses.workStatusType",
+    "spool",
   ] as const;
 
   async findMinimalByIdOrFail(id: number): Promise<WeldListEntity> {
@@ -197,7 +197,7 @@ export class WeldListRepository {
     const em = this.weldListRepository.getEntityManager();
 
     const weldList = new WeldListEntity(
-      'default',
+      "default",
       em.getReference(SpoolEntity, spoolId),
     );
 
@@ -217,7 +217,7 @@ export class WeldListRepository {
     em.persist(workStatus);
     await em.flush();
 
-    weldList.internalId = `WL${weldList.id.toString().padStart(4, '0')}`;
+    weldList.internalId = `WL${weldList.id.toString().padStart(4, "0")}`;
     em.persist(weldList);
     await em.flush();
     return weldList;

@@ -6,7 +6,7 @@ export interface DropdownOption {
 export interface FormField {
   id: string;
   label: string;
-  type: 'select' | 'text' | 'number';
+  type: "select" | "text" | "number";
   required?: boolean;
   options?: DropdownOption[];
   placeholder?: string;

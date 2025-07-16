@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 import {
   DoubleValueConfig,
   NormalValueConfig,
   TaggedValueConfig,
-} from '@components/features/factory/WorkPanel';
+} from "@components/features/factory/WorkPanel";
 
 export type ValueConfig =
   | TaggedValueConfig

@@ -1,1 +1,1 @@
-export * from './wps-response.dto';
+export * from "./wps-response.dto";

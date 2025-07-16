@@ -5,11 +5,11 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { PipeLengthEntity } from '@modules/pipe-length/entities';
-import { FittingEntity } from '@modules/fitting/entities';
+} from "@mikro-orm/core";
+import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { FittingEntity } from "@modules/fitting/entities";
 
-@Entity({ tableName: 'material' })
+@Entity({ tableName: "material" })
 export class MaterialEntity {
   @PrimaryKey()
   id!: number;
@@ -18,12 +18,12 @@ export class MaterialEntity {
   @Unique()
   name!: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

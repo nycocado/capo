@@ -1,14 +1,14 @@
-'use client';
-import { Navbar, Nav, Button } from 'react-bootstrap';
-import Image from 'next/image';
-import { ArrowLeftEndOnRectangleIcon } from '@heroicons/react/16/solid';
-import { UserIcon } from '@heroicons/react/16/solid';
-import { ChevronRightIcon } from '@heroicons/react/16/solid';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/routes';
-import Cookies from 'js-cookie';
-import { useState } from 'react';
-import { ConfirmModal } from '@components/layout/Modals';
+"use client";
+import { Navbar, Nav, Button } from "react-bootstrap";
+import Image from "next/image";
+import { ArrowLeftEndOnRectangleIcon } from "@heroicons/react/16/solid";
+import { UserIcon } from "@heroicons/react/16/solid";
+import { ChevronRightIcon } from "@heroicons/react/16/solid";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/routes";
+import Cookies from "js-cookie";
+import { useState } from "react";
+import { ConfirmModal } from "@components/layout/Modals";
 
 function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -16,7 +16,7 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
   const handleLogout = () => setShowConfirm(true);
 
   const confirmLogout = () => {
-    Cookies.remove('token', { path: '/' });
+    Cookies.remove("token", { path: "/" });
     setShowConfirm(false);
     router.push(ROUTES.login);
   };
@@ -26,7 +26,7 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
     <>
       <Navbar
         className="mx-4"
-        fixed={fixed ? 'top' : undefined}
+        fixed={fixed ? "top" : undefined}
         variant="dark"
         expand={true}
       >
@@ -46,7 +46,7 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
             className="text-primary ms-2"
           />
           <span className="fs-3 fw-semibold ms-2 text-primary">
-            {title || 'Factory'}
+            {title || "Factory"}
           </span>
         </Navbar.Brand>
         <Nav className="ms-auto align-items-center gap-4">

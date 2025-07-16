@@ -8,12 +8,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsometricEntity } from '@database/entities';
-import { AssemblyListWorkStatusEntity } from '@modules/assembly-list/entities/assembly-list-work-status.entity';
+} from "@mikro-orm/core";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsometricEntity } from "@database/entities";
+import { AssemblyListWorkStatusEntity } from "@modules/assembly-list/entities/assembly-list-work-status.entity";
 
-@Entity({ tableName: 'assembly_list' })
+@Entity({ tableName: "assembly_list" })
 export class AssemblyListEntity {
   @ApiProperty()
   @PrimaryKey()
@@ -29,12 +29,12 @@ export class AssemblyListEntity {
   @Index()
   isometric!: IsometricEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

@@ -1,1 +1,1 @@
-export * from './fitter-material-response.dto';
+export * from "./fitter-material-response.dto";

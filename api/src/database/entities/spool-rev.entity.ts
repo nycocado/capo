@@ -6,11 +6,11 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { SpoolEntity, RevEntity } from '@database/entities';
+} from "@mikro-orm/core";
+import { SpoolEntity, RevEntity } from "@database/entities";
 
-@Entity({ tableName: 'spool_rev' })
-@Unique({ properties: ['spool', 'rev'] })
+@Entity({ tableName: "spool_rev" })
+@Unique({ properties: ["spool", "rev"] })
 export class SpoolRevEntity {
   @PrimaryKey()
   id!: number;
@@ -23,12 +23,12 @@ export class SpoolRevEntity {
   @Index()
   rev!: RevEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

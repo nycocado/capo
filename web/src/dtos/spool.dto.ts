@@ -1,5 +1,5 @@
-import { JointDto } from './joint.dto';
-import { WeldDto } from './weld.dto';
+import { JointDto } from "./joint.dto";
+import { WeldDto } from "./weld.dto";
 
 export interface SpoolDto {
   id: number;

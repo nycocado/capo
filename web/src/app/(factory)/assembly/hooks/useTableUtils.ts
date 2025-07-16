@@ -1,6 +1,6 @@
-import { AssemblyListDto } from '@/dtos';
-import { TAB_TYPES, TabType } from '@components/features/factory/WorkTabs';
-import { useMemo } from 'react';
+import { AssemblyListDto } from "@/dtos";
+import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
+import { useMemo } from "react";
 
 // Sort finished items to end of list
 export const sortFinishedLast = (
@@ -21,10 +21,11 @@ export const filterBySearch = (
   items: AssemblyListDto[],
   search: string,
 ): AssemblyListDto[] => {
-  const searchTerm = search.replace(/^0+/, '');
-  return items.filter((item) =>
-    item.internalId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.id.toString().includes(searchTerm)
+  const searchTerm = search.replace(/^0+/, "");
+  return items.filter(
+    (item) =>
+      item.internalId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.id.toString().includes(searchTerm),
   );
 };
 
@@ -35,24 +36,24 @@ export const useRowStates = (
 ) => {
   return useMemo(() => {
     const baseStates = {
-      'to-do': {
-        className: 'bg-dark text-white',
+      "to-do": {
+        className: "bg-dark text-white",
         onClick: handleRowClick,
       },
       information: {
-        className: 'bg-tertiary text-white',
+        className: "bg-tertiary text-white",
         onClick: handleRowClick,
       },
       working: {
-        className: 'bg-primary text-white',
+        className: "bg-primary text-white",
         onClick: handleRowClick, // ✅ HABILITADO para permitir seleção
       },
       finished: {
-        className: 'bg-success text-white',
+        className: "bg-success text-white",
         onClick: handleRowClick, // ✅ HABILITADO para permitir seleção
       },
       danger: {
-        className: 'bg-danger text-white',
+        className: "bg-danger text-white",
         // No onClick for danger state - blocks interaction
       },
     };

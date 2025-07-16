@@ -5,13 +5,13 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
-} from '@mikro-orm/core';
-import { WorkStatusTypeEntity } from '@database/entities';
-import { UserEntity } from '@modules/user/entities';
-import { WeldEntity } from '@modules/weld/entities';
+} from "@mikro-orm/core";
+import { WorkStatusTypeEntity } from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
+import { WeldEntity } from "@modules/weld/entities";
 
-@Entity({ tableName: 'weld_work_status' })
-@Index({ properties: ['weld', 'workStatusType', 'createdAt'] })
+@Entity({ tableName: "weld_work_status" })
+@Index({ properties: ["weld", "workStatusType", "createdAt"] })
 export class WeldWorkStatusEntity {
   @PrimaryKey()
   id!: number;
@@ -24,20 +24,20 @@ export class WeldWorkStatusEntity {
   @Index()
   workStatusType!: WorkStatusTypeEntity;
 
-  @Property({ type: 'text', nullable: true })
+  @Property({ type: "text", nullable: true })
   notes?: string;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
 
-  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: 'set null' })
+  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: "set null" })
   @Index()
   createdBy?: UserEntity;
 

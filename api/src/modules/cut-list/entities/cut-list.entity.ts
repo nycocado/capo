@@ -8,12 +8,12 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsometricEntity } from '@database/entities';
-import { CutListWorkStatusEntity } from '@modules/cut-list/entities/cut-list-work-status.entity';
+} from "@mikro-orm/core";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsometricEntity } from "@database/entities";
+import { CutListWorkStatusEntity } from "@modules/cut-list/entities/cut-list-work-status.entity";
 
-@Entity({ tableName: 'cut_list' })
+@Entity({ tableName: "cut_list" })
 export class CutListEntity {
   @ApiProperty()
   @PrimaryKey()
@@ -29,12 +29,12 @@ export class CutListEntity {
   @Index()
   isometric!: IsometricEntity;
 
-  @Property({ type: 'timestamp', defaultRaw: 'CURRENT_TIMESTAMP' })
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
   @Property({
-    type: 'timestamp',
-    defaultRaw: 'CURRENT_TIMESTAMP',
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;

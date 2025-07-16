@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { CutListRepository } from '@modules/cut-list/cut-list.repository';
-import { CutListEntity } from '@modules/cut-list/entities';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { PipeLengthEntity } from '@modules/pipe-length/entities';
-import { PartType, WorkStatusType } from '@database/entities';
+import { Injectable } from "@nestjs/common";
+import { CutListRepository } from "@modules/cut-list/cut-list.repository";
+import { CutListEntity } from "@modules/cut-list/entities";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
+import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { PartType, WorkStatusType } from "@database/entities";
 
 @Injectable()
 export class CutListService {
@@ -47,7 +47,7 @@ export class CutListService {
       await this.cutListRepository.populateToFull(newCutList);
 
     this.eventEmitter.emit(
-      'cut-list.updateWorkStatusToWorking',
+      "cut-list.updateWorkStatusToWorking",
       populatedCutList,
       userId,
     );
@@ -68,7 +68,7 @@ export class CutListService {
       await this.cutListRepository.populateToFull(newCutList);
 
     this.eventEmitter.emit(
-      'cut-list.updateWorkStatusToFinished',
+      "cut-list.updateWorkStatusToFinished",
       populatedCutList,
       userId,
     );
@@ -76,7 +76,7 @@ export class CutListService {
     return populatedCutList;
   }
 
-  @OnEvent('pipe-length.updateWorkStatusToFinished', { async: true })
+  @OnEvent("pipe-length.updateWorkStatusToFinished", { async: true })
   async handleWorkStatusToFinished(
     pipeLength: PipeLengthEntity,
     userId: number,

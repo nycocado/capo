@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { PipeLengthEntity } from '@modules/pipe-length/entities';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { PipeLengthEntity } from "@modules/pipe-length/entities";
 import {
   EntityRepository,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
+} from "@mikro-orm/mariadb";
 import {
   PartWorkStatusEntity,
   WorkStatusType,
   WorkStatusTypeEntity,
-} from '@database/entities';
-import { UserEntity } from '@modules/user/entities';
+} from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
 
 @Injectable()
 export class PipeLengthRepository {
@@ -21,13 +21,13 @@ export class PipeLengthRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'part.workStatuses.workStatusType',
-    'material',
-    'diameter',
+    "part.workStatuses.workStatusType",
+    "material",
+    "diameter",
   ] as const;
 
   private readonly WORK_STATUS_POPULATE_FIELDS = [
-    'part.workStatuses.workStatusType',
+    "part.workStatuses.workStatusType",
   ] as const;
 
   async findById(id: number): Promise<PipeLengthEntity | null> {

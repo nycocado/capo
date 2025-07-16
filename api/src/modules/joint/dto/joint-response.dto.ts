@@ -1,14 +1,14 @@
-import { PipeLengthResponseDto } from '@modules/pipe-length/dto';
-import { FittingResponseDto } from '@modules/fitting/dto';
-import { WeldResponseDto } from '@modules/weld/dto';
-import { WorkStatusResponseDto } from '@shared/dto';
-import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
+import { PipeLengthResponseDto } from "@modules/pipe-length/dto";
+import { FittingResponseDto } from "@modules/fitting/dto";
+import { WeldResponseDto } from "@modules/weld/dto";
+import { WorkStatusResponseDto } from "@shared/dto";
+import { Expose, plainToInstance, Transform, Type } from "class-transformer";
 
 export class JointResponseDto {
   @Expose()
   id: number;
 
-  @Expose({ groups: ['joint'] })
+  @Expose({ groups: ["joint"] })
   @Transform(({ obj, options }) => {
     return obj.part2?.pipeLength
       ? plainToInstance(PipeLengthResponseDto, obj.part1.pipeLength, {
@@ -20,7 +20,7 @@ export class JointResponseDto {
   })
   part1: PipeLengthResponseDto | FittingResponseDto;
 
-  @Expose({ groups: ['joint'] })
+  @Expose({ groups: ["joint"] })
   @Transform(({ obj, options }) => {
     return obj.part2?.pipeLength
       ? plainToInstance(PipeLengthResponseDto, obj.part1.pipeLength, {

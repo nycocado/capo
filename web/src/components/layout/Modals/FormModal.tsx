@@ -1,7 +1,7 @@
-import { Button, Form, Alert } from 'react-bootstrap';
-import React from 'react';
-import { BaseModal } from './BaseModal';
-import { FormField, FormModalProps } from './FormModal.types';
+import { Button, Form, Alert } from "react-bootstrap";
+import React from "react";
+import { BaseModal } from "./BaseModal";
+import { FormField, FormModalProps } from "./FormModal.types";
 
 export function FormModal(props: FormModalProps) {
   const {
@@ -11,14 +11,14 @@ export function FormModal(props: FormModalProps) {
     values,
     loading = false,
     error,
-    submitText = 'Submit',
-    cancelText = 'Cancel',
+    submitText = "Submit",
+    cancelText = "Cancel",
     handleFieldChange,
     handleSubmit,
     handleCancel,
-    titleClassName = 'fs-1 fw-bold text-center',
-    confirmVariant = 'primary',
-    cancelVariant = 'secondary',
+    titleClassName = "fs-1 fw-bold text-center",
+    confirmVariant = "primary",
+    cancelVariant = "secondary",
   } = props;
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -27,10 +27,10 @@ export function FormModal(props: FormModalProps) {
   };
 
   const renderField = (field: FormField) => {
-    const value = values[field.id] || '';
+    const value = values[field.id] || "";
 
     switch (field.type) {
-      case 'select':
+      case "select":
         return (
           <Form.Select
             value={value}
@@ -50,7 +50,7 @@ export function FormModal(props: FormModalProps) {
           </Form.Select>
         );
 
-      case 'number':
+      case "number":
         return (
           <Form.Control
             type="number"
@@ -63,7 +63,7 @@ export function FormModal(props: FormModalProps) {
           />
         );
 
-      case 'text':
+      case "text":
       default:
         return (
           <Form.Control
@@ -83,7 +83,7 @@ export function FormModal(props: FormModalProps) {
   const isFormValid = fields.every((field) => {
     if (!field.required) return true;
     const value = values[field.id];
-    return value && value.trim() !== '';
+    return value && value.trim() !== "";
   });
 
   return (

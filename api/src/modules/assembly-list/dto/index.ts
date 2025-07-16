@@ -1,1 +1,1 @@
-export * from './assembly-list-response.dto';
+export * from "./assembly-list-response.dto";

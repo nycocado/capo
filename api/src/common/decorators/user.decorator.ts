@@ -1,9 +1,9 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { RequestWithUser } from '@shared/types';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { RequestWithUser } from "@shared/types";
 
 export const User = createParamDecorator(
   (
-    property: keyof RequestWithUser['user'] | undefined,
+    property: keyof RequestWithUser["user"] | undefined,
     ctx: ExecutionContext,
   ) => {
     const request = ctx.switchToHttp().getRequest<RequestWithUser>();

@@ -1,7 +1,7 @@
-import { WORK_STATES } from '../constants';
-import { TAB_TYPES, TabType } from '@components/features/factory/WorkTabs';
-import { useCallback } from 'react';
-import { AssemblyListDto } from '@/dtos';
+import { WORK_STATES } from "../constants";
+import { TAB_TYPES, TabType } from "@components/features/factory/WorkTabs";
+import { useCallback } from "react";
+import { AssemblyListDto } from "@/dtos";
 
 // Get work state from API workStatus
 export const getWorkStatusState = (workStatus?: { name: string }): string => {
@@ -49,7 +49,7 @@ export const useWorkStatusAccessor = (
       // Check if user can access assembly list (for ALL tab)
       if (activeTab === TAB_TYPES.ALL) {
         if (!canUserAccessAssemblyList(item, currentUserId)) {
-          return 'danger'; // Return danger state for restricted access
+          return "danger"; // Return danger state for restricted access
         }
       }
 

@@ -1,36 +1,40 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useCutState } from './useCutState';
-import { useWorkStatusAccessor } from './useWorkStatusAccessor';
+import React, { useState, useMemo, useCallback } from "react";
+import { useCutState } from "./useCutState";
+import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useCutEventHandlers,
   UseCutTableCallbacks,
-} from './useCutEventHandlers';
-import { useFinishedItemsSorting } from './useFinishedItemsSorting';
+} from "./useCutEventHandlers";
+import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 import {
   useRowStates,
   sortFinishedLast,
   filterBySearch,
-} from './useTableUtils';
-import { TAB_TYPES } from '@components/features/factory/WorkTabs';
-import { CutListDto, PipeLengthDto } from '@/dtos';
+} from "./useTableUtils";
+import { TAB_TYPES } from "@components/features/factory/WorkTabs";
+import { CutListDto, PipeLengthDto } from "@/dtos";
+import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns";
 
-/**
- * Hook for CutList table (ALL tab)
- */
+// Hook for cut list table in all tab
 export function useCutListTable(
   cutLists: CutListDto[],
   search: string,
   currentUserId?: number,
   callbacks?: Pick<
     UseCutTableCallbacks,
-    'onCutListSelected' | 'onCutListSetWorking'
+    "onCutListSelected" | "onCutListSetWorking"
   >,
+  searchField: string = "id",
+  searchFunction?: (
+    items: CutListDto[],
+    search: string,
+    searchField: string,
+  ) => CutListDto[],
 ) {
   // Information overlay state management
   const {
     informationIds,
     toggleInformation,
-    removeFromInformation,
     clearAllInformation,
     hasInformationItems,
   } = useCutState();
@@ -51,7 +55,7 @@ export function useCutListTable(
   // Type-safe wrapper for setSelectedItem
   const setSelectedItemGeneric = useCallback(
     (value: React.SetStateAction<(PipeLengthDto | CutListDto) | null>) => {
-      if (typeof value === 'function') {
+      if (typeof value === "function") {
         setSelectedItem((prev) => {
           const result = value(prev);
           return result as CutListDto | null;
@@ -82,14 +86,20 @@ export function useCutListTable(
     currentUserId,
   );
 
-  // Row states configuration
+  // Row states
   const rowStates = useRowStates(TAB_TYPES.ALL, handleRowClick);
 
-  // Computed table items
+  // Table items
   const tableItems = useMemo(() => {
     const sortedItems = sortFinishedLast(cutLists, movedIds);
-    return filterBySearch(sortedItems, search);
-  }, [cutLists, movedIds, search]);
+
+    // Use custom search function if provided, otherwise use search with columns
+    if (searchFunction) {
+      return searchFunction(sortedItems, search, searchField);
+    }
+
+    return filterBySearch(sortedItems, search, searchField, columnsCutList);
+  }, [cutLists, movedIds, search, searchField, searchFunction]);
 
   return {
     tableItems,

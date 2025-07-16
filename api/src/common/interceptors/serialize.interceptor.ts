@@ -1,12 +1,12 @@
-import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from "class-transformer";
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
-} from '@nestjs/common';
-import { map, Observable } from 'rxjs';
-import { wrap } from '@mikro-orm/core';
+} from "@nestjs/common";
+import { map, Observable } from "rxjs";
+import { wrap } from "@mikro-orm/core";
 
 interface SerializeOptions<T> {
   dto: ClassConstructor<T>;
@@ -23,7 +23,7 @@ export class SerializeInterceptor<T> implements NestInterceptor<any, T> {
         let plainData: any;
         if (Array.isArray(data)) {
           plainData = data.map((item) => wrap(item).toObject());
-        } else if (data && typeof data === 'object') {
+        } else if (data && typeof data === "object") {
           plainData = wrap(data).toObject();
         } else {
           plainData = data;

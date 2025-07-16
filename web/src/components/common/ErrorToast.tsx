@@ -1,5 +1,5 @@
-import React from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import React from "react";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 interface ErrorToastProps {
   show: boolean;

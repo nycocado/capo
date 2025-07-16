@@ -1,7 +1,7 @@
-import { HTMLMotionProps } from 'framer-motion';
-import { Column } from './WorkTable.types';
+import { HTMLMotionProps } from "framer-motion";
+import { Column } from "./WorkTable.types";
 
-export interface WorkTableRowProps extends HTMLMotionProps<'tr'> {
+export interface WorkTableRowProps extends HTMLMotionProps<"tr"> {
   item: any;
   columns: Column<any>[];
   handleRowClick: (item: any) => void;

@@ -1,6 +1,6 @@
-import React, { forwardRef } from 'react';
-import { motion } from 'framer-motion';
-import { WorkGridItemProps } from './WorkGridItem.types';
+import React, { forwardRef } from "react";
+import { motion } from "framer-motion";
+import { WorkGridItemProps } from "./WorkGridItem.types";
 
 export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
   (props, ref) => {
@@ -12,7 +12,7 @@ export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
       itemStateAccessor,
       ...motionProps
     } = props;
-    const stateKey = itemStateAccessor ? itemStateAccessor(item) : 'default';
+    const stateKey = itemStateAccessor ? itemStateAccessor(item) : "default";
     const stateConfig = itemStates?.[stateKey];
 
     const onClick = () => {
@@ -23,13 +23,13 @@ export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
       }
     };
 
-    const className = stateConfig?.className ?? '';
+    const className = stateConfig?.className ?? "";
     const raw =
-      typeof accessor === 'function'
+      typeof accessor === "function"
         ? accessor(item)
         : (item[accessor] as React.ReactNode);
     const value =
-      typeof raw === 'object' && raw !== null
+      typeof raw === "object" && raw !== null
         ? JSON.stringify(raw)
         : String(raw);
 
@@ -38,7 +38,7 @@ export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
         ref={ref}
         onClick={onClick}
         className={`btn border-tertiary border-3 text-white ${className}`}
-        style={{ height: '70px' }}
+        style={{ height: "70px" }}
         {...motionProps}
       >
         {value}
@@ -46,4 +46,4 @@ export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
     );
   },
 );
-WorkGridItem.displayName = 'WorkGridItem';
+WorkGridItem.displayName = "WorkGridItem";

@@ -1,1 +1,1 @@
-export * from './cut-list.entity';
+export * from "./cut-list.entity";

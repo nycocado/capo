@@ -1,19 +1,19 @@
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { CutListEntity } from '@modules/cut-list/entities';
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { CutListEntity } from "@modules/cut-list/entities";
 import {
   EntityRepository,
   LoadStrategy,
   QueryOrder,
   Transactional,
-} from '@mikro-orm/mariadb';
+} from "@mikro-orm/mariadb";
 import {
   PartType,
   WorkStatusType,
   WorkStatusTypeEntity,
-} from '@database/entities';
-import { Injectable } from '@nestjs/common';
-import { UserEntity } from '@modules/user/entities';
-import { CutListWorkStatusEntity } from '@modules/cut-list/entities/cut-list-work-status.entity';
+} from "@database/entities";
+import { Injectable } from "@nestjs/common";
+import { UserEntity } from "@modules/user/entities";
+import { CutListWorkStatusEntity } from "@modules/cut-list/entities/cut-list-work-status.entity";
 
 @Injectable()
 export class CutListRepository {
@@ -23,20 +23,20 @@ export class CutListRepository {
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part1.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.material',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.diameter',
-    'isometric.sheets.revisions.spools.joints.part1.pipeLength.part.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part2.workStatuses.workStatusType',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.material',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.diameter',
-    'isometric.sheets.revisions.spools.joints.part2.pipeLength.part.workStatuses.workStatusType',
+    "workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part1.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.material",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.diameter",
+    "isometric.sheets.revisions.spools.joints.part1.pipeLength.part.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part2.workStatuses.workStatusType",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.material",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.diameter",
+    "isometric.sheets.revisions.spools.joints.part2.pipeLength.part.workStatuses.workStatusType",
   ] as const;
 
   private readonly MINIMAL_POPULATE_FIELDS = [
-    'workStatuses.workStatusType',
-    'isometric.sheets.revisions',
+    "workStatuses.workStatusType",
+    "isometric.sheets.revisions",
   ] as const;
 
   async findMinimalByPipeLengthIdOrFail(

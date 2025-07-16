@@ -1,5 +1,5 @@
-import { FillerMaterial } from '@models/filler-material.interface';
-import { Wps } from '@models/wps.interface';
+import { FillerMaterial } from "@models/filler-material.interface";
+import { Wps } from "@models/wps.interface";
 
 export interface UseWeldOperationsProps {
   onSuccess?: (

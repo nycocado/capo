@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { TIMING } from '../constants';
-import { AssemblyListDto } from '@/dtos';
+import { useState, useEffect, useMemo } from "react";
+import { TIMING } from "../constants";
+import { AssemblyListDto } from "@/dtos";
 
 // Manage finished items sorting with visual feedback
 export const useFinishedItemsSorting = (
@@ -12,7 +12,7 @@ export const useFinishedItemsSorting = (
 
   const backendFinishedIds = useMemo(() => {
     return items
-      .filter((item) => rowStateAccessor(item) === 'finished')
+      .filter((item) => rowStateAccessor(item) === "finished")
       .map((item) => item.id);
   }, [items, rowStateAccessor]);
 

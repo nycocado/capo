@@ -1,5 +1,5 @@
-import React from 'react';
-import { DoubleValueProps } from './DoubleValue.types';
+import React from "react";
+import { DoubleValueProps } from "./DoubleValue.types";
 
 export function DoubleValue({
   label,
@@ -9,9 +9,9 @@ export function DoubleValue({
   secondaryTag,
 }: DoubleValueProps) {
   const displayPrimaryTag =
-    primaryValue != '\u00A0' && primaryTag ? primaryTag : '';
+    primaryValue != "\u00A0" && primaryTag ? primaryTag : "";
   const displaySecondaryTag =
-    secondaryValue != '\u00A0' && secondaryTag ? secondaryTag : '';
+    secondaryValue != "\u00A0" && secondaryTag ? secondaryTag : "";
   return (
     <>
       <h5 className="opacity-75">{label}</h5>
