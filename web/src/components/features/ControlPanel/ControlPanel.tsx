@@ -13,9 +13,10 @@ import {
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import {
   getSearchFields,
-  getSearchFieldLabel, tabSearchFieldMapping
+  getSearchFieldLabel,
+  tabSearchFieldMapping,
 } from "./ControlPanel.searchConfig";
-import { TabType } from "@components/features/factory/WorkTabs";
+import { TabType } from "@components/features/WorkTabs";
 
 export interface ControlButtonConfig {
   variant: string;

@@ -12,6 +12,7 @@
     "docker:down": "docker-compose down -v",
     "docker:restart": "docker-compose restart",
     "docker:rebuild": "docker-compose down -v && docker-compose up --build",
+    "docker:rebuild:bg": "docker-compose down -v && docker-compose up -d --build",
     "logs": "docker-compose logs -f",
     "logs:api": "docker-compose logs -f api",
     "logs:web": "docker-compose logs -f web",
