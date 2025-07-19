@@ -46,13 +46,16 @@ export class AssemblyListService {
         userId,
       );
 
+    const populatedAssemblyList =
+      await this.assemblyListRepository.populateToFull(newAssemblyList);
+
     this.eventEmitter.emit(
       "assembly-list.updateWorkStatusToWorking",
-      assemblyList,
+      populatedAssemblyList,
       userId,
     );
 
-    return this.assemblyListRepository.populateToFull(newAssemblyList);
+    return populatedAssemblyList;
   }
 
   async updateWorkStatusToFinished(
@@ -65,13 +68,16 @@ export class AssemblyListService {
         userId,
       );
 
+    const populatedAssemblyList =
+      await this.assemblyListRepository.populateToFull(newCutList);
+
     this.eventEmitter.emit(
       "assembly-list.updateWorkStatusToFinished",
-      newCutList,
+      populatedAssemblyList,
       userId,
     );
 
-    return this.assemblyListRepository.populateToFull(newCutList);
+    return populatedAssemblyList;
   }
 
   @OnEvent("joint.updateWorkStatusToFinished", { async: true })
@@ -104,12 +110,16 @@ export class AssemblyListService {
       userId,
     );
 
-    const newAssemblyList =
+    const populatedAssemblyList =
       await this.assemblyListRepository.populateToFull(assemblyList);
 
-    this.eventEmitter.emit("assembly-list.create", newAssemblyList, userId);
+    this.eventEmitter.emit(
+      "assembly-list.create",
+      populatedAssemblyList,
+      userId,
+    );
 
-    return newAssemblyList;
+    return populatedAssemblyList;
   }
 
   async isAssemblyListFinished(

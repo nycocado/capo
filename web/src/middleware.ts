@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_ROUTES, ROUTES } from "./routes";
 import ky from "ky";
-import { HasRoleDto, RoleDto, ValidateResDto } from "@/dtos";
+import { HasRoleDto, ValidateResDto } from "@/dtos";
 
 export const config = {
   matcher: ["/", "/login", "/roles", "/cut", "/assembly", "/weld"],
@@ -36,6 +36,9 @@ export async function middleware(req: NextRequest) {
     .then((res) => {
       if (!res.valid)
         return NextResponse.redirect(new URL(ROUTES.login, req.url));
+    })
+    .catch(() => {
+      return NextResponse.redirect(new URL(ROUTES.login, req.url));
     });
 
   const pageRolesMap: Record<string, string> = {

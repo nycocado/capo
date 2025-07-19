@@ -44,9 +44,16 @@ export class WeldListService {
       userId,
     );
 
-    this.eventEmitter.emit("weld.updateWorkStatusToWorking", weldList, userId);
+    const populatedWeldList =
+      await this.weldListRepository.populateToFull(newWeldList);
 
-    return this.weldListRepository.populateToFull(newWeldList);
+    this.eventEmitter.emit(
+      "weld.updateWorkStatusToWorking",
+      populatedWeldList,
+      userId,
+    );
+
+    return populatedWeldList;
   }
 
   async updateWorkStatusToFinished(
@@ -59,9 +66,16 @@ export class WeldListService {
         userId,
       );
 
-    this.eventEmitter.emit("weld.updateWorkStatusToFinished", weldList, userId);
+    const populatedWeldList =
+      await this.weldListRepository.populateToFull(newWeldList);
 
-    return this.weldListRepository.populateToFull(newWeldList);
+    this.eventEmitter.emit(
+      "weld.updateWorkStatusToFinished",
+      populatedWeldList,
+      userId,
+    );
+
+    return populatedWeldList;
   }
 
   async createForIsometric(

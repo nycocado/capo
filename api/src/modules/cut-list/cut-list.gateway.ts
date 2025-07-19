@@ -8,7 +8,7 @@ import { CutListResponseDto } from "@modules/cut-list/dto";
 
 @WebSocketGateway({ namespace: "cut-list", cors: true })
 export class CutListGateway {
-  constructor(private readonly cutListService: CutListService) {}
+  constructor() {}
 
   @WebSocketServer() server: Server;
 

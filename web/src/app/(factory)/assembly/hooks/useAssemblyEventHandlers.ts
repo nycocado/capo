@@ -1,11 +1,8 @@
 import React, { useCallback } from "react";
-import {
-  getWorkStatusState,
-  canUserAccessAssemblyList,
-} from "./useWorkStatusAccessor";
-import { WORK_STATES } from "../constants";
-import { TAB_TYPES, type TabType } from "@components/features/factory/WorkTabs";
+import { getWorkStatusState, canUserAccessItem } from "@/hooks";
+import { TAB_TYPES, type TabType } from "@components/features/WorkTabs";
 import { AssemblyListDto } from "@/dtos";
+import { WORK_STATES } from "@/constants";
 
 export interface UseAssemblyTableCallbacks {
   onAssemblyListSelected?: (assemblyList: AssemblyListDto) => void;
@@ -35,10 +32,20 @@ export const useAssemblyEventHandlers = (
           return; // Do nothing for restricted assembly lists
         }
 
-        // FLUXO CORRETO: Qualquer clique na tab ALL deve iniciar material verification
-        // Independente do estado (to-do, working, finished)
-        callbacks?.onAssemblyListSelected?.(item);
-        return;
+        // FLUXO ASSEMBLY: TO_DO ou WORKING → Material Verification → Working state → Tab Working
+        if (
+          currentState === WORK_STATES.TO_DO ||
+          currentState === WORK_STATES.WORKING
+        ) {
+          callbacks?.onAssemblyListSelected?.(item);
+          return;
+        }
+
+        // Para outros estados (FINISHED), apenas selecionar
+        if (currentState === WORK_STATES.FINISHED) {
+          callbacks?.onAssemblyListSelected?.(item);
+          return;
+        }
       }
 
       if (activeTab === TAB_TYPES.WORKING) {
@@ -106,6 +113,21 @@ export const useAssemblyEventHandlers = (
   // Navigate to next available item
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
+      // PRIORIDADE: WORKING primeiro, depois TO_DO
+      const workingAssemblyList = items.find((assemblyList) => {
+        const currentState = rowStateAccessor(assemblyList);
+        return (
+          currentState === WORK_STATES.WORKING &&
+          canUserAccessItem(assemblyList, currentUserId)
+        );
+      });
+
+      if (workingAssemblyList) {
+        callbacks?.onAssemblyListSelected?.(workingAssemblyList);
+        return;
+      }
+
+      // Se não há WORKING, busca TO_DO e chama setWorking
       const todoAssemblyList = items.find((assemblyList) => {
         const currentState = rowStateAccessor(assemblyList);
         return currentState === WORK_STATES.TO_DO;
@@ -160,6 +182,7 @@ export const useAssemblyEventHandlers = (
     handleRowClick,
     callbacks,
     rowStateAccessor,
+    currentUserId,
   ]);
 
   // Check if all working items are finished

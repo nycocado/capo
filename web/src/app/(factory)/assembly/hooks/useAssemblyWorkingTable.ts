@@ -1,18 +1,18 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useAssemblyState } from "./useAssemblyState";
-import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
 } from "./useAssemblyEventHandlers";
-import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
-import {
-  useRowStates,
-  sortFinishedLast,
-  filterBySearch,
-} from "./useTableUtils";
-import { TAB_TYPES } from "@components/features/factory/WorkTabs";
 import { AssemblyListDto } from "@/dtos";
+import {
+  filterBySearch,
+  sortFinishedLast,
+  useFinishedItemsSorting,
+  useInformationState,
+  useRowStates,
+  useWorkStatusAccessor,
+} from "@/hooks";
+import { TAB_TYPES } from "@components/features/WorkTabs";
 
 // Hook for Assembly working table (WORKING tab)
 export function useAssemblyWorkingTable(
@@ -26,7 +26,7 @@ export function useAssemblyWorkingTable(
     removeFromInformation,
     clearAllInformation,
     hasInformationItems,
-  } = useAssemblyState();
+  } = useInformationState();
 
   const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(
     null,
@@ -98,10 +98,10 @@ export function useAssemblyWorkingTable(
     rowStateAccessor,
     selectedItem,
     handleRowClick,
-    proceedToWorking,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
+    proceedToWorking,
     clearAllInformation,
   };
 }

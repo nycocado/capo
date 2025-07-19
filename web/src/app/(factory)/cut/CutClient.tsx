@@ -14,7 +14,12 @@ import { useCutWorkflow } from "./hooks/useCutWorkflow";
 import { memo } from "react";
 import { WorkPanel } from "@components/features/WorkPanel";
 import { ControlPanel } from "@components/features/ControlPanel";
-import { TAB_TYPES, tabsAllWorking, TabType, WorkTabs } from "@components/features/WorkTabs";
+import {
+  TAB_TYPES,
+  tabsAllWorking,
+  TabType,
+  WorkTabs,
+} from "@components/features/WorkTabs";
 
 // Props interface for CutClient
 export interface CutClientProps {
@@ -124,8 +129,8 @@ const CutClient = memo(function CutClient(props: CutClientProps) {
         onHide={resetCompletionModal}
         onConfirm={handleCompletionModalConfirm}
         title="PIPE LENGTH"
-        value={modalData.value}
-        values={modalData.values}
+        value={modalData?.value}
+        values={modalData?.values}
       />
 
       <ErrorToast

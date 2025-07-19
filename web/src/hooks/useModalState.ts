@@ -1,16 +1,13 @@
 import { useState } from "react";
-import { PipeLengthDto } from "@/dtos";
 
-// Hook for modal state management
-export const useModalState = () => {
+// Generic hook for modal state management
+export const useModalState = <T = any>() => {
   const [inputShow, setInputShow] = useState(false);
-  const [pendingItem, setPendingItem] = useState<PipeLengthDto | null>(null);
+  const [pendingItem, setPendingItem] = useState<T | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [completedItem, setCompletedItem] = useState<PipeLengthDto | null>(
-    null,
-  );
+  const [completedItem, setCompletedItem] = useState<T | null>(null);
 
   // Reset modal state
   const resetModalState = () => {

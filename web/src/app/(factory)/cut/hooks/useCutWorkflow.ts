@@ -1,27 +1,34 @@
 import { useCallback, useState, useEffect } from "react";
-import { useCutClientState } from "./useCutClientState";
-import { useModalState } from "./useModalState";
-import { useWebSocketCutList } from "./useWebSocketCutList";
-import { useCutListOperations } from "./useCutListOperations";
 import { useCutOperations } from "./useCutOperations";
 import { useCutListTable } from "./useCutListTable";
 import { usePipeLengthTable } from "./usePipeLengthTable";
 import { usePipeLengthSelection } from "./usePipeLengthSelection";
-import { useUIConfigurations } from "./useUIConfigurations";
-import { filterBySearch } from "./useTableUtils";
 import {
   enrichPipeLengths,
   extractPipeLengthsFromCutList,
   validateHeatNumber,
 } from "../utils/cutClientUtils";
 import { CutListDto, PipeLengthDto, UserDto } from "@/dtos";
-import { WORK_STATES } from "../constants";
 import {
   columnsCutList,
   columnsPipeLengthDto,
 } from "@components/features/WorkTable/WorkTable.columns";
 import { PipeLengthWithContext } from "@/interfaces";
 import { TAB_TYPES } from "@components/features/WorkTabs";
+import {
+  filterBySearch,
+  useModalState,
+  useUIConfigurations,
+  useWebSocket,
+  useWorkClientState,
+  useWorkListOperations,
+} from "@/hooks";
+import { getSearchFields } from "@components/features/ControlPanel/ControlPanel.searchConfig";
+import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
+import { cutButtonConfig } from "@components/features/ControlPanel";
+import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
+import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";
+import { WORK_STATES } from "@/constants";
 
 export interface UseCutWorkflowProps {
   initialItems: CutListDto[];
@@ -36,14 +43,17 @@ export const useCutWorkflow = ({
   fetchError,
 }: UseCutWorkflowProps) => {
   // Client state management
-  const state = useCutClientState(initialItems, fetchError);
+  const state = useWorkClientState<CutListDto, PipeLengthDto>(
+    initialItems,
+    fetchError,
+  );
   const {
     errorMsg,
     setErrorMsg,
-    cutLists,
-    setCutLists,
-    workingPipeLengths,
-    setWorkingPipeLengths,
+    items: cutLists,
+    setItems: setCutLists,
+    workingItems: workingPipeLengths,
+    setWorkingItems: setWorkingPipeLengths,
     activeTab,
     setActiveTab,
     search,
@@ -89,7 +99,17 @@ export const useCutWorkflow = ({
   );
 
   // WebSocket connection
-  useWebSocketCutList({ onCutListUpdate: handleCutListUpdate, enabled: true });
+  useWebSocket({
+    wsRoute: WS_ROUTES.cutList,
+    eventHandlers: [
+      {
+        eventName: WS_EVENTS.cutList.updateWorkStatus,
+        handler: handleCutListUpdate,
+      },
+    ],
+    enabled: true,
+    connectionName: "CutList",
+  });
 
   // Update pipe length in state
   const updatePipeLength = (updated: PipeLengthDto) => {
@@ -99,16 +119,20 @@ export const useCutWorkflow = ({
   };
 
   // Cut list operations
-  const { setWorking } = useCutListOperations({
-    onSuccess: (updated) => {
-      setCutLists((prev) =>
-        prev.map((cl) => (cl.id === updated.id ? updated : cl)),
-      );
-      setWorkingPipeLengths(extractPipeLengthsFromCutList(updated));
-      setActiveTab(TAB_TYPES.WORKING);
+  const { setWorking } = useWorkListOperations<CutListDto>(
+    API_ROUTES.cutLists.setWorking,
+    "setting cut list to working",
+    {
+      onSuccess: (updated) => {
+        setCutLists((prev) =>
+          prev.map((cl) => (cl.id === updated.id ? updated : cl)),
+        );
+        setWorkingPipeLengths(extractPipeLengthsFromCutList(updated));
+        setActiveTab(TAB_TYPES.WORKING);
+      },
+      onError: setErrorMsg,
     },
-    onError: setErrorMsg,
-  });
+  );
 
   // Search field state
   const [searchField, setSearchField] = useState<string>("id");
@@ -240,14 +264,24 @@ export const useCutWorkflow = ({
   const { cards, controlButtons, modalData } = useUIConfigurations(
     enrichedSelectedItem,
     completedItem,
-    canEditHeatNumber,
-    { onHeatNumberEdit: handleHeatNumberEdit, onNextClick: handleNextClick },
+    {
+      onNextClick: handleNextClick,
+    },
+    {
+      buttonConfig: cutButtonConfig,
+      cardConfigs: cutCardConfigs,
+      modalConfig: cutCompletionModalConfig,
+    },
+    {
+      canEdit: canEditHeatNumber,
+      onEditClick: handleHeatNumberEdit,
+    },
   );
 
   // Initialize search field based on active tab
   useEffect(() => {
-    const defaultSearchField =
-      activeTab === TAB_TYPES.ALL ? "id" : "heatNumber";
+    const searchFields = getSearchFields("cut", activeTab);
+    const defaultSearchField = searchFields[0]?.id || "id";
     setSearchField(defaultSearchField);
   }, [activeTab]);
 
