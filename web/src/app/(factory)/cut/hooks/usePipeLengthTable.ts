@@ -1,27 +1,28 @@
 import { CutListDto, PipeLengthDto } from "@/dtos";
-import {
-  useCutEventHandlers,
-  UseCutTableCallbacks,
-} from "@/app/(factory)/cut/hooks/useCutEventHandlers";
-import { useCutState } from "@/app/(factory)/cut/hooks/useCutState";
+import { useCutEventHandlers } from "@/app/(factory)/cut/hooks/useCutEventHandlers";
 import React, { useCallback, useMemo, useState } from "react";
-import { useWorkStatusAccessor } from "@/app/(factory)/cut/hooks/useWorkStatusAccessor";
-import { useFinishedItemsSorting } from "@/app/(factory)/cut/hooks/useFinishedItemsSorting";
+import { TAB_TYPES } from "@components/features/WorkTabs";
 import {
   filterBySearch,
   sortFinishedLast,
+  useFinishedItemsSorting,
+  useInformationState,
   useRowStates,
-} from "@/app/(factory)/cut/hooks/useTableUtils";
-import { TAB_TYPES } from "@components/features/WorkTabs";
+  useWorkStatusAccessor,
+} from "@/hooks";
+
+// Interface específica para PipeLengthTable
+interface UsePipeLengthTableCallbacks {
+  onWorkingTransition?: (item: PipeLengthDto) => void;
+  onItemCompleted?: (item: PipeLengthDto) => void;
+  onItemSelected?: (item: PipeLengthDto) => void;
+}
 
 // Hook for pipe length table in working tab
 export function usePipeLengthTable(
   pipeLengths: PipeLengthDto[],
   search: string,
-  callbacks?: Pick<
-    UseCutTableCallbacks,
-    "onWorkingTransition" | "onItemCompleted"
-  >,
+  callbacks?: UsePipeLengthTableCallbacks,
   searchField: string = "id",
   searchFunction?: (
     items: PipeLengthDto[],
@@ -35,7 +36,7 @@ export function usePipeLengthTable(
     removeFromInformation,
     clearAllInformation,
     hasInformationItems,
-  } = useCutState();
+  } = useInformationState();
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   // Selected item memo
@@ -114,7 +115,7 @@ export function usePipeLengthTable(
     tableItems,
     rowStates,
     rowStateAccessor,
-    selectedItem, // agora derivado
+    selectedItem,
     handleRowClick,
     proceedToWorking,
     handleNextWorkflow,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { Button } from "react-bootstrap";
 import { BaseModal } from "@components/layout/Modals/BaseModal";
 import { WorkTable } from "@components/features/WorkTable/WorkTable";
@@ -53,6 +53,47 @@ export function MaterialVerificationModal(
     getPipeLengthState,
     getFittingState,
   } = props;
+
+  // Ref para controlar o scroll do modal body
+  const modalBodyRef = useRef<HTMLDivElement>(null);
+
+  // Função para forçar scroll para o topo
+  const scrollToTop = useCallback(() => {
+    if (modalBodyRef.current) {
+      // Múltiplas tentativas para garantir que o scroll funcione
+      modalBodyRef.current.scrollTop = 0;
+
+      // Usar requestAnimationFrame para garantir que a DOM foi atualizada
+      requestAnimationFrame(() => {
+        if (modalBodyRef.current) {
+          modalBodyRef.current.scrollTop = 0;
+
+          // Segunda tentativa com pequeno delay
+          setTimeout(() => {
+            if (modalBodyRef.current) {
+              modalBodyRef.current.scrollTop = 0;
+            }
+          }, 10);
+        }
+      });
+    }
+  }, []);
+
+  // Scroll para o topo quando mudar de step
+  useEffect(() => {
+    if (showModal) {
+      scrollToTop();
+    }
+  }, [currentStep, showModal, scrollToTop]);
+
+  // Também scroll quando os dados mudarem
+  useEffect(() => {
+    if (showModal && currentStepData) {
+      // Delay maior para garantir que a tabela foi renderizada
+      const timer = setTimeout(scrollToTop, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStepData, showModal, scrollToTop]);
 
   // Filtrar dados inválidos
   const validData =
@@ -156,7 +197,7 @@ export function MaterialVerificationModal(
       size="xl"
       contentClassName="bg-tertiary text-light rounded-3"
     >
-      <BaseModal.Body className="p-0">
+      <BaseModal.Body className="p-0" ref={modalBodyRef}>
         <div className="bg-dark rounded-3 m-3">
           <WorkTable
             items={validData}

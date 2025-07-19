@@ -48,19 +48,19 @@ export interface UseJointOperationsProps {
   selectedAssemblyList: AssemblyListDto | null;
   onJointProcessed?: (jointId: number) => void;
   onError?: (error: string) => void;
+  onAllFinished?: () => void;
 }
 
 export function useJointOperations({
   selectedAssemblyList,
   onJointProcessed,
   onError,
+  onAllFinished,
 }: UseJointOperationsProps) {
   const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
   );
-  const [processingJointId, setProcessingJointId] = useState<number | null>(
-    null,
-  );
+  const [, setProcessingJointId] = useState<number | null>(null);
 
   const [stateManagement, dispatch] = useReducer(jointReducer, {
     jointStates: {},
@@ -96,7 +96,7 @@ export function useJointOperations({
     [selectedAssemblyList, stateManagement.jointStates],
   );
 
-  // Handle weld click - na verdade processa o joint correspondente
+  // Handle weld click - na verdade, processa o joint correspondente
   const handleWeldClick = useCallback(
     async (weld: WeldWithContext) => {
       if (!selectedAssemblyList || isSubmitting) return;
@@ -132,15 +132,17 @@ export function useJointOperations({
 
   // Handle next weld - encontra o próximo joint que precisa ser processado
   const handleNextWeld = useCallback(
-    (weldItems: WeldWithContext[]) => {
+    async (weldItems: WeldWithContext[]) => {
       const nextWeld = weldItems.find(
         (weld) => getJointStateForWeld(weld) === "initial",
       );
       if (nextWeld && !isSubmitting) {
-        handleWeldClick(nextWeld);
+        await handleWeldClick(nextWeld);
+      } else if (!nextWeld) {
+        onAllFinished?.();
       }
     },
-    [getJointStateForWeld, handleWeldClick, isSubmitting],
+    [getJointStateForWeld, handleWeldClick, isSubmitting, onAllFinished],
   );
 
   // Check if all joints are finished (através dos welds)
@@ -167,9 +169,9 @@ export function useJointOperations({
       className: isSubmitting
         ? "bg-secondary text-white"
         : "bg-dark text-light",
-      onClick: (item: WeldWithContext) => {
+      onClick: async (item: WeldWithContext) => {
         if (!isSubmitting) {
-          handleWeldClick(item);
+          await handleWeldClick(item);
         }
       },
     },

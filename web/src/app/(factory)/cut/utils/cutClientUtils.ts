@@ -1,6 +1,6 @@
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { PipeLengthWithContext } from "@/interfaces";
-import { VALIDATION } from "@/app/(factory)/cut/constants";
+import { VALIDATION } from "@/constants";
 
 // Extract pipe lengths from cut list
 export const extractPipeLengthsFromCutList = (

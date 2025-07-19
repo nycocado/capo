@@ -1,18 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
-import { useCutState } from "./useCutState";
-import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useCutEventHandlers,
   UseCutTableCallbacks,
 } from "./useCutEventHandlers";
-import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
-import {
-  useRowStates,
-  sortFinishedLast,
-  filterBySearch,
-} from "./useTableUtils";
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { TabType } from "@components/features/WorkTabs";
+import {
+  filterBySearch,
+  sortFinishedLast,
+  useFinishedItemsSorting,
+  useInformationState,
+  useRowStates,
+  useWorkStatusAccessor,
+} from "@/hooks";
 
 // Hook for general cut table management
 export function useCutTable(
@@ -27,7 +27,7 @@ export function useCutTable(
     removeFromInformation,
     clearAllInformation,
     hasInformationItems,
-  } = useCutState();
+  } = useInformationState();
 
   const [selectedItem, setSelectedItem] = useState<
     (PipeLengthDto | CutListDto) | null

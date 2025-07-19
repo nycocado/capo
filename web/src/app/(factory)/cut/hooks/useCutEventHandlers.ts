@@ -1,21 +1,18 @@
 import React, { useCallback } from "react";
-import {
-  getWorkStatusState,
-  canUserAccessCutList,
-} from "./useWorkStatusAccessor";
-import { WORK_STATES } from "../constants";
 import { CutListDto, PipeLengthDto } from "@/dtos";
-import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
+import { TabType, TAB_TYPES } from "@components/features/WorkTabs";
+import { getWorkStatusState, canUserAccessItem } from "@/hooks";
+import { WORK_STATES } from "@/constants";
 
-// Interface for callbacks
+// Interface for callbacks específica para Cut
 export interface UseCutTableCallbacks {
-  onWorkingTransition?: (item: PipeLengthDto) => void;
-  onItemCompleted?: (item: PipeLengthDto) => void;
   onCutListSelected?: (cutList: CutListDto) => void;
   onCutListSetWorking?: (cutListId: number) => Promise<boolean>;
+  onWorkingTransition?: (item: PipeLengthDto) => void;
+  onItemCompleted?: (item: PipeLengthDto) => void;
 }
 
-// Hook for handling cut events
+// Hook for handling cut events - implementação baseada no assembly
 export const useCutEventHandlers = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -30,124 +27,85 @@ export const useCutEventHandlers = (
   callbacks?: UseCutTableCallbacks,
   currentUserId?: number,
 ) => {
-  const hasOtherActiveItems = (
-    items: (PipeLengthDto | CutListDto)[],
-    currentId: number,
-    rowStateAccessor: (item: PipeLengthDto | CutListDto) => string,
-  ) => {
-    return items.some((i) => {
-      if (i.id === currentId) return false;
-      return rowStateAccessor(i) === WORK_STATES.WORKING;
-    });
-  };
-
-  // Handle work click
-  const handleWorkClick = useCallback(
-    (item: PipeLengthDto | CutListDto) => {
-      if (activeTab !== TAB_TYPES.WORKING) return;
-      const currentState = rowStateAccessor(item);
-      const hasOtherInformation =
-        hasInformationItems() && !informationIds.has(item.id);
-      const hasWorkingItems = items.some(
-        (i) => i.id !== item.id && rowStateAccessor(i) === WORK_STATES.WORKING,
-      );
-      if (
-        (hasOtherInformation || hasWorkingItems) &&
-        currentState !== WORK_STATES.FINISHED &&
-        currentState !== WORK_STATES.INFORMATION
-      )
-        return;
-      if (currentState === WORK_STATES.TO_DO) {
-        clearAllInformation();
-        toggleInformation(item.id);
-        setSelectedItem(item);
-        return;
-      }
-      if (currentState === WORK_STATES.INFORMATION)
-        return callbacks?.onWorkingTransition?.(item as PipeLengthDto);
-      if (currentState === WORK_STATES.WORKING)
-        return callbacks?.onItemCompleted?.(item as PipeLengthDto);
-      setSelectedItem(item);
-    },
-    [
-      activeTab,
-      rowStateAccessor,
-      informationIds,
-      hasInformationItems,
-      toggleInformation,
-      clearAllInformation,
-      setSelectedItem,
-      callbacks,
-      items,
-    ],
-  );
-
-  // Handle row clicks
+  // Handle row clicks based on active tab
   const handleRowClick = useCallback(
     (item: PipeLengthDto | CutListDto) => {
+      const currentState = rowStateAccessor(item);
+
       if (activeTab === TAB_TYPES.ALL) {
         const cutList = item as CutListDto;
-        const currentState = rowStateAccessor(cutList);
 
         // Block access if cut list is restricted
         if (currentState === "danger") {
           return; // Do nothing for restricted cut lists
         }
 
-        // Handle set-working for to-do cut lists
+        // FLUXO CUT: TO_DO → Material Verification → Working state → Tab Working
         if (currentState === WORK_STATES.TO_DO) {
           callbacks?.onCutListSetWorking?.(cutList.id);
           return;
         }
 
-        // Only allow selection of working cut lists by current user
+        // WORKING → Material Verification → Tab Working
         if (
           currentState === WORK_STATES.WORKING &&
-          canUserAccessCutList(cutList, currentUserId)
+          canUserAccessItem(cutList, currentUserId)
         ) {
+          callbacks?.onCutListSelected?.(cutList);
+          return;
+        }
+
+        // Para outros estados (FINISHED), apenas selecionar
+        if (currentState === WORK_STATES.FINISHED) {
           callbacks?.onCutListSelected?.(cutList);
           return;
         }
       }
 
       if (activeTab === TAB_TYPES.WORKING) {
-        const currentState = rowStateAccessor(item);
+        const pipeLength = item as PipeLengthDto;
 
-        // Block if working items exist and current item cannot be interacted with
-        const hasWorkingItems = hasOtherActiveItems(
-          items,
-          item.id,
-          rowStateAccessor,
-        );
+        // Block if other information items exist
+        const hasOtherInformation =
+          hasInformationItems() && !informationIds.has(pipeLength.id);
+
+        // Block if other working items exist
+        const hasOtherWorkingItems = items.some((i) => {
+          if (i.id === pipeLength.id) return false;
+          const apiState = getWorkStatusState((i as PipeLengthDto).workStatus);
+          return apiState === WORK_STATES.WORKING;
+        });
 
         if (
-          hasWorkingItems &&
+          (hasOtherInformation || hasOtherWorkingItems) &&
           currentState !== WORK_STATES.FINISHED &&
           currentState !== WORK_STATES.INFORMATION
         ) {
-          return;
+          return; // Block interaction
         }
 
-        // Handle state transitions
+        // Handle state transitions in WORKING tab
         if (currentState === WORK_STATES.TO_DO) {
           clearAllInformation();
-          toggleInformation(item.id);
-          setSelectedItem(item);
+          toggleInformation(pipeLength.id);
+          setSelectedItem(pipeLength);
           return;
         }
 
         if (currentState === WORK_STATES.INFORMATION) {
-          callbacks?.onWorkingTransition?.(item as PipeLengthDto);
+          // Remove from information and trigger working transition
+          clearAllInformation();
+          callbacks?.onWorkingTransition?.(pipeLength);
           return;
         }
 
         if (currentState === WORK_STATES.WORKING) {
-          callbacks?.onItemCompleted?.(item as PipeLengthDto);
+          callbacks?.onItemCompleted?.(pipeLength);
           return;
         }
 
         if (currentState === WORK_STATES.FINISHED) {
-          setSelectedItem(item);
+          setSelectedItem(pipeLength);
           return;
         }
       }
@@ -161,15 +119,32 @@ export const useCutEventHandlers = (
       setSelectedItem,
       items,
       currentUserId,
+      hasInformationItems,
+      informationIds,
     ],
   );
 
-  // Navigate to next item
+  // Navigate to next available item
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
+      // PRIORIDADE: WORKING primeiro, depois TO_DO
+      const workingCutList = (items as CutListDto[]).find((cutList) => {
+        const currentState = rowStateAccessor(cutList);
+        return (
+          currentState === WORK_STATES.WORKING &&
+          canUserAccessItem(cutList, currentUserId)
+        );
+      });
+
+      if (workingCutList) {
+        callbacks?.onCutListSelected?.(workingCutList);
+        return;
+      }
+
+      // Se não há WORKING, busca TO_DO
       const todoCutList = (items as CutListDto[]).find((cutList) => {
         const currentState = rowStateAccessor(cutList);
-        return currentState === WORK_STATES.TO_DO; // Only accessible to-do items
+        return currentState === WORK_STATES.TO_DO;
       });
 
       if (todoCutList) {
@@ -194,7 +169,7 @@ export const useCutEventHandlers = (
       });
 
       if (workingItem) {
-        handleWorkClick(workingItem);
+        handleRowClick(workingItem);
         return;
       }
 
@@ -202,7 +177,7 @@ export const useCutEventHandlers = (
         informationIds.has(item.id),
       );
       if (infoItem) {
-        handleWorkClick(infoItem);
+        handleRowClick(infoItem);
         return;
       }
 
@@ -212,12 +187,20 @@ export const useCutEventHandlers = (
       });
 
       if (todoItem) {
-        handleWorkClick(todoItem);
+        handleRowClick(todoItem);
       }
     }
-  }, [activeTab, items, rowStateAccessor, callbacks, handleWorkClick, informationIds]);
+  }, [
+    activeTab,
+    items,
+    informationIds,
+    handleRowClick,
+    callbacks,
+    rowStateAccessor,
+    currentUserId,
+  ]);
 
-  // Check if all items finished
+  // Check if all working items are finished
   const areAllWorkingItemsFinished = useCallback(() => {
     if (activeTab !== TAB_TYPES.WORKING) return false;
 
@@ -230,7 +213,7 @@ export const useCutEventHandlers = (
     });
   }, [activeTab, items]);
 
-  // Check item focus
+  // Check if item can appear in panel
   const isItemInFocus = useCallback(
     (item: PipeLengthDto | CutListDto | null): boolean => {
       if (!item) return false;
@@ -247,7 +230,6 @@ export const useCutEventHandlers = (
 
   return {
     handleRowClick,
-    handleWorkClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,

@@ -16,7 +16,7 @@ export interface CardConfig {
 }
 
 export interface WorkPanelProps {
-  cards: CardConfig[];
+  cards?: CardConfig[];
   containerClassName?: string;
 }
 
@@ -28,7 +28,7 @@ export function WorkPanel({ cards, containerClassName }: WorkPanelProps) {
       className={`flex-grow-1 rounded-3 ${containerClassName || ""}`}
     >
       <CardBody className="align-baseline justify-content-center text-center">
-        {cards.map((card, idx) => (
+        {cards?.map((card, idx) => (
           <Card
             key={card.key ?? idx}
             bg="dark"

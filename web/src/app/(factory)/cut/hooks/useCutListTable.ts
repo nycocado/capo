@@ -1,19 +1,19 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useCutState } from "./useCutState";
-import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useCutEventHandlers,
   UseCutTableCallbacks,
 } from "./useCutEventHandlers";
-import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
-import {
-  useRowStates,
-  sortFinishedLast,
-  filterBySearch,
-} from "./useTableUtils";
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
+import {
+  filterBySearch,
+  sortFinishedLast,
+  useFinishedItemsSorting,
+  useInformationState,
+  useRowStates,
+  useWorkStatusAccessor,
+} from "@/hooks";
 
 // Hook for cut list table in all tab
 export function useCutListTable(
@@ -22,7 +22,10 @@ export function useCutListTable(
   currentUserId?: number,
   callbacks?: Pick<
     UseCutTableCallbacks,
-    "onCutListSelected" | "onCutListSetWorking"
+    | "onCutListSelected"
+    | "onCutListSetWorking"
+    | "onWorkingTransition"
+    | "onItemCompleted"
   >,
   searchField: string = "id",
   searchFunction?: (
@@ -37,7 +40,7 @@ export function useCutListTable(
     toggleInformation,
     clearAllInformation,
     hasInformationItems,
-  } = useCutState();
+  } = useInformationState();
 
   // Selected item state
   const [selectedItem, setSelectedItem] = useState<CutListDto | null>(null);
@@ -67,7 +70,7 @@ export function useCutListTable(
     [],
   );
 
-  // Event handlers
+  // Event handlers - using original hook
   const {
     handleRowClick,
     handleNextWorkflow,

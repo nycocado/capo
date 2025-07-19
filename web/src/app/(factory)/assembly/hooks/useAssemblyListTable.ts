@@ -1,18 +1,18 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useAssemblyState } from "./useAssemblyState";
-import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
 } from "./useAssemblyEventHandlers";
-import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
-import {
-  useRowStates,
-  sortFinishedLast,
-  filterBySearch,
-} from "./useTableUtils";
-import { TAB_TYPES } from "@components/features/factory/WorkTabs";
 import { AssemblyListDto } from "@/dtos";
+import { TAB_TYPES } from "@components/features/WorkTabs";
+import {
+  filterBySearch,
+  sortFinishedLast,
+  useFinishedItemsSorting,
+  useInformationState,
+  useRowStates,
+  useWorkStatusAccessor,
+} from "@/hooks";
 
 /**
  * Hook for AssemblyList table (ALL tab)
@@ -30,10 +30,9 @@ export function useAssemblyListTable(
   const {
     informationIds,
     toggleInformation,
-    removeFromInformation,
     clearAllInformation,
     hasInformationItems,
-  } = useAssemblyState();
+  } = useInformationState();
 
   // Selected item state
   const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(

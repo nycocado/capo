@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { API_ROUTES } from "@/routes";
-import { VALIDATION } from "../constants";
 import ky from "ky";
 import { PipeLengthDto } from "@/dtos";
+import { VALIDATION } from "@/constants";
 
 // Error constants
 const API_ERRORS = {

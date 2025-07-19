@@ -43,7 +43,7 @@ export const tabSearchFieldMapping = {
   // Para página de Assembly
   assembly: {
     [TAB_TYPES.ALL]: searchFieldConfigs.assemblyList,
-    [TAB_TYPES.WORKING]: searchFieldConfigs.weld,
+    [TAB_TYPES.WORKING]: searchFieldConfigs.assemblyList,
   },
   // Para página de Weld
   weld: {
