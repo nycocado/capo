@@ -18,7 +18,7 @@ export const extractWeldsFromAssemblyList = (
         joint.welds?.forEach((weld) => {
           welds.push({
             ...weld,
-            spool: {
+            spoolInfo: {
               internalId: spool.internalId,
             },
           });

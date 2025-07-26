@@ -1,5 +1,4 @@
 import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { WeldListService } from "@modules/weld-list/weld-list.service";
 import { Server } from "socket.io";
 import { OnEvent } from "@nestjs/event-emitter";
 import { WeldListEntity } from "@modules/weld-list/entities";

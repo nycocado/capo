@@ -33,7 +33,8 @@ export function useCutTable(
     (PipeLengthDto | CutListDto) | null
   >(null);
   const rowStateAccessor = useWorkStatusAccessor(activeTab, informationIds);
-  const { movedIds } = useFinishedItemsSorting(items, [], rowStateAccessor);
+  // Finished items sorting - ONLY backend determines finished state
+  const { movedIds } = useFinishedItemsSorting(items, rowStateAccessor);
 
   const {
     handleRowClick,

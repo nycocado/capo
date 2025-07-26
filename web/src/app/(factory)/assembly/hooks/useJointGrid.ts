@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { AssemblyListDto } from "@/dtos";
 import { filterBySearch } from "@/hooks";
 import { useJointOperations } from "./useJointOperations";
-import { extractWeldsFromAssemblyList } from "../utils/assemblyClientUtils";
+import { extractWeldsFromAssemblyList } from "../utils/assemblyUtils";
 
 export interface UseWeldGridProps {
   assemblyList: AssemblyListDto | null;
@@ -12,7 +12,7 @@ export interface UseWeldGridProps {
   onError?: (error: string) => void;
 }
 
-export function useWeldGrid({
+export function useJointGrid({
   assemblyList,
   sheetNumber,
   search,
@@ -42,7 +42,7 @@ export function useWeldGrid({
   return {
     weldItems,
     selectedWeld: jointOperations.selectedWeld,
-    handleItemClick: jointOperations.handleWeldClick,
+    handleItemClick: jointOperations.handleJointClick,
     itemStates: jointOperations.itemStates,
     itemStateAccessor: jointOperations.itemStateAccessor,
     handleNextWorkflow,

@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import {
-  useAssemblyEventHandlers,
-  UseAssemblyTableCallbacks,
-} from "./useAssemblyEventHandlers";
-import { AssemblyListDto } from "@/dtos";
+  useWeldEventHandlers,
+  UseWeldTableCallbacks,
+} from "./useWeldEventHandlers";
+import { WeldListDto } from "@/dtos";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import {
   filterBySearch,
@@ -15,15 +15,15 @@ import {
 } from "@/hooks";
 
 /**
- * Hook for AssemblyList table (ALL tab)
+ * Hook for WeldList table (ALL tab)
  */
-export function useAssemblyListTable(
-  assemblyLists: AssemblyListDto[],
+export function useWeldListTable(
+  weldLists: WeldListDto[],
   search: string,
   currentUserId?: number,
   callbacks?: Pick<
-    UseAssemblyTableCallbacks,
-    "onAssemblyListSelected" | "onAssemblyListSetWorking"
+    UseWeldTableCallbacks,
+    "onWeldListSelected" | "onWeldListSetWorking"
   >,
 ) {
   // Information overlay state management
@@ -35,9 +35,7 @@ export function useAssemblyListTable(
   } = useInformationState();
 
   // Selected item state
-  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(
-    null,
-  );
+  const [selectedItem, setSelectedItem] = useState<WeldListDto | null>(null);
 
   // Work status accessor
   const rowStateAccessor = useWorkStatusAccessor(
@@ -48,23 +46,8 @@ export function useAssemblyListTable(
 
   // Finished items sorting - ONLY backend determines finished state
   const { movedIds } = useFinishedItemsSorting(
-    assemblyLists,
+    weldLists,
     rowStateAccessor,
-  );
-
-  // Type-safe wrapper for setSelectedItem
-  const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<AssemblyListDto | null>) => {
-      if (typeof value === "function") {
-        setSelectedItem((prev) => {
-          const result = value(prev);
-          return result as AssemblyListDto | null;
-        });
-      } else {
-        setSelectedItem(value as AssemblyListDto | null);
-      }
-    },
-    [],
   );
 
   // Event handlers
@@ -73,15 +56,15 @@ export function useAssemblyListTable(
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
-  } = useAssemblyEventHandlers(
+  } = useWeldEventHandlers(
     TAB_TYPES.ALL,
     informationIds,
     toggleInformation,
     clearAllInformation,
     hasInformationItems,
     rowStateAccessor,
-    setSelectedItemGeneric,
-    assemblyLists,
+    setSelectedItem,
+    weldLists,
     callbacks,
     currentUserId,
   );
@@ -91,19 +74,23 @@ export function useAssemblyListTable(
 
   // Computed table items
   const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(assemblyLists, movedIds);
+    const sortedItems = sortFinishedLast(weldLists, movedIds);
     return filterBySearch(sortedItems, search);
-  }, [assemblyLists, movedIds, search]);
+  }, [weldLists, movedIds, search]);
 
   return {
     tableItems,
     rowStates,
     rowStateAccessor,
     selectedItem,
+    setSelectedItem,
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
+    informationIds,
+    toggleInformation,
     clearAllInformation,
+    hasInformationItems,
   };
 }
