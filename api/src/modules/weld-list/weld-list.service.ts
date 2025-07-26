@@ -48,7 +48,7 @@ export class WeldListService {
       await this.weldListRepository.populateToFull(newWeldList);
 
     this.eventEmitter.emit(
-      "weld.updateWorkStatusToWorking",
+      "weld-list.updateWorkStatusToWorking",
       populatedWeldList,
       userId,
     );
@@ -70,7 +70,7 @@ export class WeldListService {
       await this.weldListRepository.populateToFull(newWeldList);
 
     this.eventEmitter.emit(
-      "weld.updateWorkStatusToFinished",
+      "weld-list.updateWorkStatusToFinished",
       populatedWeldList,
       userId,
     );

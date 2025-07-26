@@ -52,8 +52,8 @@ export function useCutListTable(
     currentUserId,
   );
 
-  // Finished items sorting
-  const { movedIds } = useFinishedItemsSorting(cutLists, [], rowStateAccessor);
+  // Finished items sorting - ONLY backend determines finished state
+  const { movedIds } = useFinishedItemsSorting(cutLists, rowStateAccessor);
 
   // Type-safe wrapper for setSelectedItem
   const setSelectedItemGeneric = useCallback(

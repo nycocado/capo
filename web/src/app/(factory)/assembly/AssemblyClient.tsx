@@ -102,12 +102,12 @@ const AssemblyClient = memo(function AssemblyClient(
                   columns={3}
                   itemStates={weldGrid.itemStates}
                   itemStateAccessor={weldGrid.itemStateAccessor}
-                  groupBy={(item: WeldWithContext) => item.spool.internalId}
+                  groupBy={(item: WeldWithContext) => item.spoolInfo.internalId}
                   renderGroupTitle={(groupItems, groupIndex) => (
                     <div className="mb-3">
                       <h6 className="text-light mb-2 fw-bold">
                         Spool:{" "}
-                        {groupItems[0]?.spool.internalId ||
+                        {groupItems[0]?.spoolInfo.internalId ||
                           `Group ${groupIndex + 1}`}
                       </h6>
                       <div className="border-bottom border-secondary mb-3"></div>

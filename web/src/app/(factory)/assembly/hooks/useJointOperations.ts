@@ -2,9 +2,9 @@ import { useState, useReducer, useCallback } from "react";
 import { useAssemblyOperations } from "./useAssemblyOperations";
 import { AssemblyListDto } from "@/dtos";
 import { WeldWithContext } from "@/interfaces";
-import { findJointIdForWeld } from "../utils/assemblyClientUtils";
+import { findJointIdForWeld } from "../utils/assemblyUtils";
 
-type JointState = "initial" | "finished";
+type JointState = "to-do" | "finished";
 
 type JointAction =
   | { type: "setJointFinished"; jointId: number; finished: boolean }
@@ -25,7 +25,7 @@ const jointReducer = (
         ...state,
         jointStates: {
           ...state.jointStates,
-          [action.jointId]: action.finished ? "finished" : "initial",
+          [action.jointId]: action.finished ? "finished" : "to-do",
         },
       };
     case "setJointProcessed":
@@ -86,12 +86,34 @@ export function useJointOperations({
   // Get joint state baseado no weld (weld é apenas a representação visual)
   const getJointStateForWeld = useCallback(
     (weld: WeldWithContext): JointState => {
-      if (!selectedAssemblyList) return "initial";
+      if (!selectedAssemblyList) return "to-do";
 
       const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
-      if (!jointId) return "initial";
+      if (!jointId) return "to-do";
 
-      return stateManagement.jointStates[jointId] || "initial";
+      // Primeiro verifica o estado local (após operações)
+      const localState = stateManagement.jointStates[jointId];
+      if (localState) return localState;
+
+      // Se não há estado local, verifica o workStatus do JOINT (não do weld)
+      // Navega pela estrutura correta: isometric → sheets → spools → joints
+      let joint = null;
+      for (const sheet of selectedAssemblyList.isometric?.sheets || []) {
+        for (const spool of sheet.spools || []) {
+          joint = spool.joints?.find((j) => j.id === jointId);
+          if (joint) break;
+        }
+        if (joint) break;
+      }
+
+      if (joint?.workStatus) {
+        const statusName = joint.workStatus.name?.toLowerCase();
+        if (statusName === "finished" || statusName === "completed") {
+          return "finished";
+        }
+      }
+
+      return "to-do";
     },
     [selectedAssemblyList, stateManagement.jointStates],
   );
@@ -110,7 +132,7 @@ export function useJointOperations({
       }
 
       // Se o joint está initial, processa o joint
-      if (currentState === "initial") {
+      if (currentState === "to-do") {
         const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
 
         if (jointId) {
@@ -134,7 +156,7 @@ export function useJointOperations({
   const handleNextWeld = useCallback(
     async (weldItems: WeldWithContext[]) => {
       const nextWeld = weldItems.find(
-        (weld) => getJointStateForWeld(weld) === "initial",
+        (weld) => getJointStateForWeld(weld) === "to-do",
       );
       if (nextWeld && !isSubmitting) {
         await handleWeldClick(nextWeld);
@@ -165,7 +187,7 @@ export function useJointOperations({
 
   // Item states for WorkGrid - baseado no estado do joint
   const itemStates = {
-    initial: {
+    toDo: {
       className: isSubmitting
         ? "bg-secondary text-white"
         : "bg-dark text-light",
@@ -192,7 +214,7 @@ export function useJointOperations({
 
   return {
     selectedWeld,
-    handleWeldClick,
+    handleJointClick: handleWeldClick,
     handleNextWeld,
     areAllJointsFinished,
     resetJointState,

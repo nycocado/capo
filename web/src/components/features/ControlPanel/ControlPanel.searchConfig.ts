@@ -1,8 +1,7 @@
 import {
   columnsCutList,
   columnsPipeLengthDto,
-  columnsAssemblyList,
-  columnsWeld,
+  columnsAssemblyList, columnsWeldList
 } from "@components/features/WorkTable/WorkTable.columns";
 import * as React from "react";
 import { Column } from "@components/features/WorkTable/WorkTable";
@@ -30,7 +29,7 @@ export const searchFieldConfigs = {
   cutList: extractSearchableFields(columnsCutList),
   pipeLength: extractSearchableFields(columnsPipeLengthDto),
   assemblyList: extractSearchableFields(columnsAssemblyList),
-  weld: extractSearchableFields(columnsWeld),
+  weld: extractSearchableFields(columnsWeldList),
 };
 
 // Mapeamento de tabs para configurações de busca por contexto/página

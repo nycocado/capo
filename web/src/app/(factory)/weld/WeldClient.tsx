@@ -1,94 +1,45 @@
 "use client";
 
+import { memo } from "react";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
-import { weldButtonConfig } from "@components/features/factory/ControlPanel/ControlPanel.buttonConfig";
-import { ControlPanel } from "@components/features/factory/ControlPanel";
-import {
-  tabsAllWorking,
-  WorkTabs,
-} from "@components/features/factory/WorkTabs";
-import { WorkGrid } from "@components/features/factory/WorkGrid";
-import { WorkPanel } from "@components/features/factory/WorkPanel";
-import { WeldClientProps } from "./WeldClient.types";
 import { WorkTable } from "@components/features/WorkTable";
-import { useWeldTable } from "./useWeldTable";
-import { columnsWeld } from "@components/features/WorkTable/WorkTable.columns";
-import { weldCardConfigs } from "@components/features/factory/WorkPanel/WorkPanel.cardConfigs";
+import { columnsWeldList } from "@components/features/WorkTable/WorkTable.columns";
 import { ErrorToast } from "@components/common/ErrorToast";
-import { useState } from "react";
+import { useWeldWorkflow } from "@/app/(factory)/weld/hooks";
+import { UserDto, WeldListDto } from "@/dtos";
+import {
+  TAB_TYPES,
+  tabsAllWorking,
+  TabType,
+  WorkTabs,
+} from "@components/features/WorkTabs";
+import { WorkPanel } from "@components/features/WorkPanel";
+import { ControlPanel } from "@components/features/ControlPanel";
+import { WorkGrid } from "@components/features/WorkGrid";
 import { FormModal } from "@components/layout/Modals/FormModal";
-import { useWPSViewer } from "./useWPSViewer";
 
-function WeldClient({ initialItems, fetchError }: WeldClientProps) {
-  const [errorMsg, setErrorMsg] = useState<string | null>(fetchError ?? null);
+export interface WeldClientProps {
+  initialItems: WeldListDto[];
+  currentUser: UserDto | null;
+  fetchError?: string;
+}
+
+const WeldClient = memo(function WeldClient(props: WeldClientProps) {
+  const { initialItems, currentUser, fetchError } = props;
 
   const {
-    activeTab,
-    setActiveTab,
-    search,
-    setSearch,
-    filteredRows,
+    state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
+    weldListTable,
+    weldGrid,
     weldItems,
-    selectedRow,
-    selectedWeld,
-    handleSelectRow,
-    rowStates,
-    rowStateAccessor,
-    itemStates,
-    itemStateAccessor,
-    formModal,
-    handleWeldClick,
-    handleNext,
-    isSubmitting,
-  } = useWeldTable(initialItems, {
-    onWeldProcessed: (weldId) => {
-      console.log(`Weld ${weldId} processed successfully`);
-    },
-    onError: (error) => {
-      setErrorMsg(error);
-    },
-  });
-
-  const {
-    wpsFile,
-    loading: wpsLoading,
-    error: wpsError,
-  } = useWPSViewer(selectedWeld?.wps?.id || null);
-
-  // Function to open WPS PDF in new tab
-  const handleWPSClick = () => {
-    if (!selectedWeld) return;
-    if (wpsFile && !wpsLoading && !wpsError) {
-      window.open(wpsFile, "_blank");
-    } else if (wpsLoading) {
-      console.log("WPS PDF is still loading...");
-    } else if (wpsError) {
-      console.error("Cannot open WPS PDF due to error:", wpsError);
-    } else {
-      console.log("No WPS PDF available to open");
-    }
-  };
-
-  // Check if WPS/Filler can be edited
-  const canEditWpsOrFiller =
-    selectedWeld && itemStateAccessor(selectedWeld) === "finished";
-
-  const cards = weldCardConfigs(selectedRow, selectedWeld, {
-    onWPSClick: canEditWpsOrFiller
-      ? () => formModal.openEdit(selectedWeld.id, "wps")
-      : undefined,
-    onFillerClick: canEditWpsOrFiller
-      ? () => formModal.openEdit(selectedWeld.id, "filler")
-      : undefined,
-  });
-
-  const controlButtons = weldButtonConfig({
-    onWpsClick: handleWPSClick,
-    onNoteClick: () => {},
-    onReportClick: () => {},
-    onNextClick: handleNext,
-  });
+    cards,
+    controlButtons,
+    setActiveTab,
+    searchField,
+    setSearchField,
+    weldDataVerification,
+  } = useWeldWorkflow({ initialItems, currentUser, fetchError });
 
   const showError = Boolean(errorMsg);
 
@@ -107,39 +58,40 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
                 search={search}
                 setSearch={setSearch}
                 buttons={controlButtons}
-                tag="SPO"
+                activeTab={activeTab}
+                context="weld"
+                searchField={searchField}
+                setSearchField={setSearchField}
               />
             </Col>
             <Col md={7} className="d-flex flex-column gap-3">
               <WorkTabs
                 tabs={tabsAllWorking}
                 activeTab={activeTab}
-                setActiveTab={(tab: string) =>
-                  setActiveTab(tab as "all" | "working")
-                }
+                setActiveTab={(tab: string) => setActiveTab(tab as TabType)}
               />
-              {activeTab === "all" ? (
+              {activeTab === TAB_TYPES.ALL ? (
                 <WorkTable
-                  items={filteredRows}
-                  columns={columnsWeld}
-                  handleRowClick={handleSelectRow}
-                  rowStates={rowStates}
-                  rowStateAccessor={rowStateAccessor}
-                  defaultSortColumn="spoolInternalId"
-                  hover={false}
+                  key="weldlist-table"
+                  items={weldListTable.tableItems}
+                  handleRowClick={weldListTable.handleRowClick}
+                  columns={columnsWeldList}
+                  rowStates={weldListTable.rowStates}
+                  rowStateAccessor={weldListTable.rowStateAccessor}
                 />
               ) : (
                 <WorkGrid
+                  key="weld-grid"
                   items={weldItems}
-                  accessor={(item) => `W.${item.id}`}
-                  handleItemClick={handleWeldClick}
-                  itemStates={itemStates}
-                  itemStateAccessor={itemStateAccessor}
+                  accessor="number"
+                  handleItemClick={weldGrid.handleItemClick}
+                  itemStates={weldGrid.itemStates}
+                  itemStateAccessor={weldGrid.itemStateAccessor}
                   columns={3}
-                  groupBy={(item) => item.spoolInternalId}
+                  groupBy={(item) => item.spoolInfo.internalId}
                   renderGroupTitle={(groupItems, gi) => (
                     <div key={gi} className="text-white mb-3">
-                      <h4>{groupItems[0].spoolInternalId}</h4>
+                      <h4>{groupItems[0].spoolInfo.internalId}</h4>
                     </div>
                   )}
                 />
@@ -149,17 +101,21 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
         </Container>
       </div>
 
+      {/* Weld Data Verification Modal - similar ao MaterialVerificationModal do assembly */}
       <FormModal
-        showModal={formModal.showModal}
-        title={formModal.title}
-        fields={formModal.fields}
-        values={formModal.values}
-        loading={formModal.loading}
-        error={formModal.error}
-        handleFieldChange={formModal.handleFieldChange}
-        handleSubmit={formModal.handleSubmit}
-        handleCancel={formModal.handleCancel}
-        submitText={formModal.submitText}
+        showModal={weldDataVerification.showModal}
+        title={weldDataVerification.modalTitle}
+        fields={weldDataVerification.modalFields}
+        values={weldDataVerification.formValues}
+        loading={
+          weldDataVerification.loading || weldDataVerification.isSubmitting
+        }
+        error={undefined}
+        handleFieldChange={weldDataVerification.handleFieldChange}
+        handleSubmit={weldDataVerification.handleContinue}
+        handleCancel={weldDataVerification.handleCancel}
+        submitText="Complete Weld"
+        cancelText="Cancel"
       />
 
       <ErrorToast
@@ -169,6 +125,6 @@ function WeldClient({ initialItems, fetchError }: WeldClientProps) {
       />
     </>
   );
-}
+});
 
 export default WeldClient;

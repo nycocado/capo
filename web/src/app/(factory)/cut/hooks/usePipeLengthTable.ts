@@ -48,9 +48,9 @@ export function usePipeLengthTable(
     TAB_TYPES.WORKING,
     informationIds,
   );
+  // Finished items sorting - ONLY backend determines finished state
   const { movedIds } = useFinishedItemsSorting(
     pipeLengths,
-    [],
     rowStateAccessor,
   );
 

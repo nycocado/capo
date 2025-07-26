@@ -1,7 +1,7 @@
 import { WeldDto } from "@/dtos";
 
 export interface WeldWithContext extends WeldDto {
-  spool: {
+  spoolInfo: {
     internalId: string;
   };
 }

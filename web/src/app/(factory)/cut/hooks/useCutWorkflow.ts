@@ -7,7 +7,7 @@ import {
   enrichPipeLengths,
   extractPipeLengthsFromCutList,
   validateHeatNumber,
-} from "../utils/cutClientUtils";
+} from "../utils/cutUtils";
 import { CutListDto, PipeLengthDto, UserDto } from "@/dtos";
 import {
   columnsCutList,

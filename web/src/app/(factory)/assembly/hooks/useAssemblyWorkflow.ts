@@ -4,8 +4,8 @@ import { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerificati
 import { usePDFViewer } from "./usePDFViewer";
 import { AssemblyListDto, UserDto } from "@/dtos";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { getAvailableSheets } from "../utils/assemblyClientUtils";
-import { useWeldGrid } from "./useWeldGrid";
+import { getAvailableSheets } from "../utils/assemblyUtils";
+import { useJointGrid } from "./useJointGrid";
 import { getSearchFields } from "@components/features/ControlPanel/ControlPanel.searchConfig";
 import {
   useUIConfigurations,
@@ -180,7 +180,7 @@ export const useAssemblyWorkflow = ({
   );
 
   // Joint operations
-  const weldGrid = useWeldGrid({
+  const weldGrid = useJointGrid({
     assemblyList: selectedAssemblyList,
     sheetNumber: selectedSheetNumber,
     search: activeTab === TAB_TYPES.WORKING ? "" : search, // Sem busca no working

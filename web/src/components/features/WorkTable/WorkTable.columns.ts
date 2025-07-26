@@ -1,5 +1,10 @@
-import { AssemblyListDto, CutListDto, FittingDto, PipeLengthDto } from "@/dtos";
-import { WeldRow } from "@/app/(factory)/weld/useWeldTable.types";
+import {
+  AssemblyListDto,
+  CutListDto,
+  FittingDto,
+  PipeLengthDto,
+  WeldListDto,
+} from "@/dtos";
 import { PipeLengthWithContext } from "@/interfaces";
 import { Column } from "@components/features/WorkTable/WorkTable";
 
@@ -172,32 +177,33 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
   },
 ];
 
-export const columnsWeld: Column<WeldRow>[] = [
+export const columnsWeldList: Column<WeldListDto>[] = [
   {
-    id: "spoolInternalId",
-    header: "Spool",
-    accessor: (item: WeldRow) => item.spoolInternalId,
+    id: "id",
+    header: "ID",
+    accessor: (item) => item.internalId,
+    className: "text-center",
     sortable: true,
     searchable: true,
   },
   {
-    id: "isoInternalId",
-    header: "Isometric",
-    accessor: (item: WeldRow) => item.isoInternalId,
-    sortable: true,
-    searchable: true,
-  },
-  {
-    id: "sheetNumber",
-    header: "Sheet",
-    accessor: (item: WeldRow) => item.sheetNumber,
+    id: "spool",
+    header: "SPOOL",
+    accessor: (item) => item.spool?.internalId || "-",
+    className: "text-center",
     sortable: true,
     searchable: true,
   },
   {
     id: "weldCount",
-    header: "Welds",
-    accessor: (item: WeldRow) => item.weldCount.toString(),
+    header: "WELDS",
+    accessor: (item) => {
+      const totalWelds = item.spool?.joints?.reduce((total, joint) => {
+        return total + (joint.welds?.length || 0);
+      }, 0);
+      return totalWelds?.toString() || "0";
+    },
+    className: "text-center",
     sortable: true,
     searchable: false,
   },
