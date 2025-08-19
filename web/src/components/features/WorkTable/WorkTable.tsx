@@ -19,6 +19,11 @@ export interface Column<T> {
   iterable?: boolean;
 }
 
+export interface PaginationProps {
+  page?: number; // 1-based
+  pageSize?: number;
+}
+
 export interface WorkTableProps {
   items: any[];
   handleRowClick: (item: any) => void;
@@ -28,6 +33,7 @@ export interface WorkTableProps {
   hover?: boolean;
   rowStates?: Record<string, RowStateConfig<any>>;
   rowStateAccessor?: (item: any) => string;
+  pagination?: PaginationProps; // opcional – se não informado, lista completa
 }
 
 export function WorkTable(props: WorkTableProps) {

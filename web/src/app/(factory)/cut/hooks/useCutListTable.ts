@@ -1,19 +1,9 @@
 import React, { useState, useMemo, useCallback } from "react";
-import {
-  useCutEventHandlers,
-  UseCutTableCallbacks,
-} from "./useCutEventHandlers";
+import { useCutEventHandlers, UseCutTableCallbacks } from "./useCutEventHandlers";
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import {
-  filterBySearch,
-  sortFinishedLast,
-  useFinishedItemsSorting,
-  useInformationState,
-  useRowStates,
-  useWorkStatusAccessor,
-} from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@/hooks";
 
 // Hook for cut list table in all tab
 export function useCutListTable(
@@ -34,43 +24,20 @@ export function useCutListTable(
     searchField: string,
   ) => CutListDto[],
 ) {
-  // Information overlay state management
-  const {
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-  } = useInformationState();
-
-  // Selected item state
-  const [selectedItem, setSelectedItem] = useState<CutListDto | null>(null);
-
-  // Work status accessor
-  const rowStateAccessor = useWorkStatusAccessor(
-    TAB_TYPES.ALL,
-    informationIds,
+  const base = useWorkTableBase<CutListDto>({
+    items: cutLists,
+    activeTab: TAB_TYPES.ALL,
+    search,
+    searchField,
+    columns: columnsCutList,
     currentUserId,
-  );
+  });
 
-  // Finished items sorting - ONLY backend determines finished state
-  const { movedIds } = useFinishedItemsSorting(cutLists, rowStateAccessor);
+  // Adapter para casar tipos do handler (união)
+  const rowStateAccessorUnion = (item: PipeLengthDto | CutListDto) =>
+    base.rowStateAccessor(item as CutListDto);
 
-  // Type-safe wrapper for setSelectedItem
-  const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<(PipeLengthDto | CutListDto) | null>) => {
-      if (typeof value === "function") {
-        setSelectedItem((prev) => {
-          const result = value(prev);
-          return result as CutListDto | null;
-        });
-      } else {
-        setSelectedItem(value as CutListDto | null);
-      }
-    },
-    [],
-  );
-
-  // Event handlers - using original hook
+  // Event handlers - usando hook original
   const {
     handleRowClick,
     handleNextWorkflow,
@@ -78,41 +45,33 @@ export function useCutListTable(
     isItemInFocus,
   } = useCutEventHandlers(
     TAB_TYPES.ALL,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    rowStateAccessor,
-    setSelectedItemGeneric,
+    base.informationIds,
+    base.toggleInformation,
+    base.clearAllInformation,
+    base.hasInformationItems,
+    rowStateAccessorUnion,
+    base.setSelectedItem as React.Dispatch<React.SetStateAction<PipeLengthDto | CutListDto | null>>,
     cutLists,
     callbacks,
     currentUserId,
   );
 
-  // Row states
   const rowStates = useRowStates(TAB_TYPES.ALL, handleRowClick);
 
-  // Table items
-  const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(cutLists, movedIds);
-
-    // Use custom search function if provided, otherwise use search with columns
-    if (searchFunction) {
-      return searchFunction(sortedItems, search, searchField);
-    }
-
-    return filterBySearch(sortedItems, search, searchField, columnsCutList);
-  }, [cutLists, movedIds, search, searchField, searchFunction]);
+  // Se uma função custom de busca foi passada, reconstroi tableItems com ela
+  const tableItems = searchFunction
+    ? searchFunction(base.tableItems, search, searchField)
+    : base.tableItems;
 
   return {
     tableItems,
     rowStates,
-    rowStateAccessor,
-    selectedItem,
+    rowStateAccessor: base.rowStateAccessor,
+    selectedItem: base.selectedItem,
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
-    clearAllInformation,
+    clearAllInformation: base.clearAllInformation,
   };
 }

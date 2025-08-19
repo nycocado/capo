@@ -106,7 +106,10 @@ export const useWeldEventHandlers = (
       // Priority: working > to-do
       const workingWeldList = items.find((weldList) => {
         const currentState = rowStateAccessor(weldList);
-        return currentState === WORK_STATES.WORKING && canUserAccessItem(weldList, currentUserId);
+        return (
+          currentState === WORK_STATES.WORKING &&
+          canUserAccessItem(weldList, currentUserId)
+        );
       });
 
       if (workingWeldList) {

@@ -41,6 +41,39 @@ export const filterBySearch = <T extends { [key: string]: any }>(
   });
 };
 
+// Pagination utility
+export interface PaginationOptions {
+  page: number; // 1-based
+  pageSize: number;
+}
+
+export const paginate = <T,>(items: T[], { page, pageSize }: PaginationOptions) => {
+  if (!pageSize || pageSize <= 0) return { items, totalPages: 1, total: items.length };
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const p = Math.min(Math.max(1, page), totalPages);
+  const start = (p - 1) * pageSize;
+  const end = start + pageSize;
+  return { items: items.slice(start, end), totalPages, total };
+};
+
+// Pipeline of transformations (lego blocks)
+export type TableTransform<T> = (data: T[]) => T[];
+
+export const composeTransforms = <T>(...transforms: TableTransform<T>[]) => {
+  return (data: T[]) => transforms.reduce((acc, fn) => fn(acc), data);
+};
+
+export const makeSearchTransform = <T extends { [key: string]: any }>(
+  search: string,
+  searchField: string,
+  columns?: Column<T>[],
+): TableTransform<T> => (data) => filterBySearch(data, search, searchField, columns);
+
+export const makeSortFinishedLastTransform = <T extends { id: number }>(
+  finishedIds: number[],
+): TableTransform<T> => (data) => sortFinishedLast(data, finishedIds);
+
 // Generic hook for row states configuration
 export const useRowStates = <T>(
   activeTab: TabType,

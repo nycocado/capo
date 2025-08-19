@@ -1,17 +1,10 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import {
   useWeldEventHandlers,
   UseWeldTableCallbacks,
 } from "./useWeldEventHandlers";
 import { WeldListDto } from "@/dtos";
-import {
-  filterBySearch,
-  sortFinishedLast,
-  useFinishedItemsSorting,
-  useInformationState,
-  useRowStates,
-  useWorkStatusAccessor,
-} from "@/hooks";
+import { useRowStates, useWorkStatusAccessor, useWorkTableBase } from "@/hooks";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 
 /**
@@ -22,38 +15,12 @@ export function useWeldWorkingTable(
   search: string,
   callbacks?: Pick<UseWeldTableCallbacks, "onWeldListSelected">,
 ) {
-  const {
-    informationIds,
-    toggleInformation,
-    removeFromInformation,
-    clearAllInformation,
-    hasInformationItems,
-  } = useInformationState();
-
-  const [selectedItem, setSelectedItem] = useState<WeldListDto | null>(null);
-
-  const rowStateAccessor = useWorkStatusAccessor(
-    TAB_TYPES.WORKING,
-    informationIds,
-  );
-
-  // Finished items sorting - ONLY backend determines finished state
-  const { movedIds } = useFinishedItemsSorting(workingWeldLists, rowStateAccessor);
-
-  // Type-safe wrapper for setSelectedItem
-  const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<WeldListDto | null>) => {
-      if (typeof value === "function") {
-        setSelectedItem((prev) => {
-          const result = value(prev);
-          return result as WeldListDto | null;
-        });
-      } else {
-        setSelectedItem(value as WeldListDto | null);
-      }
-    },
-    [],
-  );
+  // Base genérico
+  const base = useWorkTableBase<WeldListDto>({
+    items: workingWeldLists,
+    activeTab: TAB_TYPES.WORKING,
+    search,
+  });
 
   // Event handlers
   const {
@@ -63,12 +30,12 @@ export function useWeldWorkingTable(
     isItemInFocus,
   } = useWeldEventHandlers(
     TAB_TYPES.WORKING,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    rowStateAccessor,
-    setSelectedItemGeneric,
+    base.informationIds,
+    base.toggleInformation,
+    base.clearAllInformation,
+    base.hasInformationItems,
+    base.rowStateAccessor,
+    base.setSelectedItem,
     workingWeldLists,
     callbacks,
   );
@@ -76,35 +43,20 @@ export function useWeldWorkingTable(
   // Row states configuration
   const rowStates = useRowStates(TAB_TYPES.WORKING, handleRowClick);
 
-  // Computed table items
-  const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(workingWeldLists, movedIds);
-    return filterBySearch(sortedItems, search);
-  }, [workingWeldLists, movedIds, search]);
-
-  // Handle item transition to working state
-  const proceedToWorking = (id: number) => {
-    removeFromInformation(id);
-    const item = workingWeldLists.find((i) => i.id === id);
-    if (item) {
-      setSelectedItem(item);
-    }
-  };
-
   return {
-    tableItems,
+    tableItems: base.tableItems,
     rowStates,
-    rowStateAccessor,
-    selectedItem,
-    setSelectedItem,
+    rowStateAccessor: base.rowStateAccessor,
+    selectedItem: base.selectedItem,
+    setSelectedItem: base.setSelectedItem,
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    proceedToWorking,
+    informationIds: base.informationIds,
+    toggleInformation: base.toggleInformation,
+    clearAllInformation: base.clearAllInformation,
+    hasInformationItems: base.hasInformationItems,
+    proceedToWorking: base.proceedToWorking,
   };
 }

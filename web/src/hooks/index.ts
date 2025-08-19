@@ -8,3 +8,4 @@ export * from "./useWebSocket";
 export * from "./useUIConfigurations";
 export * from "./useWorkListOperations";
 export * from "./useInformationState";
+export * from "./useWorkTableBase";

@@ -1,17 +1,10 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React from "react";
 import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
 } from "./useAssemblyEventHandlers";
 import { AssemblyListDto } from "@/dtos";
-import {
-  filterBySearch,
-  sortFinishedLast,
-  useFinishedItemsSorting,
-  useInformationState,
-  useRowStates,
-  useWorkStatusAccessor,
-} from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@/hooks";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 
 // Hook for Assembly working table (WORKING tab)
@@ -20,84 +13,37 @@ export function useAssemblyWorkingTable(
   search: string,
   callbacks?: Pick<UseAssemblyTableCallbacks, "onAssemblyListSelected">,
 ) {
-  const {
-    informationIds,
-    toggleInformation,
-    removeFromInformation,
-    clearAllInformation,
-    hasInformationItems,
-  } = useInformationState();
+  const base = useWorkTableBase<AssemblyListDto>({
+    items: workingAssemblyLists,
+    activeTab: TAB_TYPES.WORKING,
+    search,
+  });
 
-  const [selectedItem, setSelectedItem] = useState<AssemblyListDto | null>(
-    null,
-  );
-  const rowStateAccessor = useWorkStatusAccessor(
-    TAB_TYPES.WORKING,
-    informationIds,
-  );
-  const { movedIds } = useFinishedItemsSorting(workingAssemblyLists, rowStateAccessor);
+  const { handleRowClick, handleNextWorkflow, areAllWorkingItemsFinished, isItemInFocus } =
+    useAssemblyEventHandlers(
+      TAB_TYPES.WORKING,
+      base.informationIds,
+      base.toggleInformation,
+      base.clearAllInformation,
+      base.hasInformationItems,
+      base.rowStateAccessor,
+      base.setSelectedItem,
+      workingAssemblyLists,
+      callbacks,
+    );
 
-  // Type-safe wrapper for setSelectedItem
-  const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<AssemblyListDto | null>) => {
-      if (typeof value === "function") {
-        setSelectedItem((prev) => {
-          const result = value(prev);
-          return result as AssemblyListDto | null;
-        });
-      } else {
-        setSelectedItem(value as AssemblyListDto | null);
-      }
-    },
-    [],
-  );
-
-  // Event handlers
-  const {
-    handleRowClick,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
-  } = useAssemblyEventHandlers(
-    TAB_TYPES.WORKING,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    rowStateAccessor,
-    setSelectedItemGeneric,
-    workingAssemblyLists,
-    callbacks,
-  );
-
-  // Row states configuration
   const rowStates = useRowStates(TAB_TYPES.WORKING, handleRowClick);
 
-  // Computed table items
-  const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(workingAssemblyLists, movedIds);
-    return filterBySearch(sortedItems, search);
-  }, [workingAssemblyLists, movedIds, search]);
-
-  // Handle item transition to working state
-  const proceedToWorking = (id: number) => {
-    removeFromInformation(id);
-    const item = workingAssemblyLists.find((i) => i.id === id);
-    if (item) {
-      setSelectedItem(item);
-    }
-  };
-
   return {
-    tableItems,
+    tableItems: base.tableItems,
     rowStates,
-    rowStateAccessor,
-    selectedItem,
+    rowStateAccessor: base.rowStateAccessor,
+    selectedItem: base.selectedItem,
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
-    proceedToWorking,
-    clearAllInformation,
+    proceedToWorking: base.proceedToWorking,
+    clearAllInformation: base.clearAllInformation,
   };
 }
