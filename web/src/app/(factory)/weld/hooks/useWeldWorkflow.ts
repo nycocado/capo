@@ -38,7 +38,7 @@ export const useWeldWorkflow = ({
     setErrorMsg,
     items,
     setItems,
-    workingItems,
+    // workingItems, // not used
     setWorkingItems,
     activeTab,
     setActiveTab,
@@ -48,6 +48,11 @@ export const useWeldWorkflow = ({
 
   // Additional state for weld workflow
   const [selectedWeldList, setSelectedWeldList] = useState<WeldListDto | null>(
+    null,
+  );
+
+  // Track last selected weld (for actions like viewing WPS)
+  const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
   );
 
@@ -67,7 +72,7 @@ export const useWeldWorkflow = ({
         }
       });
     },
-    [setItems],
+    [setItems, setWorkingItems],
   );
 
   // Handle weld list update from websocket
@@ -91,7 +96,7 @@ export const useWeldWorkflow = ({
         prev?.id === updatedWeldList.id ? updatedWeldList : prev,
       );
     },
-    [setItems],
+    [setItems, setWorkingItems],
   );
 
   useWebSocket({
@@ -146,26 +151,25 @@ export const useWeldWorkflow = ({
 
   // Weld data verification - similar ao MaterialVerification do assembly
   const weldDataVerification = useWeldDataVerification({
-    onWeldProcessed: (weld) => {
-      // Quando o weld é processado com sucesso, atualizar o selectedWeldList
+    onWeldProcessed: (updatedWeld) => {
       if (selectedWeldList) {
+        // Remove campo de contexto ao salvar dentro do spool
+        const { spoolInfo: _ctx, ...updatedPlain } = updatedWeld as any;
+
         const updatedWeldList = {
           ...selectedWeldList,
           spool: {
             ...selectedWeldList.spool,
             welds: selectedWeldList.spool.welds?.map((w) =>
-              w.id === weld.id
-                ? {
-                    ...w,
-                    workStatus: { name: "finished", notes: null, createdBy: 1 },
-                  }
-                : w,
+              w.id === updatedWeld.id ? { ...w, ...updatedPlain } : w,
             ),
           },
         };
-        setSelectedWeldList(updatedWeldList);
 
-        // Também atualizar nos items principais
+        setSelectedWeldList(updatedWeldList);
+        setSelectedWeld(updatedWeld); // mantém foco no weld com dados atualizados
+
+        // Atualiza também nos items principais
         setItems((prev) =>
           prev.map((item) =>
             item.id === selectedWeldList.id ? updatedWeldList : item,
@@ -180,6 +184,9 @@ export const useWeldWorkflow = ({
   const handleWeldClick = useCallback(
     (weld: WeldWithContext) => {
       const currentState = weld.workStatus?.name || "to-do";
+
+      // sempre mantém o último weld selecionado para ações auxiliares (ex.: WPS)
+      setSelectedWeld(weld);
 
       if (currentState === "to-do") {
         // Intercepta ANTES da requisição e abre modal de verificação
@@ -209,16 +216,33 @@ export const useWeldWorkflow = ({
     }
   }, [activeTab, weldListTable, weldGrid]);
 
+  // Open WPS in a new tab
+  const handleWpsClick = useCallback(() => {
+    if (!selectedWeld) {
+      setErrorMsg("Selecione um weld na grade para visualizar o WPS.");
+      return;
+    }
+    const doc = selectedWeld.wps?.document;
+    if (!doc) {
+      setErrorMsg("WPS não disponível para o weld selecionado.");
+      return;
+    }
+    const url = API_ROUTES.documents.download(doc);
+    window.open(url, "_blank");
+  }, [selectedWeld, setErrorMsg]);
+
   // UI configurations
   const { cards, controlButtons } = useUIConfigurations(
-    null,
+    selectedWeld,
     null,
     {
       onNextClick: handleNextWorkflow,
+      onWpsClick: handleWpsClick,
     },
     {
       buttonConfig: weldButtonConfig,
-      cardConfigs: weldCardConfigs,
+      cardConfigs: (item: WeldWithContext | null) =>
+        weldCardConfigs(item, { onWPSClick: handleWpsClick }),
     },
   );
 

@@ -1,18 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   useCutEventHandlers,
   UseCutTableCallbacks,
 } from "./useCutEventHandlers";
 import { CutListDto, PipeLengthDto } from "@/dtos";
 import { TabType } from "@components/features/WorkTabs";
-import {
-  filterBySearch,
-  sortFinishedLast,
-  useFinishedItemsSorting,
-  useInformationState,
-  useRowStates,
-  useWorkStatusAccessor,
-} from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@/hooks";
 
 // Hook for general cut table management
 export function useCutTable(
@@ -21,20 +14,11 @@ export function useCutTable(
   search: string,
   callbacks?: UseCutTableCallbacks,
 ) {
-  const {
-    informationIds,
-    toggleInformation,
-    removeFromInformation,
-    clearAllInformation,
-    hasInformationItems,
-  } = useInformationState();
-
-  const [selectedItem, setSelectedItem] = useState<
-    (PipeLengthDto | CutListDto) | null
-  >(null);
-  const rowStateAccessor = useWorkStatusAccessor(activeTab, informationIds);
-  // Finished items sorting - ONLY backend determines finished state
-  const { movedIds } = useFinishedItemsSorting(items, rowStateAccessor);
+  const base = useWorkTableBase<PipeLengthDto | CutListDto>({
+    items,
+    activeTab,
+    search,
+  });
 
   const {
     handleRowClick,
@@ -43,12 +27,12 @@ export function useCutTable(
     isItemInFocus,
   } = useCutEventHandlers(
     activeTab,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    rowStateAccessor,
-    setSelectedItem,
+    base.informationIds,
+    base.toggleInformation,
+    base.clearAllInformation,
+    base.hasInformationItems,
+    base.rowStateAccessor,
+    base.setSelectedItem as React.Dispatch<React.SetStateAction<PipeLengthDto | CutListDto | null>>,
     items,
     callbacks,
   );
@@ -56,32 +40,19 @@ export function useCutTable(
   // Row states
   const rowStates = useRowStates(activeTab, handleRowClick);
 
-  // Filtered and sorted table items
-  const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(items, movedIds);
-    return filterBySearch(sortedItems, search, "id");
-  }, [items, movedIds, search]);
-
   useEffect(() => {
-    setSelectedItem(null);
-    clearAllInformation();
-  }, [activeTab, clearAllInformation]);
-
-  const proceedToWorking = (id: number) => {
-    removeFromInformation(id);
-    const item = items.find((i) => i.id === id);
-    if (item) {
-      setSelectedItem(item);
-    }
-  };
+    // Ao trocar de tab, limpa seleção e overlay
+    base.setSelectedItem(null);
+    base.clearAllInformation();
+  }, [activeTab]);
 
   return {
-    tableItems,
+    tableItems: base.tableItems,
     rowStates,
-    rowStateAccessor,
-    selectedItem,
+    rowStateAccessor: base.rowStateAccessor,
+    selectedItem: base.selectedItem,
     handleRowClick,
-    proceedToWorking,
+    proceedToWorking: base.proceedToWorking,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
     isItemInFocus,
