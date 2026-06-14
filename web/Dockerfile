@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM docker.io/library/node:lts-alpine
 
 # Instalar dependências do sistema
 RUN apk add --no-cache curl
