@@ -3,7 +3,6 @@ import { ConfigModule } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { microOrmConfig } from "@config/mikroorm.config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
-import { CacheModule } from "@nestjs/cache-manager";
 import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
 import { RoleModule } from "@modules/role";
@@ -21,6 +20,7 @@ import { WpsModule } from "@modules/wps";
 import { DocumentModule } from "@modules/document";
 import { MikroOrmNotFoundInterceptor } from "@common/interceptors";
 import { APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
+import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
 @Module({
@@ -28,9 +28,6 @@ import { AppService } from "./app.service";
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
     MikroOrmModule.forRoot(microOrmConfig),
     EventEmitterModule.forRoot(),
-    CacheModule.register({
-      isGlobal: true,
-    }),
     AuthModule,
     UserModule,
     RoleModule,
@@ -47,6 +44,7 @@ import { AppService } from "./app.service";
     WpsModule,
     DocumentModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_PIPE,

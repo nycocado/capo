@@ -25,6 +25,7 @@ import {
 import { JwtCookieAuthGuard } from "@common/guards";
 import { Request } from "express";
 import { User } from "@common/decorators";
+import { durationToMs } from "@common/utils/parse-duration";
 
 @Controller("auth")
 export class AuthController {
@@ -46,9 +47,11 @@ export class AuthController {
 
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "strict",
-      maxAge: 8 * 60 * 60 * 1000,
+      maxAge: durationToMs(
+        this.configService.get<string>("JWT_EXPIRATION") ?? "8h",
+      ),
     });
 
     return {
