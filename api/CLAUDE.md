@@ -51,7 +51,7 @@ The canonical pattern, e.g. when an operator finishes a cut:
 2. Service persists via repository, then `eventEmitter.emit("cut-list.updateWorkStatusTo...", populatedEntity, userId)`.
 3. Other services may `@OnEvent` that to cascade status (e.g. finishing all pipe-lengths in a cut-list auto-finishes the cut-list).
 4. The module's gateway `@OnEvent` handler broadcasts `server.emit("updateWorkStatus", serialized)` on its namespace.
-5. The web client's `useWebSocket` hook receives it and patches local state.
+5. The web client's `useStageSocket` hook receives it and patches the TanStack Query cache (`setQueryData`).
 
 ### Domain model
 
