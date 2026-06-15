@@ -1,20 +1,41 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAssemblyListTable } from "./useAssemblyListTable";
 import { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerification";
 import { usePDFViewer } from "./usePDFViewer";
 import { AssemblyListDto, UserDto } from "@/dtos";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { getAvailableSheets } from "../utils/assemblyUtils";
 import { useJointGrid } from "./useJointGrid";
-import { getSearchFields } from "@components/features/ControlPanel/ControlPanel.searchConfig";
-import {
-  useUIConfigurations,
-  useWebSocket,
-  useWorkClientState,
-  useWorkListOperations,
-} from "@/hooks";
-import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
+import { useUIConfigurations } from "@/hooks";
 import { assemblyButtonConfig } from "@components/features/ControlPanel";
+import { WS_EVENTS, WS_ROUTES } from "@/routes";
+import { fetchToDoAssemblyLists, setAssemblyListWorking } from "@/lib/api";
+import { queryKeys } from "@/lib/query/keys";
+import { replaceById, upsertById } from "@/domain/logic/upsertById";
+import { useWorkStage } from "@/features/work-stage/useWorkStage";
+import type { WorkStageConfig } from "@/features/work-stage/types";
+
+// Configuração da etapa de montagem para o núcleo genérico useWorkStage.
+const assemblyStageConfig: WorkStageConfig<AssemblyListDto> = {
+  context: "assembly",
+  queryKey: queryKeys.assemblyLists(),
+  fetchToDo: fetchToDoAssemblyLists,
+  setWorking: setAssemblyListWorking,
+  ws: {
+    route: WS_ROUTES.assemblyList,
+    events: [
+      {
+        name: WS_EVENTS.assemblyList.updateWorkStatus,
+        toUpdate: (payload) => (current) =>
+          replaceById(current, payload as AssemblyListDto),
+      },
+      {
+        name: WS_EVENTS.assemblyList.create,
+        toUpdate: (payload) => (current) =>
+          upsertById(current, payload as AssemblyListDto),
+      },
+    ],
+  },
+};
 
 export interface UseAssemblyWorkflowProps {
   initialItems: AssemblyListDto[];
@@ -28,182 +49,101 @@ export const useAssemblyWorkflow = ({
   currentUser,
   fetchError,
 }: UseAssemblyWorkflowProps) => {
-  // Client state management
-  const state = useWorkClientState<AssemblyListDto, AssemblyListDto>(
-    initialItems,
-    fetchError,
-  );
+  // Server/UI state via the generic work-stage engine
   const {
-    errorMsg,
-    setErrorMsg,
-    items, // ← Main items array
-    setItems,
-    setWorkingItems,
+    items,
     activeTab,
     setActiveTab,
     search,
     setSearch,
-  } = state;
+    searchField,
+    setSearchField,
+    errorMsg,
+    setErrorMsg,
+    setWorking,
+  } = useWorkStage<AssemblyListDto>({
+    ...assemblyStageConfig,
+    initialItems,
+    fetchError,
+  });
 
-  // Additional state for assembly workflow
-  const [selectedAssemblyList, setSelectedAssemblyList] =
-    useState<AssemblyListDto | null>(null);
+  // A assembly-list selecionada (derivada do cache) alimenta o grid e o PDF.
+  const [selectedAssemblyListId, setSelectedAssemblyListId] = useState<
+    number | null
+  >(null);
   const [selectedSheetNumber, setSelectedSheetNumber] = useState<number | null>(
     null,
   );
-
-  // Search field state
-  const [searchField, setSearchField] = useState<string>("id");
-
-  // List modal states for readonly consultation
-  const [showListModal, setShowListModal] = useState(false);
-  const [listCurrentStep, setListCurrentStep] = useState<
-    "pipeLength" | "fitting"
-  >("pipeLength");
-  const [listPipeLengths, setListPipeLengths] = useState<any[]>([]);
-  const [listFittings, setListFittings] = useState<any[]>([]);
-
-  const handleAssemblyListCreate = useCallback(
-    (newAssemblyList: AssemblyListDto) => {
-      // Update MAIN items array (what's displayed in table)
-      setItems((prev) => [...prev, newAssemblyList]);
-
-      // Only add to workingItems if it's actually in working status
-      const workStatus = newAssemblyList.workStatus?.name;
-      if (workStatus === "working") {
-        setWorkingItems((prev) => [...prev, newAssemblyList]);
-      }
-    },
-    [setItems, setWorkingItems],
+  const selectedAssemblyList = useMemo<AssemblyListDto | null>(
+    () =>
+      selectedAssemblyListId === null
+        ? null
+        : (items.find((al) => al.id === selectedAssemblyListId) ?? null),
+    [items, selectedAssemblyListId],
   );
 
-  // Handle assembly list update from websocket
-  const handleAssemblyListUpdate = useCallback(
-    (updatedAssemblyList: AssemblyListDto) => {
-      // Update MAIN items array (what's displayed in table)
-      setItems((prev) =>
-        prev.map((al) =>
-          al.id === updatedAssemblyList.id ? updatedAssemblyList : al,
-        ),
-      );
+  // Abre uma assembly-list na aba Working (seleção + primeira sheet)
+  const openWorkingView = useCallback((assemblyList: AssemblyListDto) => {
+    setSelectedAssemblyListId(assemblyList.id);
+    const firstSheet = assemblyList.isometric?.sheets?.[0];
+    if (firstSheet) setSelectedSheetNumber(firstSheet.number);
+    setActiveTab(TAB_TYPES.WORKING);
+  }, [setActiveTab]);
 
-      // Also update working items for consistency
-      setWorkingItems((prev) =>
-        prev.map((al) =>
-          al.id === updatedAssemblyList.id ? updatedAssemblyList : al,
-        ),
-      );
-
-      // Update selected assembly list if it's the same
-      setSelectedAssemblyList((prev) =>
-        prev && prev.id === updatedAssemblyList.id ? updatedAssemblyList : prev,
-      );
+  // Marca a assembly-list como working e abre sua vista de joints
+  const startAssemblyList = useCallback(
+    async (id: number): Promise<boolean> => {
+      const updated = await setWorking(id);
+      if (updated) openWorkingView(updated);
+      return Boolean(updated);
     },
-    [setItems, setWorkingItems],
-  );
-
-  // WebSocket connection
-  useWebSocket({
-    wsRoute: WS_ROUTES.assemblyList,
-    eventHandlers: [
-      {
-        eventName: WS_EVENTS.assemblyList.updateWorkStatus,
-        handler: handleAssemblyListUpdate,
-      },
-      {
-        eventName: WS_EVENTS.assemblyList.create,
-        handler: handleAssemblyListCreate,
-      },
-    ],
-    enabled: true,
-    connectionName: "AssemblyList",
-  });
-
-  // Assembly list operations
-  const { setWorking } = useWorkListOperations<AssemblyListDto>(
-    API_ROUTES.assemblyLists.setWorking,
-    "setting assembly list to working",
-    {
-      onSuccess: (updated) => {
-        // Update MAIN items array (what's displayed in table)
-        setItems((prev) =>
-          prev.map((al) => (al.id === updated.id ? updated : al)),
-        );
-
-        // Also update working items for consistency
-        setWorkingItems((prev) =>
-          prev.map((al) => (al.id === updated.id ? updated : al)),
-        );
-
-        setSelectedAssemblyList(updated);
-        const firstSheet = updated.isometric?.sheets?.[0];
-        if (firstSheet) {
-          setSelectedSheetNumber(firstSheet.number);
-        }
-        setActiveTab(TAB_TYPES.WORKING);
-      },
-      onError: setErrorMsg,
-    },
+    [setWorking, openWorkingView],
   );
 
   // Material verification
   const materialVerification = useAssemblyMaterialVerification();
 
-  // Assembly list table (ALL tab) - FIXED: using items instead of workingItems
-  const assemblyListTable = useAssemblyListTable(
-    items, // ✅ Using main items array instead of workingItems
-    search,
-    currentUser?.id,
-    {
-      onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
-        // Always start material verification flow regardless of status
-        try {
-          await materialVerification.startVerification(assemblyList, () => {
-            const currentState = assemblyList.workStatus?.name || "to-do";
-            if (currentState === "to-do") {
-              setWorking(assemblyList.id);
-            } else {
-              setSelectedAssemblyList(assemblyList);
-              const firstSheet = assemblyList.isometric?.sheets?.[0];
-              if (firstSheet) {
-                setSelectedSheetNumber(firstSheet.number);
-              }
-              setActiveTab(TAB_TYPES.WORKING);
-            }
-          });
-        } catch (error) {
-          setErrorMsg("Failed to start material verification");
-        }
-      },
-      onAssemblyListSetWorking: async (id) => await setWorking(id),
+  // Assembly list table (ALL tab)
+  const assemblyListTable = useAssemblyListTable(items, search, currentUser?.id, {
+    onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
+      // Sempre passa pela verificação de material, independente do status
+      try {
+        await materialVerification.startVerification(assemblyList, () => {
+          const currentState = assemblyList.workStatus?.name || "to-do";
+          if (currentState === "to-do") {
+            void startAssemblyList(assemblyList.id);
+          } else {
+            openWorkingView(assemblyList);
+          }
+        });
+      } catch {
+        setErrorMsg("Failed to start material verification");
+      }
     },
-  );
+    onAssemblyListSetWorking: async (id) => await startAssemblyList(id),
+  });
 
-  // Joint operations
+  // Joint operations (Working tab)
   const weldGrid = useJointGrid({
     assemblyList: selectedAssemblyList,
     sheetNumber: selectedSheetNumber,
     search: activeTab === TAB_TYPES.WORKING ? "" : search, // Sem busca no working
     onAllFinished: () => {
-      setSelectedAssemblyList(null);
+      setSelectedAssemblyListId(null);
       setSelectedSheetNumber(null);
       setActiveTab(TAB_TYPES.ALL);
     },
     onError: setErrorMsg,
   });
 
-  // Handle next workflow - corrected functionality
+  // Handle next workflow
   const handleNextWorkflow = useCallback(async () => {
     if (activeTab === TAB_TYPES.ALL) {
-      // Use the table's own next workflow logic
       assemblyListTable.handleNextWorkflow();
     } else if (activeTab === TAB_TYPES.WORKING) {
       await weldGrid.handleNextWorkflow();
     }
   }, [activeTab, assemblyListTable, weldGrid]);
-
-  // Get available sheets
-  getAvailableSheets(selectedAssemblyList);
 
   // Current sheet for PDF viewer
   const currentSheet =
@@ -223,7 +163,6 @@ export const useAssemblyWorkflow = ({
   // Handle isometric viewer - send raw file to browser
   const handleIsometricClick = useCallback(() => {
     if (pdfFile) {
-      // pdfFile is already a blob URL from usePDFViewer, just open it
       window.open(pdfFile, "_blank");
     } else {
       setErrorMsg("No PDF loaded");
@@ -236,32 +175,14 @@ export const useAssemblyWorkflow = ({
       setErrorMsg("No assembly list selected");
       return;
     }
-
     try {
-      // Use consultation mode method
-      await materialVerification.openMaterialsConsultation(
-        selectedAssemblyList,
-      );
-    } catch (error) {
+      await materialVerification.openMaterialsConsultation(selectedAssemblyList);
+    } catch {
       setErrorMsg("Failed to load materials list");
     }
   }, [selectedAssemblyList, materialVerification, setErrorMsg]);
 
-  // Handlers for list modal navigation
-  const handleListNext = useCallback(() => {
-    setListCurrentStep("fitting");
-  }, []);
-
-  const handleListPrevious = useCallback(() => {
-    setListCurrentStep("pipeLength");
-  }, []);
-
-  const handleListCancel = useCallback(() => {
-    setShowListModal(false);
-    setListCurrentStep("pipeLength");
-  }, []);
-
-  // UI configurations - with restored isometric functionality
+  // UI configurations
   const { controlButtons } = useUIConfigurations(
     null,
     null,
@@ -275,65 +196,20 @@ export const useAssemblyWorkflow = ({
     },
   );
 
-  // Initialize search field based on active tab
-  useEffect(() => {
-    const searchFields = getSearchFields("assembly", activeTab);
-    const defaultSearchField = searchFields[0]?.id || "id";
-    setSearchField(defaultSearchField);
-  }, [activeTab]);
-
   return {
-    // State - what AssemblyClient uses
-    state: {
-      errorMsg,
-      activeTab,
-      search,
-      setSearch,
-      setErrorMsg,
-    },
-
-    // Table
+    state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     assemblyListTable,
-
-    // Features
     materialVerification,
-
-    // Operations
-    weldGrid, // or rename to weldGrid
-
-    // Data
+    weldGrid,
     weldItems: weldGrid.weldItems,
     selectedAssemblyList,
     selectedSheetNumber,
-
-    // PDF
     pdfFile,
     pdfLoading,
     pdfError,
-
-    // UI - only controlButtons
     controlButtons,
-
-    // Handlers
     setActiveTab,
-
-    // Search
     searchField,
     setSearchField,
-
-    // Modal for readonly consultation
-    showListModal,
-    setShowListModal,
-    listCurrentStep,
-    setListCurrentStep,
-    listPipeLengths,
-    setListPipeLengths,
-    listFittings,
-    setListFittings,
-
-    // Handlers for list modal navigation
-    handleListNext,
-    handleListPrevious,
-    handleListCancel,
   };
 };
