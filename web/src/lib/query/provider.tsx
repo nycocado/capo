@@ -6,6 +6,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { MotionConfig } from "framer-motion";
 import React, { useState } from "react";
 
 /**
@@ -43,9 +44,11 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   // useState garante que o client do browser não seja recriado a cada render.
   const [queryClient] = useState(getQueryClient);
 
+  // reducedMotion="user" faz o Framer Motion respeitar o prefers-reduced-motion
+  // do sistema (as transições CSS são neutralizadas no globals.scss).
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
