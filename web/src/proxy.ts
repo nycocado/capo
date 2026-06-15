@@ -7,7 +7,7 @@ export const config = {
   matcher: ["/", "/login", "/roles", "/cut", "/assembly", "/weld"],
 };
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
   const isLoginPage = pathname === ROUTES.login;
