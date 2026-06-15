@@ -4,15 +4,15 @@
 
 ## Commands
 
-Run inside `api/`, or in the container via `npm run exec:api`:
+Run locally inside `api/` with Bun (the Docker image is production-only — `node dist/main`):
 
 ```bash
-npm run start:dev        # nest watch mode
-npm run lint             # eslint --fix
-npm run test             # jest (unit specs: *.spec.ts under src/)
-npm run test -- cut-list # run specs matching a path/name
-npm run test:e2e         # jest with test/jest-e2e.json
-npm run build            # nest build → dist/
+bun run start:dev        # nest watch mode (needs DB/JWT vars in api/.env.local)
+bun run lint             # eslint --fix
+bun run test             # jest (unit specs: *.spec.ts under src/)
+bun run test cut-list    # run specs matching a path/name
+bun run test:e2e         # jest with test/jest-e2e.json
+bun run build            # nest build → dist/
 ```
 
 Path aliases (`tsconfig.json`): `@common/*`, `@config/*`, `@modules/*`, `@shared/*`, `@database/*`.

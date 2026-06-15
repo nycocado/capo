@@ -58,15 +58,10 @@ services:
       DATABASE_NAME: ${MARIADB_DATABASE}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
-      NODE_ENV: ${NODE_ENV}
       PORT: ${API_INTERNAL_PORT}
       CORS_ORIGIN: ${CORS_ORIGIN}
-      WATCHPACK_POLLING: 'true'
-      CHOKIDAR_USEPOLLING: 'true'
     volumes:
-      - ./api:/app:Z
-      - ./api/storage:/app/storage:Z
-      - /app/node_modules
+      - api_storage:/app/storage
     healthcheck:
       test: ['CMD-SHELL', 'curl -f http://localhost:${API_INTERNAL_PORT}/health || exit 1']
       interval: 30s
@@ -80,18 +75,15 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
     container_name: capo-web
     restart: unless-stopped
     depends_on:
       - api
     env_file:
       - ./web/.env.local
-    environment:
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
-    volumes:
-      - ./web:/app:Z
-      - /app/node_modules
     healthcheck:
       test: ['CMD-SHELL', 'curl -f http://localhost:3000 || exit 1']
       interval: 30s
@@ -103,6 +95,8 @@ services:
 
 volumes:
   mariadb_data:
+    driver: local
+  api_storage:
     driver: local
 
 networks:
