@@ -1,29 +1,37 @@
-import { Button, Col, Row } from "react-bootstrap";
-
 export interface WorkTabsProps {
   tabs: readonly string[];
   activeTab: string;
   setActiveTab: (value: string) => void;
 }
 
-export function WorkTabs(props: WorkTabsProps) {
-  const { tabs, activeTab, setActiveTab } = props;
-
+/**
+ * Alternador de visão (All / Working) como segmented control — distingue
+ * navegação das ações do ControlPanel e mantém o laranja reservado a estado.
+ */
+export function WorkTabs({ tabs, activeTab, setActiveTab }: WorkTabsProps) {
   return (
-    <>
-      <Row className="g-3">
-        {tabs.map((tab) => (
-          <Col key={tab} className={tab === "working" ? "text-end" : ""}>
-            <Button
-              variant={activeTab === tab ? "primary" : "dark"}
-              className={`w-100 fw-bold fs-5 ${activeTab === tab ? "text-black" : "text-primary"}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Button>
-          </Col>
-        ))}
-      </Row>
-    </>
+    <div
+      className="d-flex gap-1 p-1 bg-dark rounded-3"
+      role="tablist"
+      aria-label="View"
+    >
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab;
+        return (
+          <button
+            key={tab}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            className={`btn flex-fill fw-bold fs-5 rounded-2 ${
+              isActive ? "bg-light text-dark" : "bg-transparent text-light"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        );
+      })}
+    </div>
   );
 }
