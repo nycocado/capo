@@ -1,71 +1,52 @@
 "use client";
 
-import Card from "react-bootstrap/Card";
-import { Alert, Container } from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 import { useRouter } from "next/navigation";
-import { Role } from "@/app/roles/page";
-import React from "react";
+import type { Station } from "./page";
 import NavBar from "@components/layout/NavBar/NavBar";
+import StationCard from "./StationCard";
 
-interface RolesListProps {
-  roles: Role[];
+interface RolesClientProps {
+  stations: Station[];
   error?: string;
 }
 
-export default function RolesClient({ roles, error }: RolesListProps) {
+/**
+ * Landing pós-login: a linha de produção. O operador toca na estação que está
+ * certificado a operar; o tubo atravessa as três no sentido do fluxo.
+ */
+export default function RolesClient({ stations, error }: RolesClientProps) {
   const router = useRouter();
 
   if (error) {
-    return <Alert variant="danger">{error}</Alert>;
-  }
-
-  if (roles.length === 0) {
-    return <div>No roles available.</div>;
+    return (
+      <div className="line">
+        <Alert variant="danger">{error}</Alert>
+      </div>
+    );
   }
 
   return (
     <>
-      <NavBar title="Roles" fixed={true} />
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "calc(100vh - var(--navbar-height))" }}
-      >
-        <Container
-          fluid
-          className="bg-surface p-5 d-flex flex-column align-items-center"
-        >
-          <div className="overflow-auto w-100">
-            <div
-              className="d-flex flex-column justify-content-center"
-              style={{ minWidth: "max-content" }}
-            >
-              <h1 className="display-6 fw-semibold text-center mb-5">Roles</h1>
-              <div className="d-flex justify-content-center">
-                {roles.map((role) => (
-                  <div key={role.id} className="flex-shrink-0 m-2">
-                    <Card
-                      className="text-center h-100"
-                      style={{
-                        minWidth: "200px",
-                        minHeight: "350px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => router.push(role.route!)}
-                    >
-                      <Card.Body className="bg-tertiary" />
-                      <Card.Footer
-                        className="bg-secondary d-flex align-items-center justify-content-center"
-                        style={{ height: "4rem" }}
-                      >
-                        <h5 className="text-white mb-0">{role.title}</h5>
-                      </Card.Footer>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Container>
+      <NavBar title="Stations" fixed={true} />
+      <div className="line">
+        <header className="line__head">
+          <p className="line__eyebrow">Production line</p>
+          <h1 className="line__title">Choose your station</h1>
+          <p className="line__sub">The pipe runs cut → assembly → weld</p>
+        </header>
+
+        <div className="line__track">
+          <span className="line__pipe" aria-hidden="true" />
+          <span className="line__pipe-arrow" aria-hidden="true" />
+          {stations.map((station) => (
+            <StationCard
+              key={station.id}
+              station={station}
+              onSelect={() => station.route && router.push(station.route)}
+            />
+          ))}
+        </div>
       </div>
     </>
   );
