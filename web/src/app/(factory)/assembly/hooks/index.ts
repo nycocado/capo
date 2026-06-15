@@ -1,7 +1,6 @@
 // Export all assembly hooks
 export { useAssemblyEventHandlers } from "./useAssemblyEventHandlers";
 export { useAssemblyListTable } from "./useAssemblyListTable";
-export { useAssemblyWorkingTable } from "./useAssemblyWorkingTable";
 export { useJointOperations } from "./useJointOperations";
 export { useAssemblyOperations } from "./useAssemblyOperations";
 export { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerification";
