@@ -52,3 +52,29 @@ export const validateHeatNumber = (value: string): boolean => {
   const num = parseInt(value);
   return !isNaN(num) && num >= VALIDATION.HEAT_NUMBER_MIN;
 };
+
+// Substitui um pipe-length na sheet a que pertence, retornando novas cut-lists —
+// reflete no cache o resultado de um step sem depender do evento WebSocket.
+export const mergePipeLengthIntoCutLists = (
+  cutLists: CutListDto[],
+  pipeLength: PipeLengthDto,
+): CutListDto[] =>
+  cutLists.map((cutList) => {
+    const sheets = cutList.isometric.sheets ?? [];
+    const owns = sheets.some((sheet) =>
+      sheet.pipeLengths?.some((pl) => pl.id === pipeLength.id),
+    );
+    if (!owns) return cutList;
+    return {
+      ...cutList,
+      isometric: {
+        ...cutList.isometric,
+        sheets: sheets.map((sheet) => ({
+          ...sheet,
+          pipeLengths: sheet.pipeLengths?.map((pl) =>
+            pl.id === pipeLength.id ? pipeLength : pl,
+          ),
+        })),
+      },
+    };
+  });
