@@ -1,7 +1,6 @@
 // Export all cut hooks
 export { useCutEventHandlers } from "./useCutEventHandlers";
 export { useCutOperations } from "./useCutOperations";
-export { useCutTable } from "./useCutTable";
 export { useCutListTable } from "./useCutListTable";
 export { usePipeLengthTable } from "./usePipeLengthTable";
 export { usePipeLengthSelection } from "./usePipeLengthSelection";
