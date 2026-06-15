@@ -23,16 +23,17 @@ This is an **npm-workspaces monorepo** with two deployable apps plus a database,
 
 ## Commands
 
-Orchestration runs from the repo root (Docker is the primary dev workflow — hot reload via volume mounts). App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.
+Orchestration runs from the repo root (Docker is the primary dev workflow — hot reload via volume mounts). The package manager and script runner is **Bun** (`bun.lock` is the monorepo lockfile); Node still runs the apps inside the containers. App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.
 
 ```bash
-npm run docker:up        # build + start nginx, db, api, web
-npm run docker:up:bg     # same, detached
-npm run docker:down      # stop and remove volumes (drops the DB)
-npm run docker:rebuild   # down -v then up --build (full reset, re-seeds DB)
-npm run logs:api         # tail a single service (also logs:web, logs:db)
-npm run exec:db          # mysql shell into the db container
-npm run format           # prettier --write across the whole repo
+bun install              # install all workspaces (writes bun.lock)
+bun run docker:up        # build + start nginx, db, api, web
+bun run docker:up:bg     # same, detached
+bun run docker:down      # stop and remove volumes (drops the DB)
+bun run docker:rebuild   # down -v then up --build (full reset, re-seeds DB)
+bun run logs:api         # tail a single service (also logs:web, logs:db)
+bun run exec:db          # mysql shell into the db container
+bun run format           # prettier --write across the whole repo
 ```
 
 ## Environment / config
@@ -43,7 +44,7 @@ No `.env` files are committed (all gitignored). Three are required (templates: `
 - `api/.env.local` — API runtime config. Under Docker most vars (`DATABASE_*`, `JWT_SECRET`, `JWT_EXPIRATION`, `NODE_ENV`, `PORT`, `CORS_ORIGIN`) are injected by compose from the root `.env`; the one var that must live here is `STORAGE_PATH` (defaults to `storage`). `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the session cookie's `maxAge` via `durationToMs`.
 - `web/.env.local` — `INTERNAL_API_URL` (server-side fetches), `NEXT_PUBLIC_API_URL` (browser fetches), `NEXT_PUBLIC_WS_URL` (socket.io). See `web/src/routes.ts`.
 
-**Formatting gotcha:** `.prettierrc` sets `singleQuote: true`, but the committed code is double-quoted. Don't run `npm run format` blindly across files you didn't touch — it will reformat the whole tree. Match the surrounding (double-quote) style when editing.
+**Formatting gotcha:** `.prettierrc` sets `singleQuote: true`, but the committed code is double-quoted. Don't run `bun run format` blindly across files you didn't touch — it will reformat the whole tree. Match the surrounding (double-quote) style when editing.
 
 ## Comment & doc conventions
 
@@ -55,3 +56,8 @@ Comments are written in **Portuguese**; error/log messages and identifiers stay 
 - **`.md`** — concise prose, no redundancy.
 
 Reference points in the repo: the **API modules** are the model (clean, self-documenting); `web/src/**/hooks` were the anti-pattern (line-by-line narration) and are being cleaned up.
+
+## Git / commits
+
+- **Do NOT add a `Co-Authored-By` trailer** (no `Co-Authored-By: Claude …`) to commits in this repo — keep authorship clean.
+- Commit messages are in **Portuguese**, with **no conventional-commits prefixes** (`feat:`/`fix:`/`chore:` are wrong). Use sentence-case starting with an action noun — `Adição de…`, `Correção no…`, `Atualização de…`, `Refatoração completa de…`, `Remoção de…`, `Setup do…` — optionally composed with `, além de…` / `, e …` and a parenthetical reason. Capitalize tech names (NextJS, Docker, NGINX).

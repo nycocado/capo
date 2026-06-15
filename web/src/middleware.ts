@@ -47,9 +47,10 @@ export async function middleware(req: NextRequest) {
     [ROUTES.weld]: "welder",
   };
 
-  if (pathname in pageRolesMap) {
+  const requiredRole = pageRolesMap[pathname];
+  if (requiredRole) {
     await ky
-      .get<HasRoleDto>(API_ROUTES.auth.hasRole(pageRolesMap[pathname]), {
+      .get<HasRoleDto>(API_ROUTES.auth.hasRole(requiredRole), {
         headers: {
           Cookie: `token=${token}`,
         },
