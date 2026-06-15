@@ -29,6 +29,7 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
         fixed={fixed ? "top" : undefined}
         variant="dark"
         expand={true}
+        style={{ height: "var(--navbar-height)" }}
       >
         <Navbar.Brand className="d-flex align-items-center">
           <Button variant="link" className="p-0">

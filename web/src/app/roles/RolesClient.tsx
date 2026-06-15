@@ -28,7 +28,7 @@ export default function RolesClient({ roles, error }: RolesListProps) {
       <NavBar title="Roles" fixed={true} />
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ height: "calc(100vh - 56px)" }}
+        style={{ height: "calc(100vh - var(--navbar-height))" }}
       >
         <Container
           fluid
