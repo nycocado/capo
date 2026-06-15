@@ -33,9 +33,9 @@ export function WorkPanel({
 }: WorkPanelProps) {
   return (
     <Card
-      bg="primary"
+      bg="black"
       text="light"
-      className={`flex-grow-1 rounded-3 ${containerClassName || ""}`}
+      className={`flex-grow-1 rounded-3 border border-primary border-2 ${containerClassName || ""}`}
     >
       {!cards || cards.length === 0 ? (
         <CardBody className="d-flex align-items-center justify-content-center text-center">
@@ -48,7 +48,7 @@ export function WorkPanel({
               key={card.key ?? idx}
               bg="dark"
               text="light"
-              className={`${idx === 0 ? "mb-2" : idx === cards.length - 1 ? "mt-2" : "my-2"} rounded-3 ${card.className || ""}`}
+              className={`${idx === 0 ? "mb-2" : idx === cards.length - 1 ? "mt-2" : "my-2"} rounded-3 border border-tertiary ${card.className || ""}`}
             >
               <Row className="py-2">
                 {card.items.map((item, i) => (
