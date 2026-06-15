@@ -1,8 +1,11 @@
-import next from "eslint-config-next";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const eslintConfig = [
-  { ignores: [".next/**", "node_modules/**", "next-env.d.ts"] },
-  ...next,
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
   {
     // Escopo nos arquivos TS, onde o eslint-config-next registra o plugin
     // @typescript-eslint (severidade != "off" exige o plugin em escopo).
@@ -33,6 +36,6 @@ const eslintConfig = [
       "react-hooks/error-boundaries": "warn",
     },
   },
-];
+]);
 
 export default eslintConfig;
