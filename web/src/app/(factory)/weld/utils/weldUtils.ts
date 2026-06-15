@@ -38,6 +38,30 @@ export const extractWeldsFromWeldListArray = (
   return allWelds.sort((a, b) => a.id - b.id);
 };
 
+// Mescla um weld atualizado na weld-list a que pertence (spool.welds),
+// retornando novas weld-lists — reflete no cache o resultado do step de um weld
+// sem depender do evento WebSocket (stepar um weld intermediário não emite
+// updateWorkStatus da weld-list). O contexto `spoolInfo` é descartado.
+export const mergeWeldIntoWeldLists = (
+  weldLists: WeldListDto[],
+  weld: WeldWithContext,
+): WeldListDto[] => {
+  const { spoolInfo: _spoolInfo, ...plain } = weld;
+  return weldLists.map((weldList) => {
+    const owns = weldList.spool?.welds?.some((w) => w.id === weld.id);
+    if (!owns) return weldList;
+    return {
+      ...weldList,
+      spool: {
+        ...weldList.spool,
+        welds: weldList.spool.welds?.map((w) =>
+          w.id === weld.id ? { ...w, ...plain } : w,
+        ),
+      },
+    };
+  });
+};
+
 export const findJointIdForWeld = (
   weldList: WeldListDto,
   weldId: number,
