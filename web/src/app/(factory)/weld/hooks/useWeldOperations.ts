@@ -1,12 +1,13 @@
 import { useState, useCallback } from "react";
-import { API_ROUTES } from "@/routes";
-import ky from "ky";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
+import {
+  setWeldFillerMaterial,
+  setWeldWps,
+  stepWeld,
+  type WeldStepParams,
+} from "@/lib/api";
 
-// Error constants
 const API_ERRORS = {
-  UNAUTHORIZED: 401,
-  SESSION_EXPIRED: "Session expired. Please login again.",
   INVALID_WPS: "Please select a valid WPS",
   INVALID_FILLER: "Please select a valid filler material",
 } as const;
@@ -45,27 +46,13 @@ export function useWeldOperations({
     return "to-do";
   }, []);
 
-  // Perform API operation
   const performOperation = async (
-    route: string,
-    params?: Record<string, string | number>,
+    operation: () => Promise<WeldWithContext>,
     errorContext = "performing operation",
   ): Promise<WeldWithContext | null> => {
     setIsSubmitting(true);
     try {
-      const response = await ky.patch(route, {
-        credentials: "include",
-        searchParams: params,
-      });
-
-      if (!response.ok) {
-        if (response.status === API_ERRORS.UNAUTHORIZED) {
-          throw new Error(API_ERRORS.SESSION_EXPIRED);
-        }
-        throw new Error(`API Error: ${response.status}`);
-      }
-
-      const updatedItem = await response.json<WeldWithContext>();
+      const updatedItem = await operation();
       onSuccess?.(updatedItem);
       return updatedItem;
     } catch (error) {
@@ -110,14 +97,12 @@ export function useWeldOperations({
         }
 
         // Monta parâmetros para a API
-        const params: Record<string, string | number> = {};
+        const params: WeldStepParams = {};
         if (finalFillerMaterial) params.fillerMaterial = finalFillerMaterial;
         if (finalWps) params.wps = finalWps;
 
-        // EXECUTANDO O STEP na API
         await performOperation(
-          API_ROUTES.welds.step(weld.id),
-          Object.keys(params).length > 0 ? params : undefined,
+          () => stepWeld(weld.id, params),
           "processing weld step",
         );
       }
@@ -159,8 +144,7 @@ export function useWeldOperations({
     }
 
     const result = await performOperation(
-      API_ROUTES.welds.wps(item.id),
-      { wps },
+      () => setWeldWps(item.id, wps),
       "updating WPS",
     );
     return result !== null;
@@ -177,8 +161,7 @@ export function useWeldOperations({
     }
 
     const result = await performOperation(
-      API_ROUTES.welds.fillerMaterial(item.id),
-      { fillerMaterial },
+      () => setWeldFillerMaterial(item.id, fillerMaterial),
       "updating filler material",
     );
     return result !== null;

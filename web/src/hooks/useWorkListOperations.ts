@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import ky from "ky";
+import { browserApi } from "@/lib/api";
 
 // Generic interface for work list operations
 interface UseWorkListOperationsProps<T> {
@@ -17,18 +17,9 @@ export const useWorkListOperations = <T>(
   const setWorking = useCallback(
     async (itemId: number): Promise<boolean> => {
       try {
-        const response = await ky.patch(setWorkingUrl(itemId), {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error("Session expired. Please login again.");
-          }
-          throw new Error(`API Error: ${response.status}`);
-        }
-
-        const updatedItem: T = await response.json();
+        const updatedItem = await browserApi
+          .patch(setWorkingUrl(itemId))
+          .json<T>();
         onSuccess?.(updatedItem);
         return true;
       } catch (error) {

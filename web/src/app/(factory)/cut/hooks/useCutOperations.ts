@@ -1,50 +1,28 @@
 import { useState } from "react";
-import { API_ROUTES } from "@/routes";
-import ky from "ky";
 import { PipeLengthDto } from "@/dtos";
 import { VALIDATION } from "@/constants";
+import { setPipeLengthHeatNumber, stepPipeLength } from "@/lib/api";
 
-// Error constants
-const API_ERRORS = {
-  UNAUTHORIZED: 401,
-  SESSION_EXPIRED: "Session expired. Please login again.",
-  INVALID_HEAT_NUMBER: "Please enter a valid heat number",
-} as const;
+const INVALID_HEAT_NUMBER = "Please enter a valid heat number";
 
-// Props interface
 export interface UseCutOperationsProps {
   onSuccess?: (item: PipeLengthDto) => void;
   onError?: (error: string) => void;
 }
 
-// Hook for cut operations
 export function useCutOperations({
   onSuccess,
   onError,
 }: UseCutOperationsProps = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Perform API operation
   const performOperation = async (
-    route: string,
-    params?: Record<string, string | number>,
+    operation: () => Promise<PipeLengthDto>,
     errorContext = "performing operation",
   ): Promise<boolean> => {
     setIsSubmitting(true);
     try {
-      const response = await ky.patch(route, {
-        credentials: "include",
-        searchParams: params,
-      });
-
-      if (!response.ok) {
-        if (response.status === API_ERRORS.UNAUTHORIZED) {
-          throw new Error(API_ERRORS.SESSION_EXPIRED);
-        }
-        throw new Error(`API Error: ${response.status}`);
-      }
-
-      const updatedItem = await response.json<PipeLengthDto>();
+      const updatedItem = await operation();
       onSuccess?.(updatedItem);
       return true;
     } catch (error) {
@@ -59,52 +37,40 @@ export function useCutOperations({
     }
   };
 
-  // Validate heat number
   const validateHeatNumber = (heatNumber: number): boolean => {
     return (
       Number.isInteger(heatNumber) && heatNumber >= VALIDATION.HEAT_NUMBER_MIN
     );
   };
 
-  // Start work operation
   const startWork = async (
     item: PipeLengthDto,
     heatNumber: number,
   ): Promise<boolean> => {
     if (!validateHeatNumber(heatNumber)) {
-      onError?.(API_ERRORS.INVALID_HEAT_NUMBER);
+      onError?.(INVALID_HEAT_NUMBER);
       return false;
     }
-
     return performOperation(
-      API_ROUTES.pipeLengths.step(item.id),
-      { heatNumber: heatNumber.toString() },
+      () => stepPipeLength(item.id, heatNumber),
       "starting work",
     );
   };
 
-  // Finish work operation
   const finishWork = async (item: PipeLengthDto): Promise<boolean> => {
-    return performOperation(
-      API_ROUTES.pipeLengths.step(item.id),
-      undefined,
-      "finishing work",
-    );
+    return performOperation(() => stepPipeLength(item.id), "finishing work");
   };
 
-  // Edit heat number
   const editHeatNumber = async (
     item: PipeLengthDto,
     heatNumber: number,
   ): Promise<boolean> => {
     if (!validateHeatNumber(heatNumber)) {
-      onError?.(API_ERRORS.INVALID_HEAT_NUMBER);
+      onError?.(INVALID_HEAT_NUMBER);
       return false;
     }
-
     return performOperation(
-      API_ROUTES.pipeLengths.heatNumber(item.id),
-      { heatNumber: heatNumber.toString() },
+      () => setPipeLengthHeatNumber(item.id, heatNumber),
       "editing heat number",
     );
   };

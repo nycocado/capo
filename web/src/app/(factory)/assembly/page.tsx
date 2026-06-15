@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { AssemblyListDto, UserDto } from "@/dtos";
-import ky from "ky";
-import { API_ROUTES } from "@/routes";
+import { getCurrentUser, getToDoAssemblyLists } from "@/lib/api";
 import AssemblyClient from "@/app/(factory)/assembly/AssemblyClient";
 
 export default async function AssemblyPage() {
@@ -11,28 +10,14 @@ export default async function AssemblyPage() {
   let currentUser: UserDto | null = null;
   let fetchError: string | undefined;
 
-  // Fetch current user information
   try {
-    currentUser = await ky
-      .get<UserDto>(API_ROUTES.users.me, {
-        headers: {
-          Cookie: `token=${token}`,
-        },
-      })
-      .json();
+    currentUser = await getCurrentUser(token);
   } catch (err) {
     console.error("Failed to fetch user info:", err);
   }
 
-  // Fetch assembly lists
   try {
-    items = await ky
-      .get<AssemblyListDto[]>(API_ROUTES.assemblyLists.toDo, {
-        headers: {
-          Cookie: `token=${token}`,
-        },
-      })
-      .json();
+    items = await getToDoAssemblyLists(token);
   } catch (err) {
     fetchError =
       err instanceof Error

@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
-import ky from "ky";
-import { API_ROUTES } from "@/routes";
+import { downloadDocument } from "@/lib/api";
 
-const API_ERRORS = {
-  UNAUTHORIZED: 401,
-  SESSION_EXPIRED: "Session expired. Please login again.",
-  INVALID_DOCUMENT: "Invalid document ID provided.",
-  EMPTY_DOCUMENT: "Received empty PDF",
-};
+const EMPTY_DOCUMENT = "Received empty PDF";
 
 export function usePDFViewer(document: string | null) {
   const [pdfFile, setPdfFile] = useState<string | null>(null);
@@ -26,21 +20,10 @@ export function usePDFViewer(document: string | null) {
       setError(null);
 
       try {
-        const response = await ky.get(API_ROUTES.documents.download(document), {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          if (response.status === API_ERRORS.UNAUTHORIZED) {
-            throw new Error(API_ERRORS.SESSION_EXPIRED);
-          }
-          throw new Error(`API Error: ${response.status}`);
-        }
-
-        const blob = await response.blob();
+        const blob = await downloadDocument(document);
 
         if (blob.size === 0) {
-          throw new Error(API_ERRORS.EMPTY_DOCUMENT);
+          throw new Error(EMPTY_DOCUMENT);
         }
 
         const url = URL.createObjectURL(blob);
