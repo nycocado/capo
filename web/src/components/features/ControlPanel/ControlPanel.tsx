@@ -53,11 +53,11 @@ export function ControlPanel({
   );
 
   return (
-    <Card bg="dark">
+    <Card className="op-panel">
       <CardBody className="pb-2">
-        <InputGroup className="mb-3">
+        <InputGroup className="mb-3 op-search">
           <DropdownButton
-            variant="light"
+            variant="dark"
             title={currentFieldLabel || "Field"}
             id="search-field"
           >
@@ -72,15 +72,13 @@ export function ControlPanel({
             ))}
           </DropdownButton>
           <FormControl
-            className="bg-light"
             placeholder="Search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <InputGroup.Text>
             <MagnifyingGlassIcon
-              className="text-primary"
-              style={{ height: "23px" }}
+              style={{ height: "23px", color: "var(--steel)" }}
             />
           </InputGroup.Text>
         </InputGroup>

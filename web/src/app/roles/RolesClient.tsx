@@ -38,7 +38,6 @@ export default function RolesClient({ stations, error }: RolesClientProps) {
 
         <div className="line__track">
           <span className="line__pipe" aria-hidden="true" />
-          <span className="line__pipe-arrow" aria-hidden="true" />
           {stations.map((station) => (
             <StationCard
               key={station.id}

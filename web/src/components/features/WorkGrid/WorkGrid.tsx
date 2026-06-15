@@ -41,7 +41,7 @@ export function WorkGrid(props: WorkGridProps) {
   return (
     <div className="d-flex flex-column h-100">
       <div
-        className="flex-grow-1 d-flex flex-column rounded-3 overflow-auto bg-dark"
+        className="flex-grow-1 d-flex flex-column overflow-auto op-panel"
         style={{ height: "400px" }}
       >
         {groups.map((groupItems, gi) => (
@@ -67,9 +67,7 @@ export function WorkGrid(props: WorkGridProps) {
                 ))}
               </motion.div>
             </div>
-            {gi < groups.length - 1 && (
-              <hr className="border-white border-3 my-2" />
-            )}
+            {gi < groups.length - 1 && <hr className="op-divider my-2" />}
           </React.Fragment>
         ))}
       </div>

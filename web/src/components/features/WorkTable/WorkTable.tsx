@@ -126,16 +126,16 @@ export function WorkTable(props: WorkTableProps) {
   return (
     <div className="d-flex flex-column h-100">
       <div
-        className="flex-grow-1 d-flex flex-column rounded-3 overflow-auto bg-dark"
+        className="flex-grow-1 d-flex flex-column overflow-auto op-panel op-table"
         style={{ height: "400px" }}
       >
         <Table responsive variant="dark" hover={hover} className="mb-0">
           <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
-            <tr className="bg-dark" style={{ borderBottom: "1px solid white" }}>
+            <tr>
               {columns.map((col) => (
                 <th
                   key={col.id}
-                  className={`text-center border-bottom border-light py-3 bg-dark ${col.className || ""} ${col.sortable ? "cursor-pointer" : ""}`}
+                  className={`text-center py-3 ${col.className || ""} ${col.sortable ? "cursor-pointer" : ""}`}
                   onClick={() => handleSort(col.id, col.sortable)}
                   style={{
                     cursor: col.sortable ? "pointer" : "default",
