@@ -108,7 +108,7 @@ export const WS_EVENTS = {
     create: "createAssemblyList",
   },
   weldList: {
-    updatedWorkStatus: "updateWorkStatus",
-    creates: "createsWeldList",
+    updateWorkStatus: "updateWorkStatus",
+    create: "createsWeldList",
   },
 };
