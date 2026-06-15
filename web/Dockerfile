@@ -1,24 +1,31 @@
-FROM docker.io/library/node:lts-alpine
-
-# Bun como gerenciador de pacotes e runner; Node continua executando o app (next via shebang)
+# Build com Bun; runtime em Node sobre a saída standalone do NextJS.
+FROM docker.io/library/node:lts-alpine AS builder
 COPY --from=docker.io/oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
-
-# Instalar dependências do sistema (libstdc++ é exigida pelo binário do Bun)
-RUN apk add --no-cache curl libstdc++
-
-# Definir diretório de trabalho
+# libstdc++ é exigida pelo binário musl do Bun.
+RUN apk add --no-cache libstdc++
 WORKDIR /app
 
-# Copiar package.json e instalar dependências
+# NEXT_PUBLIC_* são embutidos no bundle durante o build, então chegam como ARG.
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_WS_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+
 COPY package.json ./
 RUN bun install
+COPY . .
+RUN bun run build
 
-# Expor porta
+FROM docker.io/library/node:lts-alpine AS runner
+RUN apk add --no-cache curl
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+USER nextjs
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000 || exit 1
-
-# Comando para desenvolvimento
-CMD ["bun", "run", "dev"]
+CMD ["node", "server.js"]

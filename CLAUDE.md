@@ -15,7 +15,7 @@ CAPO (Computer Aided Process Overview) is a metallurgical pipeline-production ma
 This is an **npm-workspaces monorepo** with two deployable apps plus a database, wired together by Docker Compose behind an nginx reverse proxy:
 
 - `api/` — `@capo/api`, a **NestJS 11** backend using **MikroORM** over **MariaDB**.
-- `web/` — `@capo/web`, a **Next.js 15** (App Router, React 19) frontend.
+- `web/` — `@capo/web`, a **Next.js 16** (App Router, React 19) frontend.
 - `db/` — raw SQL schema + seed data (the database is **not** managed by ORM migrations).
 - `nginx/` — reverse proxy: `/api/` → api, `/socket.io/` → api WebSockets, everything else → web.
 
@@ -23,28 +23,32 @@ This is an **npm-workspaces monorepo** with two deployable apps plus a database,
 
 ## Commands
 
-Orchestration runs from the repo root (Docker is the primary dev workflow — hot reload via volume mounts). The package manager and script runner is **Bun** (`bun.lock` is the monorepo lockfile); Node still runs the apps inside the containers. App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.
+Orchestration runs from the repo root. The package manager and script runner is **Bun** (`bun.lock` is the monorepo lockfile); Node runs the apps. **Docker/Compose builds production images** — multi-stage `builder`/`runner` Dockerfiles: web as a Next.js **standalone** server (`node server.js`), API as `node dist/main`, both non-root. **Day-to-day development runs locally with Bun** against the Dockerized DB; there is no hot-reload-in-container workflow (and no `.dev` Dockerfiles). App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.
 
 ```bash
 bun install              # install all workspaces (writes bun.lock)
-bun run docker:up        # build + start nginx, db, api, web
+bun run docker:up        # build + start the production stack (nginx, db, api, web)
 bun run docker:up:bg     # same, detached
 bun run docker:down      # stop and remove volumes (drops the DB)
 bun run docker:rebuild   # down -v then up --build (full reset, re-seeds DB)
 bun run logs:api         # tail a single service (also logs:web, logs:db)
 bun run exec:db          # mysql shell into the db container
 bun run format           # prettier --write across the whole repo
+
+# local development (against the Dockerized DB):
+cd web && bun run dev        # NextJS dev server (hot reload)
+cd api && bun run start:dev   # NestJS watch mode (needs DB vars in api/.env.local)
 ```
 
 ## Environment / config
 
 No `.env` files are committed (all gitignored). Three are required (templates: `.env.example` in each location):
 
-- Root `.env` — consumed by `docker-compose.yml`: `NGINX_PORT`, `MARIADB_*` (`HOST`, `PORT`, `USER`, `PASSWORD`, `ROOT_PASSWORD`, `DATABASE`), `JWT_SECRET`, `JWT_EXPIRATION`, `NODE_ENV`, `API_INTERNAL_PORT`, `CORS_ORIGIN`. Note: `MARIADB_PORT` only sets the host-published port; the API always connects to the DB's internal `3306` (compose hardcodes `DATABASE_PORT: 3306`), so changing `MARIADB_PORT` won't break it.
-- `api/.env.local` — API runtime config. Under Docker most vars (`DATABASE_*`, `JWT_SECRET`, `JWT_EXPIRATION`, `NODE_ENV`, `PORT`, `CORS_ORIGIN`) are injected by compose from the root `.env`; the one var that must live here is `STORAGE_PATH` (defaults to `storage`). `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the session cookie's `maxAge` via `durationToMs`.
-- `web/.env.local` — `INTERNAL_API_URL` (server-side fetches), `NEXT_PUBLIC_API_URL` (browser fetches), `NEXT_PUBLIC_WS_URL` (socket.io). See `web/src/routes.ts`.
+- Root `.env` — consumed by `docker-compose.yml`: `NGINX_PORT`, `MARIADB_*` (`HOST`, `PORT`, `USER`, `PASSWORD`, `ROOT_PASSWORD`, `DATABASE`), `JWT_SECRET`, `JWT_EXPIRATION`, `API_INTERNAL_PORT`, `CORS_ORIGIN`, and `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_WS_URL` (passed as **build args** to the web image — `NEXT_PUBLIC_*` are baked into the bundle at build time). `NODE_ENV` is set to `production` by the Dockerfiles, not via `.env`. Note: `MARIADB_PORT` only sets the host-published port; the API always connects to the DB's internal `3306` (compose hardcodes `DATABASE_PORT: 3306`), so changing `MARIADB_PORT` won't break it.
+- `api/.env.local` — API config. Under Docker, `DATABASE_*`, `JWT_SECRET`, `JWT_EXPIRATION`, `PORT`, `CORS_ORIGIN` are injected by compose from the root `.env`; the one var that must live here is `STORAGE_PATH` (defaults to `storage`). For **local** API dev, uncomment the DB/JWT block in `api/.env.example`. `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the session cookie's `maxAge` via `durationToMs`.
+- `web/.env.local` — `INTERNAL_API_URL` (server-side fetches, read at runtime) plus `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_WS_URL` for **local** `bun run dev` (in the Docker image these two come from the root-`.env` build args instead). See `web/src/routes.ts`.
 
-**Formatting gotcha:** `.prettierrc` sets `singleQuote: true`, but the committed code is double-quoted. Don't run `bun run format` blindly across files you didn't touch — it will reformat the whole tree. Match the surrounding (double-quote) style when editing.
+**Formatting gotcha:** `.prettierrc` now sets `singleQuote: false` to match the double-quoted code, but still don't run `bun run format` blindly across files you didn't touch — match the surrounding style when editing.
 
 ## Comment & doc conventions
 
