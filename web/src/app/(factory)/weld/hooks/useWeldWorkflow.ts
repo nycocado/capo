@@ -103,11 +103,11 @@ export const useWeldWorkflow = ({
     wsRoute: WS_ROUTES.weldList,
     eventHandlers: [
       {
-        eventName: WS_EVENTS.weldList.creates,
+        eventName: WS_EVENTS.weldList.create,
         handler: handleWeldListCreates,
       },
       {
-        eventName: WS_EVENTS.weldList.updatedWorkStatus,
+        eventName: WS_EVENTS.weldList.updateWorkStatus,
         handler: handleWeldListUpdate,
       },
     ],
