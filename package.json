@@ -5,7 +5,7 @@
     "web"
   ],
   "scripts": {
-    "build": "npm --workspaces run build",
+    "build": "bun run --filter '*' build",
     "format": "prettier --write .",
     "docker:up": "docker compose up --build",
     "docker:up:bg": "docker compose up -d --build",
@@ -23,7 +23,7 @@
     "clean": "docker compose down -v && docker system prune -f",
     "clean:all": "docker compose down -v && docker system prune -af",
     "health": "docker compose ps",
-    "install:all": "npm --workspaces install"
+    "install:all": "bun install"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

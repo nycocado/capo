@@ -1,5 +1,5 @@
 import { PipeLengthDto } from "@/dtos";
-import { ValueConfig } from "@components/features/factory/WorkPanel";
+import { ValueConfig } from "@components/features/WorkPanel/WorkPanel";
 
 export const cutCompletionModalConfig = (
   completedItem: PipeLengthDto | null,

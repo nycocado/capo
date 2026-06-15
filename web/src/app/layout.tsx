@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.scss";
 import React from "react";
+import { QueryProvider } from "@/lib/query/provider";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -17,7 +18,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistMono.variable}`}>
-        <div className="mx-0 my-0">{children}</div>
+        <QueryProvider>
+          <div className="mx-0 my-0">{children}</div>
+        </QueryProvider>
       </body>
     </html>
   );

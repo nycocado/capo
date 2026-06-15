@@ -1,19 +1,16 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import next from "eslint-config-next";
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  { ignores: [".next/**", "node_modules/**", "next-env.d.ts"] },
+  ...next,
   {
+    // Escopo nos arquivos TS, onde o eslint-config-next registra o plugin
+    // @typescript-eslint (severidade != "off" exige o plugin em escopo).
+    files: ["**/*.{ts,tsx}"],
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      // Aviso por enquanto (há ~36 `any` no código legado); vira erro na Fase 4,
+      // quando a meta passa a ser zero `any`.
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/no-unsafe-call": "off",
@@ -22,6 +19,18 @@ const eslintConfig = [
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  {
+    // react-hooks v7 trouxe regras de correção novas e estritas que sinalizam
+    // os hooks legados (useWebSocket, workflows de cada etapa). Mantidas como
+    // aviso até a refatoração dos hooks reescrever/remover esses arquivos.
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/error-boundaries": "warn",
     },
   },
 ];
