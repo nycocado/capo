@@ -1,0 +1,317 @@
+// ============================================
+//  styles/roles.scss — seletor de estação (/roles)
+//  "A linha": o tubo entra no corte e sai na solda. As estações ficam
+//  sobre um tubo contínuo que as atravessa da esquerda para a direita.
+// ============================================
+
+.line {
+  // Tokens locais derivados da identidade (near-black + laranja + mono).
+  --line-bg: #0d0c0c;
+  --line-panel: #1c1a1a;
+  --line-edge: #2c2929;
+  --line-steel: #6f6f6f;
+  --line-text: #ededed;
+  --line-accent: #ff6600;
+  --line-accent-wash: rgba(255, 102, 0, 0.13);
+
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 6vh, 4rem);
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  background: var(--line-bg);
+  color: var(--line-text);
+}
+
+// ---- Cabeçalho -----------------------------------------------------------
+
+.line__head {
+  text-align: center;
+}
+
+.line__eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--line-accent);
+}
+
+.line__title {
+  margin: 0.4rem 0 0;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.line__sub {
+  margin: 0.6rem 0 0;
+  color: var(--line-steel);
+  font-size: 0.95rem;
+}
+
+// ---- Trilho (o tubo + as estações) --------------------------------------
+
+.line__track {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(1rem, 3.5vw, 3rem);
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}
+
+// O tubo de aço atravessa o trilho; fica atrás dos cards (visível só nos vãos
+// e nas pontas), criando a ilusão de passar por dentro das estações.
+.line__pipe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46%;
+  transform: translateY(-50%);
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #3a3636 0%, #565050 45%, #2a2626 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  z-index: 0;
+}
+
+// O "material" que escorre pela linha (corte → solda).
+.line__pipe::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 32%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--line-accent) 50%,
+    transparent 100%
+  );
+  animation: line-flow 4.5s linear infinite;
+}
+
+// Seta de saída na ponta direita do tubo (sentido do fluxo).
+.line__pipe-arrow {
+  position: absolute;
+  right: -2px;
+  top: 46%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+  border-left: 14px solid #565050;
+  z-index: 0;
+}
+
+@keyframes line-flow {
+  from {
+    transform: translateX(-40%);
+  }
+  to {
+    transform: translateX(330%);
+  }
+}
+
+// ---- Estação (placard) ---------------------------------------------------
+
+.station {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 230px;
+  max-width: 320px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.5rem;
+  background: var(--line-panel);
+  border: 1px solid var(--line-edge);
+  border-radius: 16px;
+  color: inherit;
+}
+
+.station--active {
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.station--active:hover {
+  transform: translateY(-6px);
+  border-color: var(--line-accent);
+  box-shadow:
+    0 0 0 1px var(--line-accent),
+    0 18px 40px -22px var(--line-accent);
+}
+
+.station--active:focus-visible {
+  outline: 2px solid var(--line-accent);
+  outline-offset: 4px;
+}
+
+.station--locked {
+  opacity: 0.5;
+}
+
+.station__order {
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--line-steel);
+}
+
+.station__glyph {
+  width: 64px;
+  height: 64px;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--line-text);
+  transition: color 0.18s ease;
+}
+
+.station--active:hover .station__glyph {
+  color: var(--line-accent);
+}
+
+.station__name {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.station__desc {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--line-steel);
+}
+
+// ---- Medidor (contagem ao vivo / cadeado) -------------------------------
+
+.station__gauge {
+  margin-top: auto;
+  padding-top: 1.4rem;
+  width: 100%;
+  border-top: 1px solid var(--line-edge);
+}
+
+.station__count {
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--line-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.station__count-label {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--line-steel);
+}
+
+.station__clear {
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--line-steel);
+}
+
+.station__locked-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--line-steel);
+}
+
+.station__locked-tag svg {
+  width: 16px;
+  height: 16px;
+}
+
+// ---- Responsivo: empilha e vira o tubo na vertical ----------------------
+
+@media (max-width: 767.98px) {
+  .line__track {
+    flex-direction: column;
+    align-items: center;
+    max-width: 360px;
+  }
+
+  .station {
+    width: 100%;
+    max-width: none;
+    // Empilhado: cada card dimensiona pelo conteúdo (sem o flex de coluna
+    // igual do desktop, que colapsaria a altura).
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+
+  .line__pipe {
+    left: 50%;
+    right: auto;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .line__pipe::after {
+    inset-inline: 0;
+    inset-block: auto;
+    width: auto;
+    height: 32%;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      var(--line-accent) 50%,
+      transparent 100%
+    );
+    animation-name: line-flow-vertical;
+  }
+
+  .line__pipe-arrow {
+    display: none;
+  }
+}
+
+@keyframes line-flow-vertical {
+  from {
+    transform: translateY(-40%);
+  }
+  to {
+    transform: translateY(330%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line__pipe::after {
+    animation: none;
+    transform: translateX(0);
+    left: 0;
+    width: 24%;
+  }
+
+  .station--active {
+    transition: none;
+  }
+}
