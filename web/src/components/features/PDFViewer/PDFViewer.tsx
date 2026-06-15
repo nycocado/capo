@@ -16,7 +16,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 }) => {
   return (
     <Card
-      className="bg-tertiary overflow-hidden rounded-3 d-flex align-items-center justify-content-center"
+      className="op-panel overflow-hidden d-flex align-items-center justify-content-center"
       style={{ height: height }}
     >
       {loading ? (
@@ -38,7 +38,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
           }}
         />
       ) : (
-        <div className="text-center text-white" style={{ color: "#666" }}>
+        <div className="text-center" style={{ color: "var(--steel)" }}>
           No isometric selected.
         </div>
       )}

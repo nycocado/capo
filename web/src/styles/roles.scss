@@ -5,13 +5,13 @@
 // ============================================
 
 .line {
-  // Tokens locais derivados da identidade (near-black + laranja + mono).
-  --line-bg: #0d0c0c;
-  --line-panel: #1c1a1a;
-  --line-edge: #2c2929;
-  --line-steel: #6f6f6f;
-  --line-text: #ededed;
-  --line-accent: #ff6600;
+  // Aliases dos tokens globais de identidade (ver globals.scss :root).
+  --line-bg: var(--app-bg);
+  --line-panel: var(--panel);
+  --line-edge: var(--panel-edge);
+  --line-steel: var(--steel);
+  --line-text: var(--text);
+  --line-accent: var(--accent);
   --line-accent-wash: rgba(255, 102, 0, 0.13);
 
   min-height: calc(100vh - var(--navbar-height));
@@ -79,6 +79,15 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   overflow: hidden;
   z-index: 0;
+  // O tubo (e o fluxo) some suavemente nas pontas, em vez de cortar num
+  // gume — entra pela esquerda e sai pela direita sem artefato.
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 7%,
+    #000 93%,
+    transparent 100%
+  );
 }
 
 // O "material" que escorre pela linha (corte → solda).
@@ -95,20 +104,6 @@
     transparent 100%
   );
   animation: line-flow 4.5s linear infinite;
-}
-
-// Seta de saída na ponta direita do tubo (sentido do fluxo).
-.line__pipe-arrow {
-  position: absolute;
-  right: -2px;
-  top: 46%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 11px solid transparent;
-  border-bottom: 11px solid transparent;
-  border-left: 14px solid #565050;
-  z-index: 0;
 }
 
 @keyframes line-flow {
@@ -273,6 +268,13 @@
     width: 14px;
     height: auto;
     transform: translateX(-50%);
+    mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      #000 7%,
+      #000 93%,
+      transparent 100%
+    );
   }
 
   .line__pipe::after {
@@ -287,10 +289,6 @@
       transparent 100%
     );
     animation-name: line-flow-vertical;
-  }
-
-  .line__pipe-arrow {
-    display: none;
   }
 }
 

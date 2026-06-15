@@ -7,8 +7,12 @@ export default function FactoryLayout({
 }) {
   return (
     <div
-      className="bg-black overflow-auto"
-      style={{ minHeight: "100vh", paddingTop: "var(--navbar-height)" }}
+      className="overflow-auto"
+      style={{
+        minHeight: "100vh",
+        paddingTop: "var(--navbar-height)",
+        background: "var(--app-bg)",
+      }}
     >
       {children}
     </div>

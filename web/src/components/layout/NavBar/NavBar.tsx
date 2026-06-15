@@ -2,7 +2,6 @@
 import { Navbar, Nav, Button } from "react-bootstrap";
 import Image from "next/image";
 import { ArrowLeftEndOnRectangleIcon } from "@heroicons/react/16/solid";
-import { UserIcon } from "@heroicons/react/16/solid";
 import { ChevronRightIcon } from "@heroicons/react/16/solid";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/routes";
@@ -50,11 +49,13 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
             {title || "Factory"}
           </span>
         </Navbar.Brand>
-        <Nav className="ms-auto align-items-center gap-4">
-          <Button variant="link" className="p-0 ms-3">
-            <UserIcon width={40} height={40} className="text-primary" />
-          </Button>
-          <Button variant="link" className="p-0" onClick={handleLogout}>
+        <Nav className="ms-auto align-items-center">
+          <Button
+            variant="link"
+            className="p-0"
+            onClick={handleLogout}
+            aria-label="Logout"
+          >
             <ArrowLeftEndOnRectangleIcon
               width={40}
               height={40}

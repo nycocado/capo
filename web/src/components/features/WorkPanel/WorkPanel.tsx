@@ -33,9 +33,8 @@ export function WorkPanel({
 }: WorkPanelProps) {
   return (
     <Card
-      bg="black"
       text="light"
-      className={`flex-grow-1 rounded-3 border border-primary border-2 ${containerClassName || ""}`}
+      className={`flex-grow-1 op-panel op-panel--accent ${containerClassName || ""}`}
     >
       {!cards || cards.length === 0 ? (
         <CardBody className="d-flex align-items-center justify-content-center text-center">

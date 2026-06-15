@@ -1,0 +1,82 @@
+// ============================================
+//  styles/operator.scss — telas de operador (cut / assembly / weld)
+//  Mesma linguagem do /roles: near-black, painéis #1c1a1a com hairline,
+//  aço no texto secundário, laranja reservado a estado + ação primária.
+// ============================================
+
+// Superfície de painel (ControlPanel, contêiner de tabela/grid, PDF).
+.op-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 16px;
+}
+
+// Painel de detalhes ativo (WorkPanel): a borda laranja marca o item selecionado.
+.op-panel--accent {
+  border: 2px solid var(--accent);
+}
+
+// ---- Tabela de trabalho --------------------------------------------------
+
+.op-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-border-color: var(--panel-edge);
+}
+
+.op-table thead th {
+  background: var(--panel);
+  color: var(--steel);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--panel-edge);
+}
+
+.op-table tbody td {
+  border-top: 1px solid var(--panel-edge);
+}
+
+// ---- Separador de grupos no grid ----------------------------------------
+
+.op-divider {
+  border: none;
+  border-top: 1px solid var(--panel-edge);
+  opacity: 1;
+}
+
+// ---- Campo de busca escuro (no lugar do branco) -------------------------
+
+.op-search .dropdown-toggle.btn,
+.op-search .form-control,
+.op-search .input-group-text {
+  background: var(--app-bg);
+  border: 1px solid var(--panel-edge);
+  color: var(--text);
+}
+
+.op-search .form-control::placeholder {
+  color: var(--steel);
+}
+
+.op-search .dropdown-toggle.btn:hover,
+.op-search .dropdown-toggle.btn:focus {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.op-search .dropdown-menu {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+}
+
+.op-search .dropdown-item {
+  color: var(--text);
+}
+
+.op-search .dropdown-item:hover,
+.op-search .dropdown-item.active {
+  background: var(--panel-edge);
+  color: var(--text);
+}
