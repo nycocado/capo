@@ -58,7 +58,7 @@ const AssemblyClient = memo(function AssemblyClient(
       <NavBar title="Assembly" fixed={true} />
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ height: "calc(100vh - 56px)" }}
+        style={{ height: "calc(100vh - var(--navbar-height))" }}
       >
         <Container fluid className="mx-4">
           <Row className="g-4">

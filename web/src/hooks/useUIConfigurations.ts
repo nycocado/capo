@@ -41,6 +41,9 @@ export const useUIConfigurations = <TItem = any, TConfig = any>(
   // Memoize card configurations (if available)
   const cards = useMemo(() => {
     if (!configFactories.cardConfigs) return undefined;
+    // Sem item selecionado o WorkPanel mostra o empty-state, em vez de cards
+    // com rótulos e valores em branco.
+    if (!selectedItem) return undefined;
 
     const cardOptions =
       options?.canEdit && options?.onEditClick

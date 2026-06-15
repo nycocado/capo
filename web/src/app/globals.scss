@@ -1,6 +1,12 @@
 @import "../styles/main";
 @import "../styles/bootstrap-custom";
 
+:root {
+  // Altura reservada para a NavBar fixa (fixed="top"); o conteúdo abaixo
+  // dela usa este mesmo valor no padding-top e no calc da altura útil.
+  --navbar-height: 72px;
+}
+
 body {
   font-family: var(--font-geist-mono), monospace;
 }
