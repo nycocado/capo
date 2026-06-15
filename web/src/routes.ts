@@ -31,7 +31,7 @@ export const API_ROUTES = {
   },
   projects: {
     base: `${API_URL}/projects`,
-    id: (id: number) => `${API_URL}/project/${id}`,
+    id: (id: number) => `${API_URL}/projects/${id}`,
   },
   pipeLengths: {
     base: `${API_URL}/pipe-lengths`,

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { useWeldFormData } from "./useWeldFormData";
-import { API_ROUTES } from "@/routes";
+import { stepWeld } from "@/lib/api";
 
 export interface UseWeldDataVerificationProps {
   onWeldProcessed?: (weld: WeldWithContext) => void;
@@ -52,20 +52,7 @@ export function useWeldDataVerification({
     setIsSubmitting(true);
 
     try {
-      const ky = (await import("ky")).default;
-      const response = await ky.patch(
-        API_ROUTES.welds.step(currentWeld.id),
-        {
-          credentials: "include",
-          searchParams: {
-            wps,
-            fillerMaterial,
-          },
-        },
-      );
-
-      // Parse weld atualizado da API
-      const updated = await response.json<any>();
+      const updated = await stepWeld(currentWeld.id, { wps, fillerMaterial });
       const updatedWithContext: WeldWithContext = {
         ...updated,
         // preserva o contexto do spool para uso no WorkPanel/grid

@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
 import RolesClient from "@/app/roles/RolesClient";
-import { API_ROUTES, ROUTES } from "@/routes";
-import ky from "ky";
-import { RoleDto } from "@/dtos";
+import { ROUTES } from "@/routes";
+import { getMyRoles } from "@/lib/api";
 
 export interface Role {
   id: string;
@@ -21,13 +20,7 @@ export default async function RolesPage() {
   const token = cookieStore.get("token")?.value;
 
   try {
-    const res = await ky
-      .get<RoleDto[]>(API_ROUTES.roles.me, {
-        headers: {
-          Cookie: `token=${token}`,
-        },
-      })
-      .json();
+    const res = await getMyRoles(token);
 
     const mappedRoles = fixedRoles.filter((role) =>
       res.some((userRole) => userRole.name === role.id),

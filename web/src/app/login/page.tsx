@@ -3,9 +3,8 @@ import Image from "next/image";
 import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { API_ROUTES, ROUTES } from "@/routes";
-import { LoginResDto } from "@/dtos";
-import ky from "ky";
+import { ROUTES } from "@/routes";
+import { login } from "@/lib/api";
 
 function LoginPage() {
   const [internalId, setInternalId] = useState("");
@@ -20,13 +19,7 @@ function LoginPage() {
     setError("");
 
     try {
-      await ky.post<LoginResDto>(API_ROUTES.auth.login, {
-        credentials: "include",
-        json: {
-          internalId,
-          password,
-        },
-      });
+      await login({ internalId, password });
 
       router.push(ROUTES.roles);
     } catch (err: unknown) {

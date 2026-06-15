@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { API_ROUTES } from "@/routes";
-import ky from "ky";
 import { FillerMaterialDto, WpsDto } from "@/dtos";
+import { getAllFillerMaterials, getAllWps } from "@/lib/api";
 
 export interface UseWeldFormDataProps {
   enabled?: boolean;
@@ -24,14 +23,10 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
 
       try {
         // Buscar WPS e FillerMaterials em paralelo
-        const [wpsResponse, fillerMaterialResponse] = await Promise.all([
-          ky.get(API_ROUTES.wps.base, { credentials: "include" }),
-          ky.get(API_ROUTES.fillerMaterials.base, { credentials: "include" }),
+        const [wpsData, fillerMaterialData] = await Promise.all([
+          getAllWps(),
+          getAllFillerMaterials(),
         ]);
-
-        const wpsData = await wpsResponse.json<WpsDto[]>();
-        const fillerMaterialData =
-          await fillerMaterialResponse.json<FillerMaterialDto[]>();
 
         setWpsOptions(wpsData);
         setFillerMaterialOptions(fillerMaterialData);

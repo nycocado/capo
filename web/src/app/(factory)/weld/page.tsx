@@ -1,8 +1,7 @@
 import WeldClient from "./WeldClient";
 import { cookies } from "next/headers";
-import { API_ROUTES } from "@/routes";
 import { UserDto, WeldListDto } from "@/dtos";
-import ky from "ky";
+import { getCurrentUser, getToDoWeldLists } from "@/lib/api";
 
 export default async function WeldPage() {
   const cookiesStore = await cookies();
@@ -12,26 +11,14 @@ export default async function WeldPage() {
   let fetchError: string | undefined;
 
   try {
-    currentUser = await ky
-      .get<UserDto>(API_ROUTES.users.me, {
-        headers: {
-          Cookie: `token=${token}`,
-        },
-      })
-      .json();
+    currentUser = await getCurrentUser(token);
   } catch (err) {
     console.error("Failed to fetch user info:", err);
     fetchError = "Failed to fetch user information";
   }
 
   try {
-    items = await ky
-      .get<WeldListDto[]>(API_ROUTES.weldLists.toDo, {
-        headers: {
-          Cookie: `token=${token}`,
-        },
-      })
-      .json();
+    items = await getToDoWeldLists(token);
   } catch (err) {
     fetchError =
       err instanceof Error
