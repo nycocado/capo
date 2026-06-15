@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useCutOperations } from "./useCutOperations";
 import { useCutListTable } from "./useCutListTable";
 import { usePipeLengthTable } from "./usePipeLengthTable";
@@ -6,6 +6,7 @@ import { usePipeLengthSelection } from "./usePipeLengthSelection";
 import {
   enrichPipeLengths,
   extractPipeLengthsFromCutList,
+  mergePipeLengthIntoCutLists,
   validateHeatNumber,
 } from "../utils/cutUtils";
 import { CutListDto, PipeLengthDto, UserDto } from "@/dtos";
@@ -15,20 +16,35 @@ import {
 } from "@components/features/WorkTable/WorkTable.columns";
 import { PipeLengthWithContext } from "@/interfaces";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import {
-  filterBySearch,
-  useModalState,
-  useUIConfigurations,
-  useWebSocket,
-  useWorkClientState,
-  useWorkListOperations,
-} from "@/hooks";
-import { getSearchFields } from "@components/features/ControlPanel/ControlPanel.searchConfig";
-import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
+import { filterBySearch, useModalState, useUIConfigurations } from "@/hooks";
 import { cutButtonConfig } from "@components/features/ControlPanel";
 import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
 import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";
 import { WORK_STATES } from "@/constants";
+import { WS_EVENTS, WS_ROUTES } from "@/routes";
+import { fetchToDoCutLists, setCutListWorking } from "@/lib/api";
+import { queryKeys } from "@/lib/query/keys";
+import { replaceById } from "@/domain/logic/upsertById";
+import { useWorkStage } from "@/features/work-stage/useWorkStage";
+import type { WorkStageConfig } from "@/features/work-stage/types";
+
+// Configuração da etapa de corte para o núcleo genérico useWorkStage.
+const cutStageConfig: WorkStageConfig<CutListDto> = {
+  context: "cut",
+  queryKey: queryKeys.cutLists(),
+  fetchToDo: fetchToDoCutLists,
+  setWorking: setCutListWorking,
+  ws: {
+    route: WS_ROUTES.cutList,
+    events: [
+      {
+        name: WS_EVENTS.cutList.updateWorkStatus,
+        toUpdate: (payload) => (current) =>
+          replaceById(current, payload as CutListDto),
+      },
+    ],
+  },
+};
 
 export interface UseCutWorkflowProps {
   initialItems: CutListDto[];
@@ -42,23 +58,30 @@ export const useCutWorkflow = ({
   currentUser,
   fetchError,
 }: UseCutWorkflowProps) => {
-  // Client state management
-  const state = useWorkClientState<CutListDto, PipeLengthDto>(
-    initialItems,
-    fetchError,
-  );
+  // Server/UI state via the generic work-stage engine
   const {
-    errorMsg,
-    setErrorMsg,
     items: cutLists,
-    setItems: setCutLists,
-    workingItems: workingPipeLengths,
-    setWorkingItems: setWorkingPipeLengths,
+    queryClient,
     activeTab,
     setActiveTab,
     search,
     setSearch,
-  } = state;
+    searchField,
+    setSearchField,
+    errorMsg,
+    setErrorMsg,
+    setWorking,
+  } = useWorkStage<CutListDto>({ ...cutStageConfig, initialItems, fetchError });
+
+  // A cut-list selecionada define os pipe-lengths da aba Working (derivados).
+  const [selectedCutListId, setSelectedCutListId] = useState<number | null>(
+    null,
+  );
+  const workingPipeLengths = useMemo<PipeLengthDto[]>(() => {
+    if (selectedCutListId === null) return [];
+    const cutList = cutLists.find((cl) => cl.id === selectedCutListId);
+    return cutList ? extractPipeLengthsFromCutList(cutList) : [];
+  }, [cutLists, selectedCutListId]);
 
   // Modal state management
   const modal = useModalState();
@@ -76,67 +99,30 @@ export const useCutWorkflow = ({
     resetCompletionModal,
   } = modal;
 
-  // Handle cut list update from websocket
-  const handleCutListUpdate = useCallback(
-    (updatedCutList: CutListDto) => {
-      setCutLists((prev) =>
-        prev.map((cl) => (cl.id === updatedCutList.id ? updatedCutList : cl)),
-      );
-      if (activeTab === TAB_TYPES.WORKING) {
-        setWorkingPipeLengths((prev) => {
-          const belongsToUpdated = prev.some((pl) =>
-            extractPipeLengthsFromCutList(updatedCutList).some(
-              (newPl) => newPl.id === pl.id,
-            ),
-          );
-          return belongsToUpdated
-            ? extractPipeLengthsFromCutList(updatedCutList)
-            : prev;
-        });
-      }
-    },
-    [activeTab, setCutLists, setWorkingPipeLengths],
-  );
+  // Abre uma cut-list na aba Working (seleção sem mudança de status)
+  const openCutList = (cutList: CutListDto) => {
+    setSelectedCutListId(cutList.id);
+    setActiveTab(TAB_TYPES.WORKING);
+  };
 
-  // WebSocket connection
-  useWebSocket({
-    wsRoute: WS_ROUTES.cutList,
-    eventHandlers: [
-      {
-        eventName: WS_EVENTS.cutList.updateWorkStatus,
-        handler: handleCutListUpdate,
-      },
-    ],
-    enabled: true,
-    connectionName: "CutList",
-  });
+  // Marca a cut-list como working e abre sua lista de pipe-lengths
+  const startCutList = async (id: number): Promise<boolean> => {
+    const updated = await setWorking(id);
+    if (updated) {
+      setSelectedCutListId(updated.id);
+      setActiveTab(TAB_TYPES.WORKING);
+    }
+    return Boolean(updated);
+  };
 
-  // Update pipe length in state
+  // Update pipe length in the cached cut list (Working tab deriva daí)
   const updatePipeLength = (updated: PipeLengthDto) => {
-    setWorkingPipeLengths((prev) =>
-      prev.map((pl) => (pl.id === updated.id ? updated : pl)),
+    queryClient.setQueryData<CutListDto[]>(queryKeys.cutLists(), (current = []) =>
+      mergePipeLengthIntoCutLists(current, updated),
     );
   };
 
-  // Cut list operations
-  const { setWorking } = useWorkListOperations<CutListDto>(
-    API_ROUTES.cutLists.setWorking,
-    "setting cut list to working",
-    {
-      onSuccess: (updated) => {
-        setCutLists((prev) =>
-          prev.map((cl) => (cl.id === updated.id ? updated : cl)),
-        );
-        setWorkingPipeLengths(extractPipeLengthsFromCutList(updated));
-        setActiveTab(TAB_TYPES.WORKING);
-      },
-      onError: setErrorMsg,
-    },
-  );
-
   // Search field state
-  const [searchField, setSearchField] = useState<string>("id");
-
   // Custom search functions
   const cutListSearchFunction = (
     items: CutListDto[],
@@ -155,11 +141,8 @@ export const useCutWorkflow = ({
     search,
     currentUser?.id,
     {
-      onCutListSelected: (cutList) => {
-        setWorkingPipeLengths(extractPipeLengthsFromCutList(cutList));
-        setActiveTab(TAB_TYPES.WORKING);
-      },
-      onCutListSetWorking: async (id) => await setWorking(id),
+      onCutListSelected: openCutList,
+      onCutListSetWorking: startCutList,
     },
     searchField,
     cutListSearchFunction,
@@ -237,7 +220,7 @@ export const useCutWorkflow = ({
     if (activeTab === TAB_TYPES.ALL) return cutListTable.handleNextWorkflow();
     if (activeTab === TAB_TYPES.WORKING) {
       pipeLengthTable.areAllWorkingItemsFinished()
-        ? (setActiveTab(TAB_TYPES.ALL), setWorkingPipeLengths([]))
+        ? (setActiveTab(TAB_TYPES.ALL), setSelectedCutListId(null))
         : pipeLengthTable.handleNextWorkflow();
     }
   };
@@ -278,16 +261,9 @@ export const useCutWorkflow = ({
     },
   );
 
-  // Initialize search field based on active tab
-  useEffect(() => {
-    const searchFields = getSearchFields("cut", activeTab);
-    const defaultSearchField = searchFields[0]?.id || "id";
-    setSearchField(defaultSearchField);
-  }, [activeTab]);
-
   // Return all state and handlers
   return {
-    state,
+    state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     modal,
     cutListTable,
     pipeLengthTable,
@@ -296,14 +272,9 @@ export const useCutWorkflow = ({
     cards,
     controlButtons,
     modalData,
-    errorMsg,
-    setErrorMsg,
-    search,
-    setSearch,
-    activeTab,
-    setActiveTab,
     handleInputConfirm,
     handleCompletionModalConfirm,
+    setActiveTab,
     searchField,
     setSearchField,
   };
