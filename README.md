@@ -57,8 +57,8 @@ Para dar suporte às funcionalidades e à escalabilidade do projeto, adotamos um
 
 - **Back-end**
   - **Nest.js**: framework Node.js escalável, baseado em módulos e injeção de dependência, ideal para APIs bem estruturadas.
-  - **Prisma**: ORM moderno para TypeScript/Node.js, que facilita consultas ao banco e migrações de esquema de forma segura.
-  - **MySQL**: sistema de gerenciamento de banco de dados relacional robusto, amplamente adotado em aplicações de missão crítica.
+  - **MikroORM**: ORM TypeScript para Node.js, utilizado sobre MariaDB com mapeamento de entidades e repositórios tipados.
+  - **MariaDB**: sistema de gerenciamento de banco de dados relacional, derivado do MySQL e amplamente adotado em aplicações de missão crítica.
 
 ## Conclusão
 
