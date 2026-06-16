@@ -4,7 +4,8 @@ import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useRowStates, useWorkTableBase } from "@/hooks";
 
 /**
- * Hook for WeldList table (ALL tab)
+ * Tabela de weld-lists da aba "All": compõe o estado-base da tabela com os
+ * event handlers de solda.
  */
 export function useWeldListTable(
   weldLists: WeldListDto[],

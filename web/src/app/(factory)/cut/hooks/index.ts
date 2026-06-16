@@ -1,4 +1,3 @@
-// Export all cut hooks
 export { useCutEventHandlers } from "./useCutEventHandlers";
 export { useCutOperations } from "./useCutOperations";
 export { useCutListTable } from "./useCutListTable";

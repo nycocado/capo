@@ -38,7 +38,7 @@ export const useCutEventHandlers = (
 
         if (currentState === "danger") return;
 
-        // FLUXO CUT: TO_DO → Working state → Tab Working
+        // Fluxo cut: TO_DO → estado Working → aba Working
         if (currentState === WORK_STATES.TO_DO) {
           callbacks?.onCutListSetWorking?.(cutList.id);
           return;
