@@ -9,13 +9,18 @@ export function usePDFViewer(document: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!document) {
-      setPdfFile(null);
-      setError(null);
-      return;
-    }
+    // A object URL é local ao efeito: a cleanup revoga exatamente a que criou,
+    // evitando o leak da versão anterior (que lia o state pdfFile em closure).
+    let objectUrl: string | null = null;
+    let cancelled = false;
 
-    const fetchPDF = async () => {
+    const loadPDF = async () => {
+      if (!document) {
+        setPdfFile(null);
+        setError(null);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -26,34 +31,28 @@ export function usePDFViewer(document: string | null) {
           throw new Error(EMPTY_DOCUMENT);
         }
 
-        const url = URL.createObjectURL(blob);
-        setPdfFile(url);
+        objectUrl = URL.createObjectURL(blob);
+        if (!cancelled) setPdfFile(objectUrl);
       } catch (err) {
+        if (cancelled) return;
         const errorMessage =
           err instanceof Error ? err.message : "Unexpected error loading PDF";
         setError(errorMessage);
         setPdfFile(null);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    fetchPDF();
+    loadPDF();
 
     return () => {
-      if (pdfFile) {
-        URL.revokeObjectURL(pdfFile);
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
   }, [document]);
-
-  useEffect(() => {
-    return () => {
-      if (pdfFile) {
-        URL.revokeObjectURL(pdfFile);
-      }
-    };
-  }, []);
 
   return { pdfFile, loading, error };
 }

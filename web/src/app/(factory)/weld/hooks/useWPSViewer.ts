@@ -9,13 +9,18 @@ export function useWPSViewer(document: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!document) {
-      setPdfUrl(null);
-      setError(null);
-      return;
-    }
+    // A object URL é local ao efeito: a cleanup revoga exatamente a que criou,
+    // evitando o leak da versão anterior (que lia o state pdfUrl em closure).
+    let objectUrl: string | null = null;
+    let cancelled = false;
 
-    const fetchWPSPDF = async () => {
+    const loadWPSPDF = async () => {
+      if (!document) {
+        setPdfUrl(null);
+        setError(null);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
@@ -25,24 +30,25 @@ export function useWPSViewer(document: string | null) {
           throw new Error(EMPTY_DOCUMENT);
         }
 
-        const url = URL.createObjectURL(blob);
-        setPdfUrl(url);
+        objectUrl = URL.createObjectURL(blob);
+        if (!cancelled) setPdfUrl(objectUrl);
       } catch (err) {
+        if (cancelled) return;
         const errorMessage =
           err instanceof Error ? err.message : "Failed to load WPS PDF";
         setError(errorMessage);
         setPdfUrl(null);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    fetchWPSPDF();
+    loadWPSPDF();
 
-    // Cleanup function to revoke object URL
     return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
   }, [document]);

@@ -1,5 +1,5 @@
 import { Button, Form, Spinner } from "react-bootstrap";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BaseModal } from "./BaseModal";
 
 export interface InputModalProps {
@@ -41,11 +41,15 @@ export function InputModal(props: InputModalProps) {
     externalValue !== undefined && onValueChange !== undefined;
   const currentValue = isControlled ? externalValue : internalValue;
 
-  useEffect(() => {
+  // Reseta o valor interno ao abrir (modo não-controlado) ajustando o estado
+  // durante o render — sem efeito, evitando o set-state-in-effect.
+  const [wasShown, setWasShown] = useState(show);
+  if (show !== wasShown) {
+    setWasShown(show);
     if (show && !isControlled) {
       setInternalValue(initialValue);
     }
-  }, [show, initialValue, isControlled]);
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;

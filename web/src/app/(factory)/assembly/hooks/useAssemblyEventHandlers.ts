@@ -104,7 +104,6 @@ export const useAssemblyEventHandlers = (
       toggleInformation,
       setSelectedItem,
       items,
-      currentUserId,
       hasInformationItems,
       informationIds,
     ],

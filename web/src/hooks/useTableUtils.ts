@@ -120,5 +120,5 @@ export const useRowStates = <T>(
       },
       ...customStates,
     };
-  }, [activeTab, handleRowClick, customStates]);
+  }, [handleRowClick, customStates]);
 };

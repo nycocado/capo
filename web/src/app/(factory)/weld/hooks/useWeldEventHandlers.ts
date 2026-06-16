@@ -94,7 +94,6 @@ export const useWeldEventHandlers = (
       toggleInformation,
       setSelectedItem,
       items,
-      currentUserId,
       hasInformationItems,
       informationIds,
     ],
