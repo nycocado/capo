@@ -80,3 +80,47 @@
   background: var(--panel-edge);
   color: var(--text);
 }
+
+// ---- Modais ---------------------------------------------------------------
+
+// Casca do modal (BaseModal/FormModal) no mesmo painel das telas.
+.op-modal {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 16px;
+  color: var(--text);
+}
+
+// Visor de leitura (ComponentLabelModal): valor grande em mono sobre near-black.
+.op-readout {
+  background: var(--app-bg);
+  border: 1px solid var(--panel-edge);
+  color: var(--text);
+}
+
+// Campos de formulário escuros — em modais e no login (.op-field).
+.modal-content .form-control,
+.modal-content .form-select,
+.op-field {
+  background: var(--app-bg);
+  border: 1px solid var(--panel-edge);
+  color: var(--text);
+}
+
+.modal-content .form-control::placeholder,
+.op-field::placeholder {
+  color: var(--steel);
+}
+
+.modal-content .form-control:focus,
+.modal-content .form-select:focus,
+.op-field:focus {
+  background: var(--app-bg);
+  color: var(--text);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.2);
+}
+
+.modal-content .form-label {
+  color: var(--steel);
+}

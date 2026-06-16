@@ -38,7 +38,7 @@ export function ComponentLabelModal(props: ComponentLabelModalProps) {
     title,
     value,
     values,
-    valueCardClassName = "bg-surface text-light rounded-3 py-3",
+    valueCardClassName = "op-readout rounded-3 py-3",
     valueTextStyle = { letterSpacing: "25px", textIndent: "25px" },
   } = props;
 
@@ -85,7 +85,7 @@ export function ComponentLabelModal(props: ComponentLabelModalProps) {
   return (
     <BaseModal show={show} onHide={onHide} title={title} size="lg">
       <BaseModal.Body className="justify-content-center">
-        <Card className={valueCardClassName} text="dark">
+        <Card className={valueCardClassName} text="light">
           <Card.Body className="text-center">
             <p className="m-0 display-1 fw-bold" style={valueTextStyle}>
               {value}
