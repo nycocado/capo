@@ -102,14 +102,14 @@ export function useAssemblyMaterialVerification() {
       (pipeLength) =>
         state.pipeLengthStates[pipeLength.internalId] === "finished",
     );
-  }, [materials?.pipeLengths, state.pipeLengthStates]);
+  }, [materials, state.pipeLengthStates]);
 
   const allFittingsVerified = useMemo(() => {
     if (!materials?.fittings.length) return true;
     return materials.fittings.every(
       (fitting) => state.fittingStates[fitting.internalId] === "finished",
     );
-  }, [materials?.fittings, state.fittingStates]);
+  }, [materials, state.fittingStates]);
 
   const canContinue = useMemo(() => {
     if (isConsultationMode) return false;
@@ -134,7 +134,7 @@ export function useAssemblyMaterialVerification() {
       currentStep === "pipeLength" &&
       !!(materials?.fittings && materials.fittings.length > 0)
     );
-  }, [isConsultationMode, currentStep, materials?.fittings]);
+  }, [isConsultationMode, currentStep, materials]);
 
   // CORREÇÃO: Start verification usando dados do AssemblyListDto
   const startVerification = useCallback(

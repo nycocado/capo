@@ -46,26 +46,29 @@ export function useWeldOperations({
     return "to-do";
   }, []);
 
-  const performOperation = async (
-    operation: () => Promise<WeldWithContext>,
-    errorContext = "performing operation",
-  ): Promise<WeldWithContext | null> => {
-    setIsSubmitting(true);
-    try {
-      const updatedItem = await operation();
-      onSuccess?.(updatedItem);
-      return updatedItem;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : `Unexpected error ${errorContext}`;
-      onError?.(errorMessage);
-      return null;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const performOperation = useCallback(
+    async (
+      operation: () => Promise<WeldWithContext>,
+      errorContext = "performing operation",
+    ): Promise<WeldWithContext | null> => {
+      setIsSubmitting(true);
+      try {
+        const updatedItem = await operation();
+        onSuccess?.(updatedItem);
+        return updatedItem;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : `Unexpected error ${errorContext}`;
+        onError?.(errorMessage);
+        return null;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [onSuccess, onError],
+  );
 
   // Handle weld click - agora intercepta para coletar dados se necessário
   const handleWeldClick = useCallback(
@@ -107,7 +110,7 @@ export function useWeldOperations({
         );
       }
     },
-    [isSubmitting, getWeldState, onWeldRequiresData],
+    [isSubmitting, getWeldState, onWeldRequiresData, performOperation],
   );
 
   // Handle next weld
