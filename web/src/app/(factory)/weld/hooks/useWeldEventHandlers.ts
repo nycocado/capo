@@ -9,6 +9,10 @@ export interface UseWeldTableCallbacks {
   onWeldListSetWorking?: (weldListId: number) => Promise<boolean>;
 }
 
+/**
+ * Produz os handlers de interação da tabela de soldagem: clique em linha,
+ * avanço para o próximo item, verificação de conclusão e foco no painel.
+ */
 export const useWeldEventHandlers = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -21,29 +25,22 @@ export const useWeldEventHandlers = (
   callbacks?: UseWeldTableCallbacks,
   currentUserId?: number,
 ) => {
-  // Handle row clicks based on active tab
   const handleRowClick = useCallback(
     (item: WeldListDto) => {
       const currentState = rowStateAccessor(item);
 
       if (activeTab === TAB_TYPES.ALL) {
-        // Block access if weld list is restricted
-        if (currentState === "danger") {
-          return; // Do nothing for restricted weld lists
-        }
+        if (currentState === "danger") return;
 
-        // FLUXO WELD: Qualquer clique na tab ALL deve carregar as soldas
-        // Independente do estado (to-do, working, finished)
+        // Qualquer clique na aba ALL carrega a weld-list, independente do status.
         callbacks?.onWeldListSelected?.(item);
         return;
       }
 
       if (activeTab === TAB_TYPES.WORKING) {
-        // Block if other information items exist
         const hasOtherInformation =
           hasInformationItems() && !informationIds.has(item.id);
 
-        // Block if other working items exist
         const hasOtherWorkingItems = items.some((i) => {
           if (i.id === item.id) return false;
           const apiState = getWorkStatusState(i.workStatus);
@@ -55,10 +52,9 @@ export const useWeldEventHandlers = (
           currentState !== WORK_STATES.FINISHED &&
           currentState !== WORK_STATES.INFORMATION
         ) {
-          return; // Block interaction
+          return;
         }
 
-        // Handle state transitions in WORKING tab
         if (currentState === WORK_STATES.TO_DO) {
           clearAllInformation();
           toggleInformation(item.id);
@@ -67,7 +63,6 @@ export const useWeldEventHandlers = (
         }
 
         if (currentState === WORK_STATES.INFORMATION) {
-          // Remove from information and trigger material verification
           clearAllInformation();
           callbacks?.onWeldListSelected?.(item);
           return;
@@ -99,10 +94,9 @@ export const useWeldEventHandlers = (
     ],
   );
 
-  // Navigate to next available item
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
-      // Priority: working > to-do
+      // Prioridade: working > to-do
       const workingWeldList = items.find((weldList) => {
         const currentState = rowStateAccessor(weldList);
         return (
@@ -135,7 +129,7 @@ export const useWeldEventHandlers = (
 
       if (availableItems.length === 0) return;
 
-      // Priority: working > information > to-do
+      // Prioridade: working > information > to-do
       const workingItem = availableItems.find((item) => {
         const apiState = getWorkStatusState(item.workStatus);
         return apiState === WORK_STATES.WORKING;
@@ -173,7 +167,6 @@ export const useWeldEventHandlers = (
     currentUserId,
   ]);
 
-  // Check if all working items are finished
   const areAllWorkingItemsFinished = useCallback(() => {
     if (activeTab !== TAB_TYPES.WORKING) return false;
 
@@ -185,7 +178,6 @@ export const useWeldEventHandlers = (
     });
   }, [activeTab, items]);
 
-  // Check if item can appear in panel
   const isItemInFocus = useCallback(
     (item: WeldListDto | null): boolean => {
       if (!item) return false;

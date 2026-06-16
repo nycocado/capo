@@ -16,7 +16,7 @@ import { replaceById, upsertManyById } from "@/domain/logic/upsertById";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
-// Configuração da etapa de soldagem para o núcleo genérico useWorkStage.
+/** Configuração da etapa de soldagem para o núcleo genérico useWorkStage. */
 const weldStageConfig: WorkStageConfig<WeldListDto> = {
   context: "weld",
   queryKey: queryKeys.weldLists(),
@@ -46,13 +46,19 @@ export interface UseWeldWorkflowProps {
   fetchError?: string;
 }
 
-// Main hook for weld workflow
+/**
+ * Hook principal da etapa de soldagem: compõe o núcleo genérico useWorkStage
+ * com tabela, verificação de dados do weld, grid de welds e configurações de UI.
+ *
+ * @param initialItems Lista prefetchada pelo RSC (seed do cache TanStack Query).
+ * @param currentUser Usuário autenticado; usado para controle de acesso à weld-list.
+ * @param fetchError Erro do prefetch RSC, exibido até a primeira interação.
+ */
 export const useWeldWorkflow = ({
   initialItems,
   currentUser,
   fetchError,
 }: UseWeldWorkflowProps) => {
-  // Server/UI state via the generic work-stage engine
   const {
     items,
     queryClient,
@@ -83,7 +89,7 @@ export const useWeldWorkflow = ({
     [items, selectedWeldListId],
   );
 
-  // Último weld selecionado (para ações auxiliares como abrir o WPS)
+  // Último weld selecionado; mantido para ações auxiliares como abrir o WPS.
   const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
   );
@@ -119,7 +125,6 @@ export const useWeldWorkflow = ({
     onWeldListSetWorking: async (id) => await startWeldList(id),
   });
 
-  // Weld data verification - intercepta o clique no weld antes do step
   const weldDataVerification = useWeldDataVerification({
     onWeldProcessed: (updatedWeld) => {
       // Reflete o weld atualizado no cache; o grid deriva da weld-list.
@@ -132,7 +137,6 @@ export const useWeldWorkflow = ({
     onError: setErrorMsg,
   });
 
-  // Intercepta cliques em welds ANTES da requisição
   const handleWeldClick = useCallback(
     (weld: WeldWithContext) => {
       const currentState = weld.workStatus?.name || "to-do";
@@ -143,7 +147,6 @@ export const useWeldWorkflow = ({
       if (currentState === "to-do") {
         weldDataVerification.startVerification(weld);
       }
-      // Se já está finished, apenas seleciona para visualização (sem ação)
     },
     [weldDataVerification],
   );
@@ -167,7 +170,6 @@ export const useWeldWorkflow = ({
     }
   }, [activeTab, weldListTable, weldGrid]);
 
-  // Open WPS in a new tab
   const handleWpsClick = useCallback(() => {
     if (!selectedWeld) {
       setErrorMsg("Selecione um weld na grade para visualizar o WPS.");
@@ -181,7 +183,6 @@ export const useWeldWorkflow = ({
     window.open(API_ROUTES.documents.download(doc), "_blank");
   }, [selectedWeld, setErrorMsg]);
 
-  // UI configurations
   const { cards, controlButtons } = useUIConfigurations(
     selectedWeld,
     null,

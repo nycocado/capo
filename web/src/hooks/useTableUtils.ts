@@ -3,7 +3,13 @@ import { Column } from "@components/features/WorkTable/WorkTable";
 import { RowStateConfig } from "@components/features/WorkTable/WorkTableRow";
 import { TabType } from "@components/features/WorkTabs";
 
-// Generic function to sort finished items last
+/**
+ * Reordena a lista mantendo os itens finished no final, preservando a ordem
+ * relativa dos demais.
+ *
+ * @param items Lista original.
+ * @param finishedIds Ids dos itens em estado finished.
+ */
 export const sortFinishedLast = <T extends { id: number }>(
   items: T[],
   finishedIds: number[],
@@ -17,7 +23,15 @@ export const sortFinishedLast = <T extends { id: number }>(
   });
 };
 
-// Generic function to filter by search using columns or simple field access
+/**
+ * Filtra uma lista pelo texto de busca no campo indicado, usando o accessor
+ * da coluna quando disponível ou acesso por caminho pontilhado como fallback.
+ *
+ * @param items Lista a filtrar.
+ * @param search Texto de busca; retorna a lista intacta se vazio.
+ * @param searchField Id do campo/coluna de busca (padrão: "id").
+ * @param columns Definições de coluna com accessors tipados.
+ */
 export const filterBySearch = <T>(
   items: T[],
   search: string,
@@ -50,7 +64,6 @@ export const filterBySearch = <T>(
   });
 };
 
-// Pagination utility
 export interface PaginationOptions {
   page: number; // 1-based
   pageSize: number;
@@ -66,7 +79,7 @@ export const paginate = <T,>(items: T[], { page, pageSize }: PaginationOptions) 
   return { items: items.slice(start, end), totalPages, total };
 };
 
-// Pipeline of transformations (lego blocks)
+/** Pipeline de transformações compostas em sequência sobre uma lista. */
 export type TableTransform<T> = (data: T[]) => T[];
 
 export const composeTransforms = <T>(...transforms: TableTransform<T>[]) => {
@@ -86,7 +99,14 @@ export const makeSortFinishedLastTransform = <T extends { id: number }>(
   finishedIds: number[],
 ): TableTransform<T> => (data) => sortFinishedLast(data, finishedIds);
 
-// Generic hook for row states configuration
+/**
+ * Produz o mapa memoizado de estados de linha para o WorkTable/WorkTableRow,
+ * associando cada estado a uma classe CSS e ao handler de clique.
+ *
+ * @param activeTab Aba ativa (usada para compor a chave de memoização via handleRowClick).
+ * @param handleRowClick Handler chamado ao clicar em qualquer linha clicável.
+ * @param customStates Estados adicionais ou sobrepostos ao conjunto padrão.
+ */
 export const useRowStates = <T>(
   activeTab: TabType,
   handleRowClick: (item: T) => void,
@@ -112,7 +132,8 @@ export const useRowStates = <T>(
       },
       finished: {
         className: "bg-success text-white",
-        onClick: handleRowClick, // Always allow click, let the specific implementation decide
+        // Clique sempre permitido; a implementação específica decide a ação.
+        onClick: handleRowClick,
       },
       danger: {
         className: "bg-danger text-white",

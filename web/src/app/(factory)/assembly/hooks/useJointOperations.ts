@@ -29,7 +29,6 @@ const jointReducer = (
         },
       };
     case "setJointProcessed":
-      // Quando um joint é processado com sucesso, marca como finished
       return {
         ...state,
         jointStates: {
@@ -51,6 +50,16 @@ export interface UseJointOperationsProps {
   onAllFinished?: () => void;
 }
 
+/**
+ * Gerencia o estado e as operações dos joints de uma assembly-list:
+ * clique em weld (→ step do joint correspondente), navegação para o próximo
+ * e verificação de conclusão de todos os joints.
+ *
+ * @param selectedAssemblyList Lista de montagem ativa cujos joints são processados.
+ * @param onJointProcessed Chamado com o id do joint após cada step bem-sucedido.
+ * @param onError Chamado com a mensagem de erro caso a operação falhe.
+ * @param onAllFinished Chamado quando todos os joints estão finished.
+ */
 export function useJointOperations({
   selectedAssemblyList,
   onJointProcessed,
@@ -66,10 +75,8 @@ export function useJointOperations({
     jointStates: {},
   });
 
-  // Assembly operations - quando um joint é processado com sucesso
   const { processJoint, isSubmitting } = useAssemblyOperations({
     onSuccess: (updatedJoint) => {
-      // Marca o joint como finished
       dispatch({
         type: "setJointProcessed",
         jointId: updatedJoint.id,
@@ -83,7 +90,6 @@ export function useJointOperations({
     },
   });
 
-  // Get joint state baseado no weld (weld é apenas a representação visual)
   const getJointStateForWeld = useCallback(
     (weld: WeldWithContext): JointState => {
       if (!selectedAssemblyList) return "to-do";
@@ -91,12 +97,10 @@ export function useJointOperations({
       const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
       if (!jointId) return "to-do";
 
-      // Primeiro verifica o estado local (após operações)
       const localState = stateManagement.jointStates[jointId];
       if (localState) return localState;
 
-      // Se não há estado local, verifica o workStatus do JOINT (não do weld)
-      // Navega pela estrutura correta: isometric → sheets → spools → joints
+      // Estado local ausente: consulta o workStatus do joint na árvore isometric → sheets → spools → joints.
       let joint = null;
       for (const sheet of selectedAssemblyList.isometric?.sheets || []) {
         for (const spool of sheet.spools || []) {
@@ -118,7 +122,6 @@ export function useJointOperations({
     [selectedAssemblyList, stateManagement.jointStates],
   );
 
-  // Handle weld click - na verdade, processa o joint correspondente
   const handleWeldClick = useCallback(
     async (weld: WeldWithContext) => {
       if (!selectedAssemblyList || isSubmitting) return;
@@ -126,18 +129,14 @@ export function useJointOperations({
       const currentState = getJointStateForWeld(weld);
       setSelectedWeld(weld);
 
-      // Se o joint já está finished, apenas seleciona o weld (para visualização)
-      if (currentState === "finished") {
-        return;
-      }
+      if (currentState === "finished") return;
 
-      // Se o joint está initial, processa o joint
       if (currentState === "to-do") {
         const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
 
         if (jointId) {
-          setProcessingJointId(jointId); // Marca qual joint está sendo processado
-          await processJoint(jointId); // Faz step no joint
+          setProcessingJointId(jointId);
+          await processJoint(jointId);
         } else {
           onError?.("Could not find joint information for this weld");
         }
@@ -152,7 +151,6 @@ export function useJointOperations({
     ],
   );
 
-  // Handle next weld - encontra o próximo joint que precisa ser processado
   const handleNextWeld = useCallback(
     async (weldItems: WeldWithContext[]) => {
       const nextWeld = weldItems.find(
@@ -167,7 +165,6 @@ export function useJointOperations({
     [getJointStateForWeld, handleWeldClick, isSubmitting, onAllFinished],
   );
 
-  // Check if all joints are finished (através dos welds)
   const areAllJointsFinished = useCallback(
     (weldItems: WeldWithContext[]) => {
       if (weldItems.length === 0) return false;
@@ -178,14 +175,12 @@ export function useJointOperations({
     [getJointStateForWeld],
   );
 
-  // Reset state when assembly list changes
   const resetJointState = useCallback(() => {
     dispatch({ type: "reset" });
     setSelectedWeld(null);
     setProcessingJointId(null);
   }, []);
 
-  // Item states for WorkGrid - baseado no estado do joint
   const itemStates = {
     toDo: {
       className: isSubmitting

@@ -28,7 +28,7 @@ import { replaceById } from "@/domain/logic/upsertById";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
-// Configuração da etapa de corte para o núcleo genérico useWorkStage.
+/** Configuração da etapa de corte para o núcleo genérico useWorkStage. */
 const cutStageConfig: WorkStageConfig<CutListDto> = {
   context: "cut",
   queryKey: queryKeys.cutLists(),
@@ -52,13 +52,19 @@ export interface UseCutWorkflowProps {
   fetchError?: string;
 }
 
-// Main hook for cut workflow
+/**
+ * Hook principal da etapa de corte: compõe o núcleo genérico useWorkStage
+ * com tabelas, modal de heat number, operações de corte e configurações de UI.
+ *
+ * @param initialItems Lista prefetchada pelo RSC (seed do cache TanStack Query).
+ * @param currentUser Usuário autenticado; usado para controle de acesso à cut-list.
+ * @param fetchError Erro do prefetch RSC, exibido até a primeira interação.
+ */
 export const useCutWorkflow = ({
   initialItems,
   currentUser,
   fetchError,
 }: UseCutWorkflowProps) => {
-  // Server/UI state via the generic work-stage engine
   const {
     items: cutLists,
     queryClient,
@@ -83,7 +89,6 @@ export const useCutWorkflow = ({
     return cutList ? extractPipeLengthsFromCutList(cutList) : [];
   }, [cutLists, selectedCutListId]);
 
-  // Modal state management
   const modal = useModalState<PipeLengthDto>();
   const {
     pendingItem,
@@ -99,13 +104,13 @@ export const useCutWorkflow = ({
     resetCompletionModal,
   } = modal;
 
-  // Abre uma cut-list na aba Working (seleção sem mudança de status)
+  /** Abre uma cut-list na aba Working sem alterar o status (cut-list já em WORKING). */
   const openCutList = (cutList: CutListDto) => {
     setSelectedCutListId(cutList.id);
     setActiveTab(TAB_TYPES.WORKING);
   };
 
-  // Marca a cut-list como working e abre sua lista de pipe-lengths
+  /** Marca a cut-list como working e abre a aba Working com seus pipe-lengths. */
   const startCutList = async (id: number): Promise<boolean> => {
     const updated = await setWorking(id);
     if (updated) {
@@ -115,15 +120,12 @@ export const useCutWorkflow = ({
     return Boolean(updated);
   };
 
-  // Update pipe length in the cached cut list (Working tab deriva daí)
   const updatePipeLength = (updated: PipeLengthDto) => {
     queryClient.setQueryData<CutListDto[]>(queryKeys.cutLists(), (current = []) =>
       mergePipeLengthIntoCutLists(current, updated),
     );
   };
 
-  // Search field state
-  // Custom search functions
   const cutListSearchFunction = (
     items: CutListDto[],
     search: string,
@@ -135,7 +137,6 @@ export const useCutWorkflow = ({
     searchField: string,
   ) => filterBySearch(items, search, searchField, columnsPipeLengthDto);
 
-  // Table hooks with custom search
   const cutListTable = useCutListTable(
     cutLists,
     search,
@@ -167,11 +168,9 @@ export const useCutWorkflow = ({
     pipeLengthSearchFunction,
   );
 
-  // Selected pipe length
   const selectedPipeLength =
     activeTab === TAB_TYPES.WORKING ? pipeLengthTable.selectedItem : null;
 
-  // Cut operations
   const { startWork, finishWork, editHeatNumber, isSubmitting } =
     useCutOperations({
       onSuccess: (updated) => {
@@ -184,7 +183,6 @@ export const useCutWorkflow = ({
       onError: setErrorMsg,
     });
 
-  // Handle input confirmation
   const handleInputConfirm = async (inputHeatNumber: string) => {
     if (!pendingItem || !validateHeatNumber(inputHeatNumber)) {
       setErrorMsg("Please enter a valid heat number");
@@ -198,7 +196,6 @@ export const useCutWorkflow = ({
     }
   };
 
-  // Handle heat number edit
   const handleHeatNumberEdit = () => {
     if (!selectedPipeLength || activeTab === TAB_TYPES.ALL) return;
     const currentHeat = selectedPipeLength.heatNumber?.toString() || "";
@@ -208,7 +205,6 @@ export const useCutWorkflow = ({
     setInputShow(true);
   };
 
-  // Handle completion modal confirm
   const handleCompletionModalConfirm = async () => {
     if (!completedItem) return resetCompletionModal();
     await finishWork(completedItem);
@@ -217,7 +213,6 @@ export const useCutWorkflow = ({
     resetCompletionModal();
   };
 
-  // Handle next click
   const handleNextClick = () => {
     if (activeTab === TAB_TYPES.ALL) return cutListTable.handleNextWorkflow();
     if (activeTab === TAB_TYPES.WORKING) {
@@ -230,14 +225,12 @@ export const useCutWorkflow = ({
     }
   };
 
-  // Pipe length selection
   const { enrichedSelectedItem } = usePipeLengthSelection(
     selectedPipeLength,
     cutLists,
     activeTab,
   );
 
-  // Check if heat number can be edited
   const canEditHeatNumber = Boolean(
     selectedPipeLength &&
       activeTab === TAB_TYPES.WORKING &&
@@ -248,7 +241,6 @@ export const useCutWorkflow = ({
       ),
   );
 
-  // UI configurations
   const { cards, controlButtons, modalData } = useUIConfigurations(
     enrichedSelectedItem,
     completedItem,
@@ -266,7 +258,6 @@ export const useCutWorkflow = ({
     },
   );
 
-  // Return all state and handlers
   return {
     state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     modal,

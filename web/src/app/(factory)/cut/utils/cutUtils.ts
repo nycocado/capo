@@ -2,7 +2,11 @@ import { CutListDto, PipeLengthDto } from "@/dtos";
 import { PipeLengthWithContext } from "@/interfaces";
 import { VALIDATION } from "@/constants";
 
-// Extract pipe lengths from cut list
+/**
+ * Extrai todos os pipe-lengths de todos os sheets de uma cut-list.
+ *
+ * @param cutList Cut-list com isometric e seus sheets.
+ */
 export const extractPipeLengthsFromCutList = (
   cutList: CutListDto,
 ): PipeLengthDto[] => {
@@ -15,7 +19,13 @@ export const extractPipeLengthsFromCutList = (
   return pipeLengths;
 };
 
-// Enrich single pipe length with context
+/**
+ * Enriquece um pipe-length com o contexto do isométrico e da sheet a que pertence.
+ *
+ * @param pipeLength Pipe-length a enriquecer.
+ * @param cutLists Cut-lists em que o pipe-length é buscado.
+ * @returns Pipe-length com `isometricInfo`, ou `null` se não encontrado.
+ */
 export const enrichPipeLengthWithContext = (
   pipeLength: PipeLengthDto,
   cutLists: CutListDto[],
@@ -36,7 +46,13 @@ export const enrichPipeLengthWithContext = (
   return null;
 };
 
-// Enrich multiple pipe lengths
+/**
+ * Enriquece uma lista de pipe-lengths com contexto do isométrico.
+ * Pipe-lengths sem correspondência são retornados sem alteração.
+ *
+ * @param pipeLengths Pipe-lengths a enriquecer.
+ * @param cutLists Cut-lists usadas como fonte do contexto.
+ */
 export const enrichPipeLengths = (
   pipeLengths: PipeLengthDto[],
   cutLists: CutListDto[],
@@ -47,7 +63,11 @@ export const enrichPipeLengths = (
   });
 };
 
-// Validate heat number input
+/**
+ * Valida o input de heat number: deve ser um inteiro >= HEAT_NUMBER_MIN.
+ *
+ * @param value String digitada pelo operador.
+ */
 export const validateHeatNumber = (value: string): boolean => {
   const num = parseInt(value);
   return !isNaN(num) && num >= VALIDATION.HEAT_NUMBER_MIN;

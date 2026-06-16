@@ -1,5 +1,4 @@
 "use client";
-// Import DTOs and components
 import { AssemblyListDto, UserDto } from "@/dtos";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
@@ -20,20 +19,21 @@ import PDFViewer from "@components/features/PDFViewer/PDFViewer";
 import { WeldWithContext } from "@/interfaces";
 import { ErrorToast } from "@/components/common/ErrorToast";
 
-// Props interface for AssemblyClient
 export interface AssemblyClientProps {
   initialItems: AssemblyListDto[];
   currentUser: UserDto | null;
   fetchError?: string;
 }
 
-// Main assembly client component
+/**
+ * Client Component da tela de montagem: consome useAssemblyWorkflow e renderiza
+ * o PDF viewer, tabela (assembly-lists/grid de joints), controles e modais.
+ */
 const AssemblyClient = memo(function AssemblyClient(
   props: AssemblyClientProps,
 ) {
   const { initialItems, currentUser, fetchError } = props;
 
-  // Use workflow hook - updated to match corrected hook
   const {
     state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     assemblyListTable,
@@ -49,10 +49,8 @@ const AssemblyClient = memo(function AssemblyClient(
     setSearchField,
   } = useAssemblyWorkflow({ initialItems, currentUser, fetchError });
 
-  // Determine if error toast should show
   const showError = Boolean(errorMsg);
 
-  // Render UI - following CutClient pattern exactly
   return (
     <>
       <NavBar title="Assembly" fixed={true} />
