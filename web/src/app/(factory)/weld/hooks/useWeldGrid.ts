@@ -43,7 +43,7 @@ export function useWeldGrid({
         weldOperations.handleWeldClick(weld);
       }
     },
-    [handleWeldClick, weldOperations.handleWeldClick],
+    [handleWeldClick, weldOperations],
   );
 
   const handleNextWorkflow = useCallback(async () => {
