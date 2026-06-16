@@ -129,7 +129,7 @@ const CutClient = memo(function CutClient(props: CutClientProps) {
         onHide={resetCompletionModal}
         onConfirm={handleCompletionModalConfirm}
         title="PIPE LENGTH"
-        value={modalData?.value}
+        value={modalData?.value ?? ""}
         values={modalData?.values}
       />
 

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Column } from "@components/features/WorkTable/WorkTable";
+import { RowStateConfig } from "@components/features/WorkTable/WorkTableRow";
 import { TabType } from "@components/features/WorkTabs";
 
 // Generic function to sort finished items last
@@ -17,7 +18,7 @@ export const sortFinishedLast = <T extends { id: number }>(
 };
 
 // Generic function to filter by search using columns or simple field access
-export const filterBySearch = <T extends { [key: string]: any }>(
+export const filterBySearch = <T>(
   items: T[],
   search: string,
   searchField: string = "id",
@@ -28,16 +29,24 @@ export const filterBySearch = <T extends { [key: string]: any }>(
   const column = columns?.find((col) => col.id === searchField);
 
   return items.filter((item) => {
-    let value: any;
+    let value: unknown;
     if (column) {
       value =
         typeof column.accessor === "function"
           ? column.accessor(item)
-          : item[column.accessor as keyof T];
+          : item[column.accessor];
     } else {
-      value = searchField.split(".").reduce((obj, key) => obj?.[key], item);
+      // Acesso por caminho pontilhado (ex.: "isometric.internalId")
+      value = searchField
+        .split(".")
+        .reduce<unknown>(
+          (obj, key) => (obj as Record<string, unknown> | undefined)?.[key],
+          item,
+        );
     }
-    return value?.toString().toLowerCase().includes(lowerSearch);
+    return String(value ?? "")
+      .toLowerCase()
+      .includes(lowerSearch);
   });
 };
 
@@ -64,11 +73,14 @@ export const composeTransforms = <T>(...transforms: TableTransform<T>[]) => {
   return (data: T[]) => transforms.reduce((acc, fn) => fn(acc), data);
 };
 
-export const makeSearchTransform = <T extends { [key: string]: any }>(
-  search: string,
-  searchField: string,
-  columns?: Column<T>[],
-): TableTransform<T> => (data) => filterBySearch(data, search, searchField, columns);
+export const makeSearchTransform =
+  <T>(
+    search: string,
+    searchField: string,
+    columns?: Column<T>[],
+  ): TableTransform<T> =>
+  (data) =>
+    filterBySearch(data, search, searchField, columns);
 
 export const makeSortFinishedLastTransform = <T extends { id: number }>(
   finishedIds: number[],
@@ -78,7 +90,7 @@ export const makeSortFinishedLastTransform = <T extends { id: number }>(
 export const useRowStates = <T>(
   activeTab: TabType,
   handleRowClick: (item: T) => void,
-  customStates?: Record<string, any>,
+  customStates?: Record<string, RowStateConfig<T>>,
 ) => {
   return useMemo(() => {
     return {

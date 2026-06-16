@@ -84,7 +84,7 @@ export const useCutWorkflow = ({
   }, [cutLists, selectedCutListId]);
 
   // Modal state management
-  const modal = useModalState();
+  const modal = useModalState<PipeLengthDto>();
   const {
     pendingItem,
     isEditing,
@@ -191,9 +191,11 @@ export const useCutWorkflow = ({
       return;
     }
     const heatNumber = parseInt(inputHeatNumber);
-    isEditing
-      ? await editHeatNumber(pendingItem, heatNumber)
-      : await startWork(pendingItem, heatNumber);
+    if (isEditing) {
+      await editHeatNumber(pendingItem, heatNumber);
+    } else {
+      await startWork(pendingItem, heatNumber);
+    }
   };
 
   // Handle heat number edit
@@ -219,9 +221,12 @@ export const useCutWorkflow = ({
   const handleNextClick = () => {
     if (activeTab === TAB_TYPES.ALL) return cutListTable.handleNextWorkflow();
     if (activeTab === TAB_TYPES.WORKING) {
-      pipeLengthTable.areAllWorkingItemsFinished()
-        ? (setActiveTab(TAB_TYPES.ALL), setSelectedCutListId(null))
-        : pipeLengthTable.handleNextWorkflow();
+      if (pipeLengthTable.areAllWorkingItemsFinished()) {
+        setActiveTab(TAB_TYPES.ALL);
+        setSelectedCutListId(null);
+      } else {
+        pipeLengthTable.handleNextWorkflow();
+      }
     }
   };
 
