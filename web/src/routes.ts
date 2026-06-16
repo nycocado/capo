@@ -7,6 +7,7 @@ const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 export const ROUTES = {
   home: "/",
   login: "/login",
+  logout: "/logout",
   roles: "/roles",
   cut: "/cut",
   assembly: "/assembly",
