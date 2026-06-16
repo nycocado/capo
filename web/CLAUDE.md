@@ -12,7 +12,6 @@ Run locally inside `web/` with Bun (the Docker image is production-only — a Ne
 bun run dev    # next dev
 bun run lint   # eslint
 bun run build  # next build (standalone output)
-bun run test   # vitest
 ```
 
 Path aliases (`tsconfig.json`): `@/*`, `@components/*`, `@hooks/*`, `@dtos/*`, `@interfaces/*`, `@constants/*`, `@styles/*`.
