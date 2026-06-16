@@ -25,17 +25,19 @@ export interface FormModalProps {
   submitText?: string;
   cancelText?: string;
 
-  // Handlers
   handleFieldChange: (fieldId: string, value: string) => void;
   handleSubmit: () => void;
   handleCancel: () => void;
 
-  // Style props
   titleClassName?: string;
   confirmVariant?: string;
   cancelVariant?: string;
 }
 
+/**
+ * Modal genérico de formulário (select/text/number) sobre o BaseModal escuro,
+ * com validação dos campos obrigatórios e estados de loading/erro.
+ */
 export function FormModal(props: FormModalProps) {
   const {
     showModal,
@@ -112,7 +114,6 @@ export function FormModal(props: FormModalProps) {
     }
   };
 
-  // Check if form is valid
   const isFormValid = fields.every((field) => {
     if (!field.required) return true;
     const value = values[field.id];

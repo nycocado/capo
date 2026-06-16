@@ -5,7 +5,18 @@ import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useRowStates, useWorkTableBase } from "@/hooks";
 
-// Hook for cut list table in all tab
+/**
+ * Tabela de cut-lists da aba "All": compõe o estado-base da tabela com os
+ * event handlers de corte e, opcionalmente, uma função de busca custom.
+ *
+ * @param cutLists Cut-lists a exibir.
+ * @param search Termo de busca atual.
+ * @param currentUserId Id do utilizador atual, para regras de foco/acesso.
+ * @param callbacks Callbacks de seleção/transição da cut-list.
+ * @param searchField Campo sobre o qual a busca incide.
+ * @param searchFunction Função de busca custom; se ausente, usa a base.
+ * @returns Itens da tabela, row states e os handlers de interação.
+ */
 export function useCutListTable(
   cutLists: CutListDto[],
   search: string,
@@ -37,7 +48,6 @@ export function useCutListTable(
   const rowStateAccessorUnion = (item: PipeLengthDto | CutListDto) =>
     base.rowStateAccessor(item as CutListDto);
 
-  // Event handlers - usando hook original
   const {
     handleRowClick,
     handleNextWorkflow,

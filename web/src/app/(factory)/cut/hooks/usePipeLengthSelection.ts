@@ -36,7 +36,14 @@ function enrichPipeLength(
   return null;
 }
 
-// Hook to select and enrich pipe length
+/**
+ * Enriquece o pipe-length selecionado com o seu contexto de isometric/sheet.
+ *
+ * @param selectedPipeLength Pipe-length atualmente selecionado.
+ * @param cutLists Cut-lists onde procurar o contexto.
+ * @param activeTab Aba ativa — só enriquece na aba Working.
+ * @returns O item enriquecido (ou null) sob a chave `enrichedSelectedItem`.
+ */
 export const usePipeLengthSelection = (
   selectedPipeLength: PipeLengthDto | null,
   cutLists: CutListDto[],

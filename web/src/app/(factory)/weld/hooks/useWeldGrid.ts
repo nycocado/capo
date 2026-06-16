@@ -29,7 +29,6 @@ export function useWeldGrid({
   const weldOperations = useWeldOperations({
     onAllFinished,
     onError,
-    // Removendo onWeldRequiresData - agora é interceptado externamente
   });
 
   // Override do handleItemClick para usar interceptação externa
