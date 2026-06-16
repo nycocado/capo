@@ -4,16 +4,6 @@ import ky, { HTTPError, type KyInstance } from "ky";
 export const SESSION_EXPIRED_MESSAGE = "Session expired. Please login again.";
 
 /**
- * Indica se o erro corresponde a um 401 do servidor (sessão expirada).
- *
- * @param error Erro capturado de uma chamada à API.
- * @returns `true` se for um HTTPError com status 401.
- */
-export function isSessionExpired(error: unknown): boolean {
-  return error instanceof HTTPError && error.response.status === 401;
-}
-
-/**
  * Remove chaves com valor `undefined` para montar os `searchParams` do ky.
  *
  * @param params Pares chave/valor, alguns possivelmente `undefined`.

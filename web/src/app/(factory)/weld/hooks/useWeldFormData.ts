@@ -12,14 +12,12 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
     FillerMaterialDto[]
   >([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
 
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
 
       try {
         // Buscar WPS e FillerMaterials em paralelo
@@ -32,7 +30,6 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
         setFillerMaterialOptions(fillerMaterialData);
       } catch (err) {
         console.error("Error fetching weld form data:", err);
-        setError("Failed to load form data");
       } finally {
         setLoading(false);
       }
@@ -45,13 +42,5 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
     wpsOptions,
     fillerMaterialOptions,
     loading,
-    error,
-    refetch: () => {
-      if (enabled) {
-        // NB: só reativa o loading; o effect depende de [enabled], então isto
-        // sozinho NÃO refaz o fetch (refetch não tem consumidores atualmente).
-        setLoading(true);
-      }
-    },
   };
 }

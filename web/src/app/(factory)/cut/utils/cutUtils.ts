@@ -26,7 +26,7 @@ export const extractPipeLengthsFromCutList = (
  * @param cutLists Cut-lists em que o pipe-length é buscado.
  * @returns Pipe-length com `isometricInfo`, ou `null` se não encontrado.
  */
-export const enrichPipeLengthWithContext = (
+const enrichPipeLengthWithContext = (
   pipeLength: PipeLengthDto,
   cutLists: CutListDto[],
 ): PipeLengthWithContext | null => {

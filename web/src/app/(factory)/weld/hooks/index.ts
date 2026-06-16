@@ -5,4 +5,3 @@ export * from "./useWeldListTable";
 export * from "./useWeldDataVerification";
 export * from "./useWeldOperations";
 export * from "./useWeldWorkflow";
-export * from "./useWPSViewer";

@@ -64,41 +64,6 @@ export const filterBySearch = <T>(
   });
 };
 
-export interface PaginationOptions {
-  page: number; // 1-based
-  pageSize: number;
-}
-
-export const paginate = <T,>(items: T[], { page, pageSize }: PaginationOptions) => {
-  if (!pageSize || pageSize <= 0) return { items, totalPages: 1, total: items.length };
-  const total = items.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const p = Math.min(Math.max(1, page), totalPages);
-  const start = (p - 1) * pageSize;
-  const end = start + pageSize;
-  return { items: items.slice(start, end), totalPages, total };
-};
-
-/** Pipeline de transformações compostas em sequência sobre uma lista. */
-export type TableTransform<T> = (data: T[]) => T[];
-
-export const composeTransforms = <T>(...transforms: TableTransform<T>[]) => {
-  return (data: T[]) => transforms.reduce((acc, fn) => fn(acc), data);
-};
-
-export const makeSearchTransform =
-  <T>(
-    search: string,
-    searchField: string,
-    columns?: Column<T>[],
-  ): TableTransform<T> =>
-  (data) =>
-    filterBySearch(data, search, searchField, columns);
-
-export const makeSortFinishedLastTransform = <T extends { id: number }>(
-  finishedIds: number[],
-): TableTransform<T> => (data) => sortFinishedLast(data, finishedIds);
-
 /**
  * Produz o mapa memoizado de estados de linha para o WorkTable/WorkTableRow,
  * associando cada estado a uma classe CSS e ao handler de clique.

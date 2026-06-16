@@ -46,7 +46,3 @@ export const findJointIdForWeld = (
   }
   return null;
 };
-
-export const getAvailableSheets = (assemblyList: AssemblyListDto | null) => {
-  return assemblyList?.isometric?.sheets || [];
-};

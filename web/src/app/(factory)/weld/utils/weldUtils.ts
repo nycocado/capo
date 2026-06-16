@@ -30,24 +30,6 @@ export const extractWeldsFromWeldList = (
   return welds.sort((a, b) => a.id - b.id);
 };
 
-/**
- * Extrai e combina os welds de múltiplas weld-lists, ordenados por id.
- *
- * @param weldLists Lista de weld-lists.
- */
-export const extractWeldsFromWeldListArray = (
-  weldLists: WeldListDto[],
-): WeldWithContext[] => {
-  const allWelds: WeldWithContext[] = [];
-
-  weldLists.forEach((weldList) => {
-    const welds = extractWeldsFromWeldList(weldList);
-    allWelds.push(...welds);
-  });
-
-  return allWelds.sort((a, b) => a.id - b.id);
-};
-
 // Mescla um weld atualizado na weld-list a que pertence (spool.welds),
 // retornando novas weld-lists — reflete no cache o resultado do step de um weld
 // sem depender do evento WebSocket (stepar um weld intermediário não emite
