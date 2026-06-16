@@ -14,7 +14,6 @@ const API_ERRORS = {
 
 type WeldState = "to-do" | "finished";
 
-// Props interface
 export interface UseWeldOperationsProps {
   onSuccess?: (item: WeldWithContext) => void;
   onError?: (error: string) => void;
@@ -24,7 +23,15 @@ export interface UseWeldOperationsProps {
   ) => Promise<{ wps?: string; fillerMaterial?: string } | null>;
 }
 
-// Hook for weld operations
+/**
+ * Gerencia as operações de avanço de welds: coleta de dados (WPS/filler material),
+ * step via API e atualização de WPS ou filler material de forma independente.
+ *
+ * @param onSuccess Chamado com o weld atualizado após cada operação bem-sucedida.
+ * @param onError Chamado com a mensagem de erro caso a operação falhe.
+ * @param onAllFinished Chamado quando todos os welds da lista estão finished.
+ * @param onWeldRequiresData Callback para coletar WPS/filler via modal antes do step.
+ */
 export function useWeldOperations({
   onSuccess,
   onError,
@@ -36,7 +43,6 @@ export function useWeldOperations({
     null,
   );
 
-  // Get weld state - baseado apenas no workStatus da API
   const getWeldState = useCallback((weld: WeldWithContext): WeldState => {
     const statusName = weld.workStatus?.name?.toLowerCase();
 
@@ -70,7 +76,6 @@ export function useWeldOperations({
     [onSuccess, onError],
   );
 
-  // Handle weld click - agora intercepta para coletar dados se necessário
   const handleWeldClick = useCallback(
     async (weld: WeldWithContext, fillerMaterial?: string, wps?: string) => {
       if (isSubmitting) return;
@@ -78,28 +83,21 @@ export function useWeldOperations({
       const currentState = getWeldState(weld);
       setSelectedWeld(weld);
 
-      // Se já está finished, apenas seleciona para visualização
       if (currentState === "finished") {
         return;
       }
 
-      // Se está to-do, verifica se precisa coletar dados via modal
       if (currentState === "to-do") {
         let finalFillerMaterial = fillerMaterial;
         let finalWps = wps;
 
-        // Se não tem os dados e existe callback para coletar, chama o modal
         if ((!fillerMaterial || !wps) && onWeldRequiresData) {
           const modalResult = await onWeldRequiresData(weld);
-          if (!modalResult) {
-            // User cancelou o modal
-            return;
-          }
+          if (!modalResult) return;  // usuário cancelou o modal
           finalFillerMaterial = modalResult.fillerMaterial || fillerMaterial;
           finalWps = modalResult.wps || wps;
         }
 
-        // Monta parâmetros para a API
         const params: WeldStepParams = {};
         if (finalFillerMaterial) params.fillerMaterial = finalFillerMaterial;
         if (finalWps) params.wps = finalWps;
@@ -113,12 +111,10 @@ export function useWeldOperations({
     [isSubmitting, getWeldState, onWeldRequiresData, performOperation],
   );
 
-  // Handle next weld
   const handleNextWeld = useCallback(
     async (weldItems: WeldWithContext[]) => {
       const nextWeld = weldItems.find((weld) => getWeldState(weld) === "to-do");
       if (nextWeld && !isSubmitting) {
-        // Para handleNextWeld, pode chamar sem parâmetros ou com lógica específica
         await handleWeldClick(nextWeld);
       } else if (!nextWeld) {
         onAllFinished?.();
@@ -127,7 +123,6 @@ export function useWeldOperations({
     [getWeldState, handleWeldClick, isSubmitting, onAllFinished],
   );
 
-  // Check if all welds are finished
   const areAllWeldsFinished = useCallback(
     (weldItems: WeldWithContext[]) => {
       if (weldItems.length === 0) return false;
@@ -136,7 +131,6 @@ export function useWeldOperations({
     [getWeldState],
   );
 
-  // Update WPS
   const updateWPS = async (
     item: WeldWithContext,
     wps: string,
@@ -153,7 +147,6 @@ export function useWeldOperations({
     return result !== null;
   };
 
-  // Update Filler Material
   const updateFillerMaterial = async (
     item: WeldWithContext,
     fillerMaterial: string,
@@ -170,17 +163,15 @@ export function useWeldOperations({
     return result !== null;
   };
 
-  // Item states for WorkGrid - removendo onClick interno para forçar uso de handleItemClick externo
+  // onClick omitido intencionalmente: o WorkGrid usa handleItemClick externo.
   const itemStates = {
     "to-do": {
       className: isSubmitting
         ? "bg-secondary text-white"
         : "bg-dark text-light",
-      // Removendo onClick - o WorkGrid deve usar handleItemClick ao invés de itemStates.onClick
     },
     finished: {
       className: "bg-success text-white",
-      // Removendo onClick - o WorkGrid deve usar handleItemClick
     },
   };
 

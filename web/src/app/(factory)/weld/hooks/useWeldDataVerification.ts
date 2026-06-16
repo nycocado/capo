@@ -8,29 +8,32 @@ export interface UseWeldDataVerificationProps {
   onError?: (error: string) => void;
 }
 
+/**
+ * Controla o fluxo de verificação de dados antes do step de um weld:
+ * abre modal com campos WPS e filler material, submete o step e notifica o resultado.
+ *
+ * @param onWeldProcessed Chamado com o weld atualizado após step bem-sucedido.
+ * @param onError Chamado com a mensagem de erro caso a operação falhe.
+ */
 export function useWeldDataVerification({
   onWeldProcessed,
   onError,
 }: UseWeldDataVerificationProps = {}) {
-  // Modal state
   const [showModal, setShowModal] = useState(false);
   const [currentWeld, setCurrentWeld] = useState<WeldWithContext | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Buscar dados para o modal
   const { wpsOptions, fillerMaterialOptions, loading } = useWeldFormData({
     enabled: showModal,
   });
 
-  // Start verification process
   const startVerification = useCallback((weld: WeldWithContext) => {
     setCurrentWeld(weld);
     setFormValues({});
     setShowModal(true);
   }, []);
 
-  // Handle field changes
   const handleFieldChange = useCallback((fieldId: string, value: string) => {
     setFormValues((prev) => ({
       ...prev,
@@ -38,7 +41,6 @@ export function useWeldDataVerification({
     }));
   }, []);
 
-  // Handle verification completion
   const handleContinue = useCallback(async () => {
     if (!currentWeld) return;
 
@@ -59,10 +61,7 @@ export function useWeldDataVerification({
         spoolInfo: currentWeld.spoolInfo,
       };
 
-      // Success - notify parent com objeto atualizado
       onWeldProcessed?.(updatedWithContext);
-
-      // Close modal
       setShowModal(false);
       setCurrentWeld(null);
       setFormValues({});
@@ -75,14 +74,12 @@ export function useWeldDataVerification({
     }
   }, [currentWeld, formValues, onWeldProcessed, onError]);
 
-  // Handle cancel
   const handleCancel = useCallback(() => {
     setShowModal(false);
     setCurrentWeld(null);
     setFormValues({});
   }, []);
 
-  // Modal configuration
   const modalFields = [
     {
       id: "wps",
@@ -111,18 +108,13 @@ export function useWeldDataVerification({
   ];
 
   return {
-    // Modal state
     showModal,
     currentWeld,
     loading,
     isSubmitting,
-
-    // Modal config
     modalFields,
     formValues,
     modalTitle: `Welding Details - ${currentWeld?.number || ""}`,
-
-    // Actions
     startVerification,
     handleFieldChange,
     handleContinue,

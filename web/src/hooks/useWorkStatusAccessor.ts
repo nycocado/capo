@@ -2,7 +2,6 @@ import { useCallback } from "react";
 import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 import { WorkStatusDto } from "@/dtos";
 
-// Generic work states (can be overridden by module constants)
 export const DEFAULT_WORK_STATES = {
   TO_DO: "to-do",
   WORKING: "working",
@@ -10,7 +9,13 @@ export const DEFAULT_WORK_STATES = {
   INFORMATION: "information",
 } as const;
 
-// Generic function to get state from workStatus
+/**
+ * Mapeia o workStatus de um item para o estado de UI correspondente.
+ *
+ * @param workStatus Objeto com o nome do status vindo da API.
+ * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
+ * @returns Nome do estado de UI (to-do, working, finished).
+ */
 export const getWorkStatusState = (
   workStatus?: { name: string },
   workStates = DEFAULT_WORK_STATES,
@@ -29,7 +34,15 @@ export const getWorkStatusState = (
   }
 };
 
-// Generic function to check user access to items - Fixed type compatibility
+/**
+ * Verifica se o usuário atual pode interagir com um item em estado WORKING.
+ * Retorna `true` se o item não está WORKING, não há usuário, ou o status foi
+ * criado pelo próprio usuário.
+ *
+ * @param item Item com workStatus e o id de quem o iniciou.
+ * @param currentUserId Id do usuário autenticado.
+ * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
+ */
 export const canUserAccessItem = <
   T extends { workStatus?: { name: string; createdBy?: number | null } },
 >(
@@ -37,17 +50,25 @@ export const canUserAccessItem = <
   currentUserId?: number,
   workStates = DEFAULT_WORK_STATES,
 ): boolean => {
-  if (!currentUserId) return true; // Allow access if no user info
+  if (!currentUserId) return true;
 
   const workStatus = getWorkStatusState(item.workStatus, workStates);
   if (workStatus !== workStates.WORKING) return true;
 
-  // Check if working state was created by another user
   const createdBy = item.workStatus?.createdBy;
   return !createdBy || createdBy === currentUserId;
 };
 
-// Generic hook for status accessor
+/**
+ * Produz um accessor memoizado que resolve o estado de UI de cada item,
+ * priorizando o estado "information" (seleção local) antes do workStatus da API
+ * e aplicando a restrição "danger" para itens WORKING de outro utilizador.
+ *
+ * @param activeTab Aba ativa; a restrição "danger" só se aplica na aba ALL.
+ * @param informationIds Conjunto de ids com estado "information" local.
+ * @param currentUserId Id do utilizador autenticado; omitir desativa a restrição.
+ * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
+ */
 export const useWorkStatusAccessor = <
   T extends {
     id: number;
@@ -61,19 +82,16 @@ export const useWorkStatusAccessor = <
 ) => {
   return useCallback(
     (item: T) => {
-      // Information state takes priority
       if (informationIds.has(item.id)) {
         return workStates.INFORMATION;
       }
 
-      // Check if user can access item (for ALL tab)
       if (activeTab === TAB_TYPES.ALL) {
         if (!canUserAccessItem(item, currentUserId, workStates)) {
-          return "danger"; // Return danger state for restricted access
+          return "danger";
         }
       }
 
-      // Use API state for items
       return getWorkStatusState(item.workStatus, workStates);
     },
     [activeTab, informationIds, currentUserId, workStates],

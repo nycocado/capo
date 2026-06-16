@@ -9,6 +9,10 @@ export interface UseAssemblyTableCallbacks {
   onAssemblyListSetWorking?: (assemblyListId: number) => Promise<boolean>;
 }
 
+/**
+ * Produz os handlers de interação da tabela de montagem: clique em linha,
+ * avanço para o próximo item, verificação de conclusão e foco no painel.
+ */
 export const useAssemblyEventHandlers = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -21,18 +25,14 @@ export const useAssemblyEventHandlers = (
   callbacks?: UseAssemblyTableCallbacks,
   currentUserId?: number,
 ) => {
-  // Handle row clicks based on active tab
   const handleRowClick = useCallback(
     (item: AssemblyListDto) => {
       const currentState = rowStateAccessor(item);
 
       if (activeTab === TAB_TYPES.ALL) {
-        // Block access if assembly list is restricted
-        if (currentState === "danger") {
-          return; // Do nothing for restricted assembly lists
-        }
+        if (currentState === "danger") return;
 
-        // FLUXO ASSEMBLY: TO_DO ou WORKING → Material Verification → Working state → Tab Working
+        // FLUXO ASSEMBLY: TO_DO ou WORKING → Material Verification → Tab Working
         if (
           currentState === WORK_STATES.TO_DO ||
           currentState === WORK_STATES.WORKING
@@ -41,7 +41,6 @@ export const useAssemblyEventHandlers = (
           return;
         }
 
-        // Para outros estados (FINISHED), apenas selecionar
         if (currentState === WORK_STATES.FINISHED) {
           callbacks?.onAssemblyListSelected?.(item);
           return;
@@ -49,11 +48,9 @@ export const useAssemblyEventHandlers = (
       }
 
       if (activeTab === TAB_TYPES.WORKING) {
-        // Block if other information items exist
         const hasOtherInformation =
           hasInformationItems() && !informationIds.has(item.id);
 
-        // Block if other working items exist
         const hasOtherWorkingItems = items.some((i) => {
           if (i.id === item.id) return false;
           const apiState = getWorkStatusState(i.workStatus);
@@ -65,10 +62,9 @@ export const useAssemblyEventHandlers = (
           currentState !== WORK_STATES.FINISHED &&
           currentState !== WORK_STATES.INFORMATION
         ) {
-          return; // Block interaction
+          return;
         }
 
-        // Handle state transitions in WORKING tab
         if (currentState === WORK_STATES.TO_DO) {
           clearAllInformation();
           toggleInformation(item.id);
@@ -77,7 +73,6 @@ export const useAssemblyEventHandlers = (
         }
 
         if (currentState === WORK_STATES.INFORMATION) {
-          // Remove from information and trigger material verification
           clearAllInformation();
           callbacks?.onAssemblyListSelected?.(item);
           return;
@@ -109,7 +104,6 @@ export const useAssemblyEventHandlers = (
     ],
   );
 
-  // Navigate to next available item
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
       // PRIORIDADE: WORKING primeiro, depois TO_DO
@@ -126,7 +120,6 @@ export const useAssemblyEventHandlers = (
         return;
       }
 
-      // Se não há WORKING, busca TO_DO e chama setWorking
       const todoAssemblyList = items.find((assemblyList) => {
         const currentState = rowStateAccessor(assemblyList);
         return currentState === WORK_STATES.TO_DO;
@@ -146,7 +139,7 @@ export const useAssemblyEventHandlers = (
 
       if (availableItems.length === 0) return;
 
-      // Priority: working > information > to-do
+      // Prioridade: working > information > to-do
       const workingItem = availableItems.find((item) => {
         const apiState = getWorkStatusState(item.workStatus);
         return apiState === WORK_STATES.WORKING;
@@ -184,7 +177,6 @@ export const useAssemblyEventHandlers = (
     currentUserId,
   ]);
 
-  // Check if all working items are finished
   const areAllWorkingItemsFinished = useCallback(() => {
     if (activeTab !== TAB_TYPES.WORKING) return false;
 
@@ -196,7 +188,6 @@ export const useAssemblyEventHandlers = (
     });
   }, [activeTab, items]);
 
-  // Check if item can appear in panel
   const isItemInFocus = useCallback(
     (item: AssemblyListDto | null): boolean => {
       if (!item) return false;

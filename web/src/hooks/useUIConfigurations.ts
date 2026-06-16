@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { CardConfig } from "@components/features/WorkPanel/WorkPanel";
 
-// Generic interface for UI handlers
 interface UIHandlers {
   onNextClick: () => void;
   onIsometricClick?: () => void;
@@ -12,7 +11,16 @@ interface UIHandlers {
   [key: string]: (() => void) | undefined;
 }
 
-// Generic hook for UI configurations
+/**
+ * Memoiza os botões de controle, cards do painel e dados do modal de conclusão
+ * a partir de fábricas de configuração e do item selecionado.
+ *
+ * @param selectedItem Item selecionado na tabela/grid; `null` omite os cards.
+ * @param completedItem Item cuja conclusão foi confirmada; alimenta o modal.
+ * @param handlers Callbacks dos botões de controle (next, isometric, list, etc.).
+ * @param configFactories Fábricas de configuração de botões, cards e modal.
+ * @param options Opções de edição (canEdit + onEditClick) para o botão de edição.
+ */
 export const useUIConfigurations = <
   TItem = unknown,
   TCompleted = unknown,
@@ -39,13 +47,11 @@ export const useUIConfigurations = <
   // de identidade própria para os useMemo, sem reagir à literal de configFactories.
   const { buttonConfig, cardConfigs, modalConfig } = configFactories;
 
-  // Memoize control buttons
   const controlButtons = useMemo(
     () => buttonConfig(handlers),
     [buttonConfig, handlers],
   );
 
-  // Memoize card configurations (if available)
   const cards = useMemo(() => {
     if (!cardConfigs) return undefined;
     // Sem item selecionado o WorkPanel mostra o empty-state, em vez de cards
@@ -60,7 +66,6 @@ export const useUIConfigurations = <
     return cardConfigs(selectedItem, cardOptions);
   }, [cardConfigs, selectedItem, options]);
 
-  // Memoize modal data (if available)
   const modalData = useMemo(() => {
     if (!modalConfig) return undefined;
     return modalConfig(completedItem);

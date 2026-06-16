@@ -3,6 +3,13 @@ import { downloadDocument } from "@/lib/api";
 
 const EMPTY_DOCUMENT = "Received empty PDF";
 
+/**
+ * Carrega um documento PDF a partir do nome de arquivo da API e devolve
+ * uma object URL temporária para uso no iframe/embed.
+ *
+ * @param document Nome do arquivo no storage (ou `null` para limpar o viewer).
+ * @returns Estado de carregamento, erro e a object URL do PDF.
+ */
 export function usePDFViewer(document: string | null) {
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);

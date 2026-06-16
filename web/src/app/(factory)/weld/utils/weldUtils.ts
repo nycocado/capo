@@ -1,18 +1,23 @@
 import { WeldListDto } from "@/dtos";
 import { WeldWithContext } from "@/interfaces";
 
+/**
+ * Extrai os welds de uma weld-list, enriquecendo cada um com o `spoolInfo`
+ * necessário para o WorkGrid e o WorkPanel.
+ *
+ * @param weldList Weld-list com spool e seus welds.
+ * @returns Welds ordenados por id, ou array vazio se o spool estiver ausente.
+ */
 export const extractWeldsFromWeldList = (
   weldList: WeldListDto,
 ): WeldWithContext[] => {
   const welds: WeldWithContext[] = [];
 
-  // Verificação de segurança: se não há spool, retorna array vazio
   if (!weldList.spool) {
     console.warn("WeldList spool is undefined:", weldList);
     return welds;
   }
 
-  // Extrair soldas diretas do spool (estrutura real da API)
   weldList.spool.welds?.forEach((weld) => {
     welds.push({
       ...weld,
@@ -25,6 +30,11 @@ export const extractWeldsFromWeldList = (
   return welds.sort((a, b) => a.id - b.id);
 };
 
+/**
+ * Extrai e combina os welds de múltiplas weld-lists, ordenados por id.
+ *
+ * @param weldLists Lista de weld-lists.
+ */
 export const extractWeldsFromWeldListArray = (
   weldLists: WeldListDto[],
 ): WeldWithContext[] => {
@@ -62,11 +72,17 @@ export const mergeWeldIntoWeldLists = (
   });
 };
 
+/**
+ * Localiza o id do joint que contém o weld indicado dentro de uma weld-list.
+ *
+ * @param weldList Weld-list com spool e seus joints.
+ * @param weldId Id do weld a localizar.
+ * @returns Id do joint correspondente, ou `null` se não encontrado.
+ */
 export const findJointIdForWeld = (
   weldList: WeldListDto,
   weldId: number,
 ): number | null => {
-  // Verificação de segurança
   if (!weldList.spool) {
     return null;
   }

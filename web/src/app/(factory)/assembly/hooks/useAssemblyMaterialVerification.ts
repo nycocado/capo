@@ -55,14 +55,13 @@ const verificationReducer = (
   }
 };
 
-// CORREÇÃO: Extrair materiais do AssemblyListDto em vez de buscar na API
+/** Extrai pipe-lengths e fittings de todos os sheets do AssemblyListDto sem chamada de API. */
 function extractMaterialsFromAssemblyList(
   assemblyList: AssemblyListDto,
 ): MaterialsResponse {
   const allPipeLengths: PipeLengthDto[] = [];
   const allFittings: FittingDto[] = [];
 
-  // Extrair pipe lengths e fittings de todos os sheets
   assemblyList.isometric?.sheets?.forEach((sheet) => {
     if (sheet.pipeLengths) {
       allPipeLengths.push(...sheet.pipeLengths);
@@ -78,6 +77,11 @@ function extractMaterialsFromAssemblyList(
   };
 }
 
+/**
+ * Controla o fluxo multi-passo de verificação de materiais antes de iniciar uma
+ * assembly-list: exibe pipe-lengths e fittings extraídos do DTO para confirmação
+ * do operador, e suporta modo de consulta somente-leitura (sem completar a verificação).
+ */
 export function useAssemblyMaterialVerification() {
   const [showModal, setShowModal] = useState(false);
   const [currentStep, setCurrentStep] =
@@ -95,7 +99,6 @@ export function useAssemblyMaterialVerification() {
     fittingStates: {},
   });
 
-  // Check verification status
   const allPipeLengthsVerified = useMemo(() => {
     if (!materials?.pipeLengths.length) return true;
     return materials.pipeLengths.every(
@@ -136,7 +139,6 @@ export function useAssemblyMaterialVerification() {
     );
   }, [isConsultationMode, currentStep, materials]);
 
-  // CORREÇÃO: Start verification usando dados do AssemblyListDto
   const startVerification = useCallback(
     async (assemblyList: AssemblyListDto, onComplete: () => void) => {
       setLoading(true);
@@ -146,7 +148,6 @@ export function useAssemblyMaterialVerification() {
       dispatch({ type: "reset" });
 
       try {
-        // Extrair materiais do AssemblyListDto - sem chamada de API!
         const extractedMaterials =
           extractMaterialsFromAssemblyList(assemblyList);
         setMaterials(extractedMaterials);
@@ -163,7 +164,6 @@ export function useAssemblyMaterialVerification() {
     [],
   );
 
-  // CORREÇÃO: Open materials for consultation usando dados do AssemblyListDto
   const openMaterialsConsultation = useCallback(
     async (assemblyList: AssemblyListDto) => {
       setLoading(true);
@@ -172,7 +172,6 @@ export function useAssemblyMaterialVerification() {
       setIsConsultationMode(true);
 
       try {
-        // Extrair materiais do AssemblyListDto - sem chamada de API!
         const extractedMaterials =
           extractMaterialsFromAssemblyList(assemblyList);
         setMaterials(extractedMaterials);
@@ -189,7 +188,6 @@ export function useAssemblyMaterialVerification() {
     [],
   );
 
-  // Handle clicks
   const handlePipeLengthClick = useCallback(
     (pipeLength: PipeLengthDto) => {
       if (isConsultationMode) return;
@@ -210,7 +208,6 @@ export function useAssemblyMaterialVerification() {
     [isConsultationMode],
   );
 
-  // Continue to next step or complete
   const handleContinue = useCallback(() => {
     if (isConsultationMode) return;
 
@@ -236,7 +233,6 @@ export function useAssemblyMaterialVerification() {
     isConsultationMode,
   ]);
 
-  // Navigate between steps
   const handleNext = useCallback(() => {
     if (isConsultationMode && currentStep === "pipeLength") {
       setCurrentStep("fitting");
@@ -249,7 +245,6 @@ export function useAssemblyMaterialVerification() {
     }
   }, [currentStep]);
 
-  // Cancel/Close modal
   const handleCancel = useCallback(() => {
     setShowModal(false);
     setTimeout(() => {
@@ -260,7 +255,6 @@ export function useAssemblyMaterialVerification() {
     }, 300);
   }, []);
 
-  // Get states
   const getPipeLengthState = useCallback(
     (pipeLength: PipeLengthDto): MaterialState => {
       if (isConsultationMode) return "initial";
@@ -281,7 +275,6 @@ export function useAssemblyMaterialVerification() {
     [state.fittingStates, isConsultationMode],
   );
 
-  // Current step data and title
   const currentStepData = useMemo(() => {
     if (!materials) return [];
     return currentStep === "pipeLength"

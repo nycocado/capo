@@ -11,14 +11,22 @@ import {
   useWorkStatusAccessor,
 } from "@/hooks";
 
-// Interface específica para PipeLengthTable
 interface UsePipeLengthTableCallbacks {
   onWorkingTransition?: (item: PipeLengthDto) => void;
   onItemCompleted?: (item: PipeLengthDto) => void;
   onItemSelected?: (item: PipeLengthDto) => void;
 }
 
-// Hook for pipe length table in working tab
+/**
+ * Gerencia a tabela de pipe-lengths na aba Working: ordenação, busca,
+ * seleção, estados de linha e navegação entre itens.
+ *
+ * @param pipeLengths Pipe-lengths derivados da cut-list selecionada.
+ * @param search Texto de busca atual.
+ * @param callbacks Ações disparadas pelas transições de estado de cada pipe-length.
+ * @param searchField Campo de busca ativo.
+ * @param searchFunction Função de busca customizada; usa filterBySearch por padrão.
+ */
 export function usePipeLengthTable(
   pipeLengths: PipeLengthDto[],
   search: string,
@@ -39,7 +47,6 @@ export function usePipeLengthTable(
   } = useInformationState();
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  // Selected item memo
   const selectedItem = useMemo(
     () => pipeLengths.find((i) => i.id === selectedId) ?? null,
     [pipeLengths, selectedId],
@@ -48,13 +55,12 @@ export function usePipeLengthTable(
     TAB_TYPES.WORKING,
     informationIds,
   );
-  // Finished items sorting - ONLY backend determines finished state
+  // O backend é a única fonte de verdade do estado finished: sem estado local de "moved".
   const { movedIds } = useFinishedItemsSorting(
     pipeLengths,
     rowStateAccessor,
   );
 
-  // Type-safe wrapper for setSelectedItem
   const setSelectedItemGeneric = useCallback(
     (value: React.SetStateAction<(PipeLengthDto | CutListDto) | null>) => {
       if (typeof value === "function") {
@@ -69,7 +75,6 @@ export function usePipeLengthTable(
     [selectedItem],
   );
 
-  // Event handlers
   const {
     handleRowClick,
     handleNextWorkflow,
@@ -87,14 +92,11 @@ export function usePipeLengthTable(
     callbacks,
   );
 
-  // Row states
   const rowStates = useRowStates(TAB_TYPES.WORKING, handleRowClick);
 
-  // Table items
   const tableItems = useMemo(() => {
     const sortedItems = sortFinishedLast(pipeLengths, movedIds);
 
-    // Use custom search function if provided, otherwise fallback to simple search
     if (searchFunction) {
       return searchFunction(sortedItems, search, searchField);
     }
@@ -102,13 +104,11 @@ export function usePipeLengthTable(
     return filterBySearch(sortedItems, search, searchField);
   }, [pipeLengths, movedIds, search, searchField, searchFunction]);
 
-  // Proceed to working
   const proceedToWorking = (id: number) => {
     removeFromInformation(id);
     setSelectedId(id);
   };
 
-  // Clear selection
   const clearSelection = () => setSelectedId(null);
 
   return {

@@ -1,5 +1,4 @@
 "use client";
-// Import DTOs and components
 import { CutListDto, UserDto } from "@/dtos";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
@@ -21,18 +20,19 @@ import {
   WorkTabs,
 } from "@components/features/WorkTabs";
 
-// Props interface for CutClient
 export interface CutClientProps {
   initialItems: CutListDto[];
   currentUser: UserDto | null;
   fetchError?: string;
 }
 
-// Main cut client component
+/**
+ * Client Component da tela de corte: consome useCutWorkflow e renderiza
+ * a tabela (cut-lists/pipe-lengths), painel de detalhes, controles e modais.
+ */
 const CutClient = memo(function CutClient(props: CutClientProps) {
   const { initialItems, currentUser, fetchError } = props;
 
-  // Use workflow hook
   const {
     state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     modal: {
@@ -57,10 +57,8 @@ const CutClient = memo(function CutClient(props: CutClientProps) {
     setSearchField,
   } = useCutWorkflow({ initialItems, currentUser, fetchError });
 
-  // Determine if error toast should show
   const showError = Boolean(errorMsg);
 
-  // Render UI
   return (
     <>
       <NavBar title="Cutting" fixed={true} />

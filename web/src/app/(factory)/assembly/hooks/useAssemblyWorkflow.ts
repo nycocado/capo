@@ -14,7 +14,7 @@ import { replaceById, upsertById } from "@/domain/logic/upsertById";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
-// Configuração da etapa de montagem para o núcleo genérico useWorkStage.
+/** Configuração da etapa de montagem para o núcleo genérico useWorkStage. */
 const assemblyStageConfig: WorkStageConfig<AssemblyListDto> = {
   context: "assembly",
   queryKey: queryKeys.assemblyLists(),
@@ -43,13 +43,20 @@ export interface UseAssemblyWorkflowProps {
   fetchError?: string;
 }
 
-// Main hook for assembly workflow
+/**
+ * Hook principal da etapa de montagem: compõe o núcleo genérico useWorkStage
+ * com tabela, verificação de materiais, grid de joints, visualizador de PDF
+ * e configurações de UI.
+ *
+ * @param initialItems Lista prefetchada pelo RSC (seed do cache TanStack Query).
+ * @param currentUser Usuário autenticado; usado para controle de acesso à assembly-list.
+ * @param fetchError Erro do prefetch RSC, exibido até a primeira interação.
+ */
 export const useAssemblyWorkflow = ({
   initialItems,
   currentUser,
   fetchError,
 }: UseAssemblyWorkflowProps) => {
-  // Server/UI state via the generic work-stage engine
   const {
     items,
     activeTab,
@@ -100,13 +107,11 @@ export const useAssemblyWorkflow = ({
     [setWorking, openWorkingView],
   );
 
-  // Material verification
   const materialVerification = useAssemblyMaterialVerification();
 
-  // Assembly list table (ALL tab)
   const assemblyListTable = useAssemblyListTable(items, search, currentUser?.id, {
     onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
-      // Sempre passa pela verificação de material, independente do status
+      // Sempre passa pela verificação de material, independente do status da lista.
       try {
         await materialVerification.startVerification(assemblyList, () => {
           const currentState = assemblyList.workStatus?.name || "to-do";
@@ -123,7 +128,6 @@ export const useAssemblyWorkflow = ({
     onAssemblyListSetWorking: async (id) => await startAssemblyList(id),
   });
 
-  // Joint operations (Working tab)
   const weldGrid = useJointGrid({
     assemblyList: selectedAssemblyList,
     sheetNumber: selectedSheetNumber,
@@ -136,7 +140,6 @@ export const useAssemblyWorkflow = ({
     onError: setErrorMsg,
   });
 
-  // Handle next workflow
   const handleNextWorkflow = useCallback(async () => {
     if (activeTab === TAB_TYPES.ALL) {
       assemblyListTable.handleNextWorkflow();
@@ -145,7 +148,6 @@ export const useAssemblyWorkflow = ({
     }
   }, [activeTab, assemblyListTable, weldGrid]);
 
-  // Current sheet for PDF viewer
   const currentSheet =
     selectedAssemblyList && selectedSheetNumber !== null
       ? selectedAssemblyList.isometric?.sheets?.find(
@@ -153,14 +155,12 @@ export const useAssemblyWorkflow = ({
         )
       : null;
 
-  // PDF viewer
   const {
     pdfFile,
     loading: pdfLoading,
     error: pdfError,
   } = usePDFViewer(currentSheet?.document || null);
 
-  // Handle isometric viewer - send raw file to browser
   const handleIsometricClick = useCallback(() => {
     if (pdfFile) {
       window.open(pdfFile, "_blank");
@@ -169,7 +169,6 @@ export const useAssemblyWorkflow = ({
     }
   }, [pdfFile, setErrorMsg]);
 
-  // Handle list click - show materials in readonly mode
   const handleListClick = useCallback(async () => {
     if (!selectedAssemblyList) {
       setErrorMsg("No assembly list selected");
@@ -182,7 +181,6 @@ export const useAssemblyWorkflow = ({
     }
   }, [selectedAssemblyList, materialVerification, setErrorMsg]);
 
-  // UI configurations
   const { controlButtons } = useUIConfigurations(
     null,
     null,
