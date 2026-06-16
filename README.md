@@ -60,6 +60,43 @@ Para dar suporte às funcionalidades e à escalabilidade do projeto, adotamos um
   - **MikroORM**: ORM TypeScript para Node.js, utilizado sobre MariaDB com mapeamento de entidades e repositórios tipados.
   - **MariaDB**: sistema de gerenciamento de banco de dados relacional, derivado do MySQL e amplamente adotado em aplicações de missão crítica.
 
+## Como Executar
+
+O projeto é um monorepo (workspaces) com duas aplicações (`api/` e `web/`) e um banco, orquestrados por Docker Compose atrás de um reverse proxy NGINX. O gerenciador de pacotes e runner de scripts é o **Bun**; as imagens são construídas com **Docker** (ou Podman).
+
+### Pré-requisitos
+
+- [Bun](https://bun.sh)
+- [Docker](https://www.docker.com/) + Docker Compose (ou Podman com o shim `docker compose`)
+
+### Configuração
+
+Nenhum arquivo `.env` é versionado. Crie os três a partir dos templates `.env.example`:
+
+- `.env` (raiz) — consumido pelo Docker Compose (rede, banco, JWT, CORS e as `NEXT_PUBLIC_*` do web).
+- `api/.env.local` — configuração da API.
+- `web/.env.local` — URLs da API para o desenvolvimento local.
+
+### Stack de produção (Docker)
+
+```bash
+bun install          # instala todos os workspaces
+bun run docker:up    # build + sobe o stack (nginx, db, api, web)
+```
+
+A aplicação fica disponível em `http://localhost:<NGINX_PORT>` (default `8080`).
+
+### Desenvolvimento local
+
+As aplicações rodam localmente com Bun, contra o banco no container:
+
+```bash
+cd web && bun run dev        # NextJS dev server (hot reload)
+cd api && bun run start:dev  # NestJS em watch mode
+```
+
+Outros comandos úteis na raiz: `bun run docker:down` (derruba e remove volumes), `bun run docker:rebuild` (reset completo + re-seed) e `bun run logs:api` / `logs:web` / `logs:db`.
+
 ## Conclusão
 
 O projeto **CAPO** surge como uma solução inovadora e abrangente para a gestão de produção no setor metalúrgico, especialmente voltado para empresas que atuam na fabricação e montagem de pipelines. Desenvolvido em parceria com a **[COMP (Companhia Metalúrgica Portuguesa)](https://www.metalurgicaportuguesa.pt/)**, o sistema foi concebido para modernizar e otimizar os processos produtivos, alinhando-se às necessidades de inovação e eficiência da empresa.
