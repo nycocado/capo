@@ -24,7 +24,7 @@ export function BaseModal(props: BaseModalProps) {
     centered = true,
     backdrop = "static",
     keyboard = false,
-    contentClassName = "bg-tertiary text-light rounded-3 px-3",
+    contentClassName = "op-modal px-3",
     children,
   } = props;
 

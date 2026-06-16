@@ -29,14 +29,24 @@ function LoginPage() {
     }
   };
   return (
-    <Container fluid className="vh-100 d-flex">
-      <Row className="flex-grow-1 w-100">
+    <Container
+      fluid
+      className="vh-100 d-flex"
+      style={{ background: "var(--app-bg)" }}
+    >
+      <Row className="flex-grow-1 w-100 g-0">
         <Col
           md={7}
-          className="d-flex flex-column justify-content-center align-items-center bg-light"
+          className="d-flex flex-column justify-content-center align-items-center"
+          style={{ background: "var(--panel)" }}
         >
           <div className={error ? "" : "mb-4"}>
-            <h1 className="display-4 fw-medium text-center">Welcome Back</h1>
+            <h1
+              className="display-4 fw-medium text-center"
+              style={{ color: "var(--text)" }}
+            >
+              Welcome Back
+            </h1>
             {error && <Alert variant="danger">{error}</Alert>}
           </div>
           <Form
@@ -45,9 +55,10 @@ function LoginPage() {
             onSubmit={handleSubmit}
           >
             <Form.Group controlId="formUser" className="mb-3">
-              <Form.Label className="text-muted">User</Form.Label>
+              <Form.Label style={{ color: "var(--steel)" }}>User</Form.Label>
               <Form.Control
                 type="text"
+                className="op-field"
                 value={internalId}
                 onChange={(e) => setInternalId(e.target.value)}
                 required
@@ -55,9 +66,12 @@ function LoginPage() {
               />
             </Form.Group>
             <Form.Group controlId="formPassword" className="mb-4">
-              <Form.Label className="text-muted">Password</Form.Label>
+              <Form.Label style={{ color: "var(--steel)" }}>
+                Password
+              </Form.Label>
               <Form.Control
                 type="password"
+                className="op-field"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -66,8 +80,8 @@ function LoginPage() {
             </Form.Group>
             <div className="d-flex justify-content-center">
               <Button
-                variant="dark"
-                className="w-50 mx-auto"
+                variant="primary"
+                className="w-50 mx-auto fw-semibold"
                 type="submit"
                 disabled={loading}
               >
@@ -83,7 +97,8 @@ function LoginPage() {
         </Col>
         <Col
           md={5}
-          className={`d-flex flex-column justify-content-center align-items-center text-center bg-dark`}
+          className="d-flex flex-column justify-content-center align-items-center text-center"
+          style={{ background: "var(--app-bg)" }}
         >
           <div className="w-100 px-5" style={{ maxWidth: "600px" }}>
             <Image

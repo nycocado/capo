@@ -2,21 +2,35 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "react-bootstrap";
+import { ROUTES } from "@/routes";
 
 function UnauthorizedPage() {
   const router = useRouter();
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Unauthorized</h1>
-        <p className="text-lg">
-          You do not have permission to access this page.
-        </p>
-        <Button className="mt-3" onClick={() => router.push("/")}>
-          Go to Home
-        </Button>
-      </div>
+    <div className="text-center px-4" style={{ color: "var(--text)" }}>
+      <p
+        className="mb-2"
+        style={{
+          color: "var(--accent)",
+          letterSpacing: "0.4em",
+          textTransform: "uppercase",
+          fontSize: "0.8rem",
+        }}
+      >
+        Access denied
+      </p>
+      <h1 className="display-3 fw-semibold mb-3">401</h1>
+      <p className="fs-5 mb-4" style={{ color: "var(--steel)" }}>
+        You don&apos;t have permission to access this station.
+      </p>
+      <Button
+        variant="primary"
+        className="fw-semibold px-4"
+        onClick={() => router.push(ROUTES.roles)}
+      >
+        Back to stations
+      </Button>
     </div>
   );
 }

@@ -126,7 +126,7 @@ export function FormModal(props: FormModalProps) {
       title={title}
       titleClassName={titleClassName}
       size="lg"
-      contentClassName="bg-tertiary text-light rounded-3"
+      contentClassName="op-modal"
     >
       <Form onSubmit={handleFormSubmit}>
         <BaseModal.Body>
