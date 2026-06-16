@@ -32,7 +32,7 @@ export const useAssemblyEventHandlers = (
       if (activeTab === TAB_TYPES.ALL) {
         if (currentState === "danger") return;
 
-        // FLUXO ASSEMBLY: TO_DO ou WORKING → Material Verification → Tab Working
+        // Fluxo assembly: TO_DO ou WORKING → verificação de material → aba Working
         if (
           currentState === WORK_STATES.TO_DO ||
           currentState === WORK_STATES.WORKING

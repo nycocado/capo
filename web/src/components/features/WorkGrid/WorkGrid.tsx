@@ -26,7 +26,7 @@ export function WorkGrid<T extends { id: number | string }>(
     groupBy,
     renderGroupTitle,
   } = props;
-  // partition items into groups
+  // Particiona os itens em grupos (quando há groupBy).
   const groups = groupBy
     ? (() => {
         const m = new Map<string, T[]>();

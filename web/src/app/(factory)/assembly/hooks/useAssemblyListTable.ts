@@ -4,7 +4,8 @@ import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useRowStates, useWorkTableBase } from "@/hooks";
 
 /**
- * Hook for AssemblyList table (ALL tab)
+ * Tabela de assembly-lists da aba "All": compõe o estado-base da tabela com os
+ * event handlers de montagem.
  */
 export function useAssemblyListTable(
   assemblyLists: AssemblyListDto[],

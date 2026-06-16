@@ -1,4 +1,3 @@
-// Export all generic hooks
 export * from "./useWorkStatusAccessor";
 export * from "./useTableUtils";
 export * from "./useFinishedItemsSorting";

@@ -48,7 +48,8 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
     error,
     refetch: () => {
       if (enabled) {
-        // Trigger refetch by forcing useEffect to run again
+        // NB: só reativa o loading; o effect depende de [enabled], então isto
+        // sozinho NÃO refaz o fetch (refetch não tem consumidores atualmente).
         setLoading(true);
       }
     },
