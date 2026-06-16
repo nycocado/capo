@@ -101,7 +101,7 @@ const WeldClient = memo(function WeldClient(props: WeldClientProps) {
         </Container>
       </div>
 
-      {/* Weld Data Verification Modal - similar ao MaterialVerificationModal do assembly */}
+      {/* Verificação de dados de solda (análoga ao MaterialVerificationModal do assembly) */}
       <FormModal
         showModal={weldDataVerification.showModal}
         title={weldDataVerification.modalTitle}

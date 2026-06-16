@@ -33,6 +33,11 @@ export interface MaterialVerificationModalProps {
   getFittingState: (fitting: FittingDto) => "initial" | "finished";
 }
 
+/**
+ * Modal de verificação/consulta de materiais (pipe-lengths e fittings) em dois
+ * passos. Em modo verificação o operador marca cada item; em modo consulta os
+ * itens são só de leitura.
+ */
 export function MaterialVerificationModal(
   props: MaterialVerificationModalProps,
 ) {
@@ -103,7 +108,6 @@ export function MaterialVerificationModal(
     currentStepData?.filter((item) => item && (item.internalId || item.id)) ||
     [];
 
-  // Handle material item click (only for verification mode)
   const handleMaterialClick = (item: MaterialItem) => {
     if (isConsultationMode || !item?.internalId) return;
 
@@ -114,7 +118,6 @@ export function MaterialVerificationModal(
     }
   };
 
-  // Row states - different for consultation vs verification
   const materialRowStates = {
     initial: {
       className: "bg-dark text-light",
@@ -126,11 +129,10 @@ export function MaterialVerificationModal(
     },
   };
 
-  // Row state accessor
   const materialRowStateAccessor = (item: MaterialItem) => {
     if (!item?.internalId) return "initial";
 
-    // In consultation mode, all items are 'initial' (no green states)
+    // Em modo consulta todos os itens ficam "initial" (sem destaque verde).
     if (isConsultationMode) return "initial";
 
     return currentStep === "pipeLength"
@@ -138,14 +140,12 @@ export function MaterialVerificationModal(
       : getFittingState(item as FittingDto);
   };
 
-  // Get columns
   const currentColumns = (
     currentStep === "pipeLength"
       ? columnsPipeLengthVerification
       : columnsFittingVerification
   ) as Column<MaterialItem>[];
 
-  // Loading state
   if (loading) {
     return (
       <BaseModal
@@ -164,7 +164,6 @@ export function MaterialVerificationModal(
     );
   }
 
-  // Error state
   if (error) {
     return (
       <BaseModal
@@ -192,7 +191,6 @@ export function MaterialVerificationModal(
     );
   }
 
-  // Main modal content
   return (
     <BaseModal
       show={showModal}
@@ -205,7 +203,7 @@ export function MaterialVerificationModal(
         <div className="bg-dark rounded-3 m-3">
           <WorkTable
             items={validData}
-            handleRowClick={() => {}} // Empty handler since we use rowStates.onClick
+            handleRowClick={() => {}} // Handler vazio: a interação vem de rowStates.onClick.
             columns={currentColumns}
             defaultSortColumn={currentStep === "pipeLength" ? "id" : "type"}
             defaultSortDirection={null}
@@ -217,7 +215,6 @@ export function MaterialVerificationModal(
       </BaseModal.Body>
 
       <BaseModal.Footer className="border-0 justify-content-between">
-        {/* Left button */}
         <Button
           variant="secondary"
           onClick={canGoToPrevious ? handlePrevious : handleCancel}
@@ -230,9 +227,7 @@ export function MaterialVerificationModal(
               : "Cancel"}
         </Button>
 
-        {/* Right button */}
         {isConsultationMode ? (
-          // Consultation mode: show navigation or close
           canGoToNext ? (
             <Button
               variant="primary"
@@ -243,7 +238,6 @@ export function MaterialVerificationModal(
             </Button>
           ) : null
         ) : (
-          // Verification mode: show continue button
           <Button
             variant="primary"
             onClick={handleContinue}

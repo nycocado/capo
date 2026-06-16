@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-// Generic hook for modal state management
+/**
+ * Centraliza o estado dos modais de input e de conclusão de uma etapa.
+ *
+ * @returns O estado dos dois modais e os setters/reset correspondentes.
+ */
 export const useModalState = <T = unknown>() => {
   const [inputShow, setInputShow] = useState(false);
   const [pendingItem, setPendingItem] = useState<T | null>(null);
@@ -9,7 +13,6 @@ export const useModalState = <T = unknown>() => {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completedItem, setCompletedItem] = useState<T | null>(null);
 
-  // Reset modal state
   const resetModalState = () => {
     setInputShow(false);
     setPendingItem(null);
@@ -17,7 +20,6 @@ export const useModalState = <T = unknown>() => {
     setInputValue("");
   };
 
-  // Reset completion modal
   const resetCompletionModal = () => {
     setShowCompletionModal(false);
     setCompletedItem(null);
