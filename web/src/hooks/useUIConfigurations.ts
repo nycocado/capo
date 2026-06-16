@@ -35,15 +35,19 @@ export const useUIConfigurations = <
     onEditClick?: () => void;
   },
 ) => {
+  // As fábricas são funções estáveis (módulo); destruturá-las dá dependências
+  // de identidade própria para os useMemo, sem reagir à literal de configFactories.
+  const { buttonConfig, cardConfigs, modalConfig } = configFactories;
+
   // Memoize control buttons
   const controlButtons = useMemo(
-    () => configFactories.buttonConfig(handlers),
-    [configFactories.buttonConfig, handlers],
+    () => buttonConfig(handlers),
+    [buttonConfig, handlers],
   );
 
   // Memoize card configurations (if available)
   const cards = useMemo(() => {
-    if (!configFactories.cardConfigs) return undefined;
+    if (!cardConfigs) return undefined;
     // Sem item selecionado o WorkPanel mostra o empty-state, em vez de cards
     // com rótulos e valores em branco.
     if (!selectedItem) return undefined;
@@ -53,14 +57,14 @@ export const useUIConfigurations = <
         ? { onEditClick: options.onEditClick }
         : undefined;
 
-    return configFactories.cardConfigs(selectedItem, cardOptions);
-  }, [configFactories.cardConfigs, selectedItem, options]);
+    return cardConfigs(selectedItem, cardOptions);
+  }, [cardConfigs, selectedItem, options]);
 
   // Memoize modal data (if available)
   const modalData = useMemo(() => {
-    if (!configFactories.modalConfig) return undefined;
-    return configFactories.modalConfig(completedItem);
-  }, [configFactories.modalConfig, completedItem]);
+    if (!modalConfig) return undefined;
+    return modalConfig(completedItem);
+  }, [modalConfig, completedItem]);
 
   return {
     controlButtons,

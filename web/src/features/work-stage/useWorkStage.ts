@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { TAB_TYPES, type TabType } from "@components/features/WorkTabs";
 import { getSearchFields } from "@components/features/ControlPanel/ControlPanel.searchConfig";
@@ -54,10 +54,15 @@ export function useWorkStage<TList extends StageListItem>({
   const [errorMsg, setErrorMsg] = useState<string | null>(fetchError ?? null);
 
   // O campo de busca padrão depende da aba ativa (colunas diferentes por aba).
-  useEffect(() => {
+  // Ajuste durante o render (incl. mount): reseta o campo quando a aba muda,
+  // sem efeito — evitando o set-state-in-effect e o flash do valor anterior.
+  const stageKey = `${context}:${activeTab}`;
+  const [syncedStageKey, setSyncedStageKey] = useState<string | null>(null);
+  if (syncedStageKey !== stageKey) {
+    setSyncedStageKey(stageKey);
     const fields = getSearchFields(context, activeTab);
     setSearchField(fields[0]?.id ?? "id");
-  }, [context, activeTab]);
+  }
 
   const setWorkingMutation = useMutation({
     mutationFn: setWorkingRequest,
