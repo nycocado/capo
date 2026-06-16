@@ -12,20 +12,23 @@ interface UIHandlers {
   [key: string]: (() => void) | undefined;
 }
 
-// Generic interface for modal data
-interface ModalData {
-  [key: string]: any;
-}
-
 // Generic hook for UI configurations
-export const useUIConfigurations = <TItem = any, TConfig = any>(
+export const useUIConfigurations = <
+  TItem = unknown,
+  TCompleted = unknown,
+  TConfig = unknown,
+  TModal = unknown,
+>(
   selectedItem: TItem | null,
-  completedItem: TItem | null,
+  completedItem: TCompleted | null,
   handlers: UIHandlers,
   configFactories: {
     buttonConfig: (handlers: UIHandlers) => TConfig;
-    cardConfigs?: (item: TItem | null, options?: any) => CardConfig[];
-    modalConfig?: (item: TItem | null) => ModalData;
+    cardConfigs?: (
+      item: TItem | null,
+      options?: Record<string, (() => void) | undefined>,
+    ) => CardConfig[];
+    modalConfig?: (item: TCompleted | null) => TModal;
   },
   options?: {
     canEdit?: boolean;

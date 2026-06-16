@@ -91,7 +91,7 @@ const WeldClient = memo(function WeldClient(props: WeldClientProps) {
                   groupBy={(item) => item.spoolInfo.internalId}
                   renderGroupTitle={(groupItems, gi) => (
                     <div key={gi} className="text-white mb-3">
-                      <h4>{groupItems[0].spoolInfo.internalId}</h4>
+                      <h4>{groupItems[0]?.spoolInfo.internalId}</h4>
                     </div>
                   )}
                 />

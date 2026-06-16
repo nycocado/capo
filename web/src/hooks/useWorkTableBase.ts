@@ -54,7 +54,7 @@ export function useWorkTableBase<
   const proceedToWorking = useCallback(
     (id: number) => {
       info.removeFromInformation(id);
-      const item = items.find((i) => (i as any).id === id);
+      const item = items.find((i) => i.id === id);
       if (item) setSelectedItem(item);
     },
     [info, items],

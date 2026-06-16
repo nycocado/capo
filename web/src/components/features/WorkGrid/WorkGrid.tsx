@@ -2,18 +2,20 @@ import React from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { ItemStateConfig, WorkGridItem } from "./WorkGridItem";
 
-export interface WorkGridProps extends HTMLMotionProps<"div"> {
-  items: any[];
-  accessor: keyof any | ((item: any) => React.ReactNode);
-  handleItemClick: (item: any) => void;
+export interface WorkGridProps<T> extends HTMLMotionProps<"div"> {
+  items: T[];
+  accessor: keyof T | ((item: T) => React.ReactNode);
+  handleItemClick: (item: T) => void;
   columns?: number;
-  itemStates?: Record<string, ItemStateConfig>;
-  itemStateAccessor?: (item: any) => string;
-  groupBy?: (item: any) => string;
-  renderGroupTitle?: (groupItems: any[], groupIndex: number) => React.ReactNode;
+  itemStates?: Record<string, ItemStateConfig<T>>;
+  itemStateAccessor?: (item: T) => string;
+  groupBy?: (item: T) => string;
+  renderGroupTitle?: (groupItems: T[], groupIndex: number) => React.ReactNode;
 }
 
-export function WorkGrid(props: WorkGridProps) {
+export function WorkGrid<T extends { id: number | string }>(
+  props: WorkGridProps<T>,
+) {
   const {
     items,
     accessor,
@@ -27,7 +29,7 @@ export function WorkGrid(props: WorkGridProps) {
   // partition items into groups
   const groups = groupBy
     ? (() => {
-        const m = new Map<string, any[]>();
+        const m = new Map<string, T[]>();
         items.forEach((item) => {
           const key = groupBy(item);
           const arr = m.get(key) ?? [];

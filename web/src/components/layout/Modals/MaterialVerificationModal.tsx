@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { Button } from "react-bootstrap";
 import { BaseModal } from "@components/layout/Modals/BaseModal";
-import { WorkTable } from "@components/features/WorkTable/WorkTable";
+import { Column, WorkTable } from "@components/features/WorkTable/WorkTable";
 import {
   columnsPipeLengthVerification,
   columnsFittingVerification,
@@ -9,10 +9,13 @@ import {
 import { PipeLengthDto } from "@/dtos/pipe-length.dto";
 import { FittingDto } from "@/dtos/fitting.dto";
 
+// Os dois passos de verificação partilham a mesma tabela; o item é de um dos tipos.
+type MaterialItem = PipeLengthDto | FittingDto;
+
 export interface MaterialVerificationModalProps {
   showModal: boolean;
   currentStep: "pipeLength" | "fitting";
-  currentStepData: any[];
+  currentStepData: MaterialItem[];
   currentStepTitle: string;
   canContinue: boolean;
   canGoToPrevious: boolean;
@@ -101,7 +104,7 @@ export function MaterialVerificationModal(
     [];
 
   // Handle material item click (only for verification mode)
-  const handleMaterialClick = (item: any) => {
+  const handleMaterialClick = (item: MaterialItem) => {
     if (isConsultationMode || !item?.internalId) return;
 
     if (currentStep === "pipeLength") {
@@ -124,7 +127,7 @@ export function MaterialVerificationModal(
   };
 
   // Row state accessor
-  const materialRowStateAccessor = (item: any) => {
+  const materialRowStateAccessor = (item: MaterialItem) => {
     if (!item?.internalId) return "initial";
 
     // In consultation mode, all items are 'initial' (no green states)
@@ -136,10 +139,11 @@ export function MaterialVerificationModal(
   };
 
   // Get columns
-  const currentColumns =
+  const currentColumns = (
     currentStep === "pipeLength"
       ? columnsPipeLengthVerification
-      : columnsFittingVerification;
+      : columnsFittingVerification
+  ) as Column<MaterialItem>[];
 
   // Loading state
   if (loading) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Generic hook for modal state management
-export const useModalState = <T = any>() => {
+export const useModalState = <T = unknown>() => {
   const [inputShow, setInputShow] = useState(false);
   const [pendingItem, setPendingItem] = useState<T | null>(null);
   const [isEditing, setIsEditing] = useState(false);

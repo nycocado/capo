@@ -1,61 +1,57 @@
-import React, { forwardRef } from "react";
+import React from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 
-export interface ItemStateConfig {
+export interface ItemStateConfig<T> {
   className?: string;
-  onClick?: (item: any) => void;
+  onClick?: (item: T) => void;
 }
 
-export interface WorkGridItemProps extends HTMLMotionProps<"button"> {
-  item: any;
-  accessor: keyof any | ((item: any) => React.ReactNode);
-  handleClick: (item: any) => void;
-  itemStates?: Record<string, ItemStateConfig>;
-  itemStateAccessor?: (item: any) => string;
+export interface WorkGridItemProps<T> extends HTMLMotionProps<"button"> {
+  item: T;
+  accessor: keyof T | ((item: T) => React.ReactNode);
+  handleClick: (item: T) => void;
+  itemStates?: Record<string, ItemStateConfig<T>>;
+  itemStateAccessor?: (item: T) => string;
 }
 
-export const WorkGridItem = forwardRef<HTMLButtonElement, WorkGridItemProps>(
-  (props, ref) => {
-    const {
-      item,
-      accessor,
-      handleClick,
-      itemStates,
-      itemStateAccessor,
-      ...motionProps
-    } = props;
-    const stateKey = itemStateAccessor ? itemStateAccessor(item) : "default";
-    const stateConfig = itemStates?.[stateKey];
+export function WorkGridItem<T extends { id: number | string }>(
+  props: WorkGridItemProps<T>,
+) {
+  const {
+    item,
+    accessor,
+    handleClick,
+    itemStates,
+    itemStateAccessor,
+    ...motionProps
+  } = props;
+  const stateKey = itemStateAccessor ? itemStateAccessor(item) : "default";
+  const stateConfig = itemStates?.[stateKey];
 
-    const onClick = () => {
-      if (stateConfig?.onClick) {
-        stateConfig.onClick(item);
-      } else {
-        handleClick(item);
-      }
-    };
+  const onClick = () => {
+    if (stateConfig?.onClick) {
+      stateConfig.onClick(item);
+    } else {
+      handleClick(item);
+    }
+  };
 
-    const className = stateConfig?.className ?? "";
-    const raw =
-      typeof accessor === "function"
-        ? accessor(item)
-        : (item[accessor] as React.ReactNode);
-    const value =
-      typeof raw === "object" && raw !== null
-        ? JSON.stringify(raw)
-        : String(raw);
+  const className = stateConfig?.className ?? "";
+  const raw =
+    typeof accessor === "function"
+      ? accessor(item)
+      : (item[accessor] as React.ReactNode);
+  const value =
+    typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw);
 
-    return (
-      <motion.button
-        ref={ref}
-        onClick={onClick}
-        className={`btn border-tertiary border-3 text-white ${className}`}
-        style={{ height: "70px" }}
-        {...motionProps}
-      >
-        {value}
-      </motion.button>
-    );
-  },
-);
-WorkGridItem.displayName = "WorkGridItem";
+  return (
+    <motion.button
+      onClick={onClick}
+      className={`btn border-tertiary border-3 text-white ${className}`}
+      style={{ height: "70px" }}
+      {...motionProps}
+    >
+      {value}
+    </motion.button>
+  );
+}

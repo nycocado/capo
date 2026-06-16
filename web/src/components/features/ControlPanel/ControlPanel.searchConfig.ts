@@ -10,11 +10,11 @@ import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
 export interface SearchFieldConfig {
   id: string;
   label: string;
-  accessor: keyof any | ((item: any) => React.ReactNode);
+  accessor: PropertyKey | ((item: never) => React.ReactNode);
 }
 
 // Função para extrair campos de busca das configurações das colunas
-function extractSearchableFields(columns: Column<any>[]): SearchFieldConfig[] {
+function extractSearchableFields<T>(columns: Column<T>[]): SearchFieldConfig[] {
   return columns
     .filter((col) => col.searchable === true) // Só campos marcados como searchable
     .map((col) => ({

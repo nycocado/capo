@@ -24,19 +24,21 @@ export interface PaginationProps {
   pageSize?: number;
 }
 
-export interface WorkTableProps {
-  items: any[];
-  handleRowClick: (item: any) => void;
-  columns: Column<any>[];
+export interface WorkTableProps<T> {
+  items: T[];
+  handleRowClick: (item: T) => void;
+  columns: Column<T>[];
   defaultSortColumn?: string;
   defaultSortDirection?: SortDirection;
   hover?: boolean;
-  rowStates?: Record<string, RowStateConfig<any>>;
-  rowStateAccessor?: (item: any) => string;
+  rowStates?: Record<string, RowStateConfig<T>>;
+  rowStateAccessor?: (item: T) => string;
   pagination?: PaginationProps; // opcional – se não informado, lista completa
 }
 
-export function WorkTable(props: WorkTableProps) {
+export function WorkTable<T extends { id: number | string }>(
+  props: WorkTableProps<T>,
+) {
   const {
     items,
     handleRowClick,
@@ -85,8 +87,8 @@ export function WorkTable(props: WorkTableProps) {
         valueA = column.accessor(a);
         valueB = column.accessor(b);
       } else {
-        valueA = a[column.accessor as keyof any];
-        valueB = b[column.accessor as keyof any];
+        valueA = a[column.accessor];
+        valueB = b[column.accessor];
       }
 
       const isNumericA = !isNaN(Number(valueA));
@@ -151,7 +153,7 @@ export function WorkTable(props: WorkTableProps) {
             {sortedItems.map((item) => {
               return (
                 <WorkTableRow
-                  key={item?.id || Math.random()}
+                  key={item.id}
                   item={item}
                   columns={columns}
                   handleRowClick={handleRowClick}

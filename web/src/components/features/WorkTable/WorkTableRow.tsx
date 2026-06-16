@@ -1,13 +1,12 @@
-import React, { forwardRef } from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { Column } from "@components/features/WorkTable/WorkTable";
 
-export interface WorkTableRowProps extends HTMLMotionProps<"tr"> {
-  item: any;
-  columns: Column<any>[];
-  handleRowClick: (item: any) => void;
-  rowStates?: Record<string, RowStateConfig<any>>;
-  rowStateAccessor?: (item: any) => string;
+export interface WorkTableRowProps<T> extends HTMLMotionProps<"tr"> {
+  item: T;
+  columns: Column<T>[];
+  handleRowClick: (item: T) => void;
+  rowStates?: Record<string, RowStateConfig<T>>;
+  rowStateAccessor?: (item: T) => string;
 }
 
 export interface RowStateConfig<T> {
@@ -15,9 +14,8 @@ export interface RowStateConfig<T> {
   onClick?: (item: T) => void;
 }
 
-export const WorkTableRow = forwardRef(function WorkTableRow(
-  props: WorkTableRowProps,
-  ref: React.Ref<HTMLTableRowElement>,
+export function WorkTableRow<T extends { id: number | string }>(
+  props: WorkTableRowProps<T>,
 ) {
   const {
     item,
@@ -44,7 +42,6 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
   return (
     <motion.tr
       key={item?.id || "unknown"} // Proteção contra item undefined
-      ref={ref}
       onClick={onClickRow}
       className={`cursor-pointer ${rowClass}`}
       style={{ cursor: "pointer" }}
@@ -54,7 +51,7 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
         const raw =
           typeof col.accessor === "function"
             ? col.accessor(item)
-            : (item?.[col.accessor as keyof any] as unknown);
+            : (item?.[col.accessor] as unknown);
         const value =
           typeof raw === "object" && raw !== null
             ? JSON.stringify(raw)
@@ -71,4 +68,4 @@ export const WorkTableRow = forwardRef(function WorkTableRow(
       })}
     </motion.tr>
   );
-});
+}
