@@ -10,10 +10,6 @@ export class FillerMaterialRepository {
     private readonly fillerMaterialRepository: EntityRepository<FillerMaterialEntity>,
   ) {}
 
-  async findById(id: number): Promise<FillerMaterialEntity | null> {
-    return this.fillerMaterialRepository.findOne(id);
-  }
-
   async findByIdOrFail(id: number): Promise<FillerMaterialEntity> {
     return this.fillerMaterialRepository.findOneOrFail(id);
   }

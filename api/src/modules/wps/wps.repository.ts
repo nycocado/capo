@@ -10,10 +10,6 @@ export class WpsRepository {
     private readonly wpsRepository: EntityRepository<WpsEntity>,
   ) {}
 
-  async findById(id: number): Promise<WpsEntity | null> {
-    return this.wpsRepository.findOne(id);
-  }
-
   async findByIdOrFail(id: number): Promise<WpsEntity> {
     return this.wpsRepository.findOneOrFail(id);
   }
