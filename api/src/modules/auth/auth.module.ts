@@ -15,7 +15,7 @@ import { durationToMs } from "@common/utils/parse-duration";
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (cs: ConfigService) => ({
-        secret: cs.get("JWT_SECRET"),
+        secret: cs.getOrThrow<string>("JWT_SECRET"),
         // expiresIn em segundos; deriva do mesmo JWT_EXPIRATION que o cookie
         signOptions: {
           expiresIn:

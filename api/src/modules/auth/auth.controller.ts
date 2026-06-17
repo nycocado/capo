@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
+import { Throttle } from "@nestjs/throttler";
 import { AuthService } from "@modules/auth/auth.service";
 import { UserService } from "@modules/user";
 import { ApiLogin, ApiLogout, ApiMe } from "@modules/auth/auth.swagger";
@@ -28,6 +29,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @ApiLogin()
   async login(
     @Body() loginDto: LoginRequestDto,

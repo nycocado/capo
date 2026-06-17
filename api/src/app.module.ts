@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { createMikroOrmConfig } from "@config/mikroorm.config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
 import { UserRoleModule } from "@modules/user-role";
@@ -16,7 +17,8 @@ import { FillerMaterialModule } from "@modules/filler-material";
 import { WpsModule } from "@modules/wps";
 import { DocumentModule } from "@modules/document";
 import { MikroOrmNotFoundInterceptor } from "@common/interceptors";
-import { APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
+import { AllExceptionsFilter } from "@common/filters";
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
@@ -29,6 +31,7 @@ import { AppService } from "./app.service";
       useFactory: (config: ConfigService) => createMikroOrmConfig(config),
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     AuthModule,
     UserModule,
     UserRoleModule,
@@ -46,11 +49,25 @@ import { AppService } from "./app.service";
   providers: [
     {
       provide: APP_PIPE,
-      useFactory: () => new ValidationPipe({ transform: true }),
+      useFactory: () =>
+        new ValidationPipe({
+          transform: true,
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          transformOptions: { enableImplicitConversion: false },
+        }),
     },
     {
       provide: APP_INTERCEPTOR,
       useClass: MikroOrmNotFoundInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
     },
     AppService,
   ],

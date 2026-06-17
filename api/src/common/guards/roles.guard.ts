@@ -21,7 +21,7 @@ export class RolesGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    if (!requiredRoles) {
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
@@ -32,15 +32,13 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const hasRole = await this.userRoleService.hasRole(
-      user.id,
-      requiredRoles[0],
-    );
-
-    if (!hasRole) {
-      throw new ForbiddenException();
+    // Basta possuir UM dos papéis exigidos (antes só se verificava o primeiro).
+    for (const role of requiredRoles) {
+      if (await this.userRoleService.hasRole(user.id, role)) {
+        return true;
+      }
     }
 
-    return true;
+    throw new ForbiddenException();
   }
 }
