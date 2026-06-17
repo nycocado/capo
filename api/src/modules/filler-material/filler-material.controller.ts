@@ -1,28 +1,30 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from "@nestjs/common";
 import { FillerMaterialService } from "@modules/filler-material/filler-material.service";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
-import { Roles, SerializeResponse } from "@common/decorators";
-import { FillerMaterialResponseDto } from "@modules/filler-material/dto";
+import { Roles } from "@common/decorators";
+import { FillerMaterialEntity } from "@modules/filler-material/entities";
 
 @Controller("filler-materials")
+@UseGuards(JwtCookieAuthGuard, RolesGuard)
+@Roles("welder", "administrator")
 export class FillerMaterialController {
   constructor(private readonly fillerMaterialService: FillerMaterialService) {}
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder", "administrator")
   @Get()
-  @SerializeResponse(FillerMaterialResponseDto, "filler-material")
-  async getAllFillerMaterials(): Promise<FillerMaterialResponseDto[]> {
+  async getAll(): Promise<FillerMaterialEntity[]> {
     return this.fillerMaterialService.getAll();
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder", "administrator")
   @Get(":id")
-  @SerializeResponse(FillerMaterialResponseDto, "filler-material")
-  async getFillerMaterialById(
-    @Param("id") id: number,
-  ): Promise<FillerMaterialResponseDto> {
+  async getById(
+    @Param("id", ParseIntPipe) id: number,
+  ): Promise<FillerMaterialEntity> {
     return this.fillerMaterialService.getById(id);
   }
 }

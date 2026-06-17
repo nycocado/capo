@@ -36,7 +36,7 @@ export class CutListService {
     const list = await this.cutListRepository.findByIdOrFail(id);
     const progress = await this.computeProgress(list);
 
-    if (!(await this.computeAvailable(list))) {
+    if (!this.computeAvailable()) {
       throw new ConflictException("Prior stage is not complete");
     }
     if (progress === ListProgress.DONE) {
@@ -103,13 +103,13 @@ export class CutListService {
   }
 
   /** Gating: cut é o 1º estágio, logo está sempre disponível. */
-  private async computeAvailable(_list: CutListEntity): Promise<boolean> {
+  private computeAvailable(): boolean {
     return true;
   }
 
   /** Preenche os campos derivados (progress/available). */
   private async attachDerived(list: CutListEntity): Promise<void> {
     list.progress = await this.computeProgress(list);
-    list.available = await this.computeAvailable(list);
+    list.available = this.computeAvailable();
   }
 }

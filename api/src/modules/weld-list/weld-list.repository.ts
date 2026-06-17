@@ -68,10 +68,7 @@ export class WeldListRepository {
   }
 
   async findByIdOrFail(id: number): Promise<WeldListEntity> {
-    return this.repository.findOneOrFail(
-      { id },
-      { populate: ["claimedBy"] },
-    );
+    return this.repository.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
   /** Localiza a weld_list cujo spool contém a solda dada. */
@@ -113,7 +110,9 @@ export class WeldListRepository {
     userId: number | null,
   ): Promise<WeldListEntity> {
     const em = this.repository.getEntityManager();
-    weldList.claimedBy = userId ? em.getReference(UserEntity, userId) : undefined;
+    weldList.claimedBy = userId
+      ? em.getReference(UserEntity, userId)
+      : undefined;
     weldList.claimedAt = userId ? new Date() : undefined;
     await em.flush();
     return em.populate(weldList, ["claimedBy"]);

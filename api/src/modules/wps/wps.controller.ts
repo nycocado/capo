@@ -1,27 +1,28 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from "@nestjs/common";
 import { WpsService } from "@modules/wps/wps.service";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
-import { Roles, SerializeResponse } from "@common/decorators";
-import { WpsResponseDto } from "@modules/wps/dto";
+import { Roles } from "@common/decorators";
 import { WpsEntity } from "@modules/wps/entities";
 
 @Controller("wps")
+@UseGuards(JwtCookieAuthGuard, RolesGuard)
+@Roles("welder", "administrator")
 export class WpsController {
   constructor(private readonly wpsService: WpsService) {}
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder", "administrator")
   @Get()
-  @SerializeResponse(WpsResponseDto, "wps")
-  async getAllWps(): Promise<WpsEntity[]> {
+  async getAll(): Promise<WpsEntity[]> {
     return this.wpsService.findAll();
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder", "administrator")
   @Get(":id")
-  @SerializeResponse(WpsResponseDto, "wps")
-  async getWpsById(@Param("id") id: number): Promise<WpsEntity> {
+  async getById(@Param("id", ParseIntPipe) id: number): Promise<WpsEntity> {
     return this.wpsService.findOne(id);
   }
 }

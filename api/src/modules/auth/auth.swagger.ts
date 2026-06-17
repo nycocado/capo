@@ -2,93 +2,43 @@ import { applyDecorators } from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
-  ApiHeader,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { LoginRequestDto } from "./dto/login-request.dto";
-import { LoginResponseDto } from "./dto/login-response.dto";
-import { ValidateResponseDto } from "./dto/validate-response.dto";
-import { HasRoleResponseDto } from "./dto/has-role-response.dto";
 
 export const ApiLogin = () =>
   applyDecorators(
     ApiOperation({
       summary: "User login",
       description:
-        "Authenticates user and returns token in development or sets HTTP-only cookie in production",
+        "Validates credentials, sets the httpOnly session cookie and returns the authenticated user with its roles.",
     }),
     ApiBody({ type: LoginRequestDto }),
-    ApiOkResponse({
-      type: LoginResponseDto,
-      description: "Login successful",
-      example: {
-        accessToken:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (development only)",
-      },
-      headers: {
-        "Set-Cookie": {
-          description: "HTTP-only authentication cookie",
-          schema: {
-            type: "string",
-            example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...;",
-          },
-        },
-      },
-    }),
+    ApiOkResponse({ description: "Authenticated user (with roles)." }),
     ApiUnauthorizedResponse({ description: "Invalid credentials." }),
   );
 
-export const ApiValidateToken = () =>
+export const ApiLogout = () =>
   applyDecorators(
     ApiCookieAuth(),
     ApiOperation({
-      summary: "Validate authentication token",
-      description: "Validates the JWT token stored in the HTTP-only cookie.",
+      summary: "User logout",
+      description: "Clears the httpOnly session cookie.",
     }),
-    ApiOkResponse({
-      type: ValidateResponseDto,
-      description: "Token is valid",
-      example: {
-        valid: true,
-        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (development only)",
-      },
-    }),
-    ApiHeader({
-      name: "Cookie",
-      description: "Authentication token cookie",
-      required: true,
-      schema: {
-        type: "string",
-        example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      },
-    }),
-    ApiUnauthorizedResponse({ description: "Invalid Token." }),
+    ApiNoContentResponse({ description: "Session cookie cleared." }),
+    ApiUnauthorizedResponse({ description: "Unauthorized." }),
   );
 
-export const ApiHasRole = () =>
+export const ApiMe = () =>
   applyDecorators(
     ApiCookieAuth(),
     ApiOperation({
-      summary: "Has role",
-      description: "Checks if the authenticated user has a specific role.",
+      summary: "Current user",
+      description: "Returns the authenticated user with its roles.",
     }),
-    ApiOkResponse({
-      type: HasRoleResponseDto,
-      description: "Role check successful",
-      example: {
-        hasRole: true,
-      },
-    }),
-    ApiHeader({
-      name: "Cookie",
-      description: "Authentication token cookie",
-      required: true,
-      schema: {
-        type: "string",
-        example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      },
-    }),
-    ApiUnauthorizedResponse({ description: "Unauthorized" }),
+    ApiOkResponse({ description: "Authenticated user (with roles)." }),
+    ApiUnauthorizedResponse({ description: "Unauthorized." }),
   );

@@ -10,7 +10,7 @@ export class UserRepository {
     private readonly userRepository: EntityRepository<UserEntity>,
   ) {}
 
-  private readonly FULL_POPULATE_FIELDS = ["userRoles.role"] as const;
+  private readonly FULL_POPULATE_FIELDS = ["roles"] as const;
 
   async findById(id: number): Promise<UserEntity | null> {
     return this.userRepository.findOne(id);

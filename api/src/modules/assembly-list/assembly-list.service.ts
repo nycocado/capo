@@ -60,7 +60,10 @@ export class AssemblyListService {
     return this.getById(id);
   }
 
-  async reassign(id: number, targetUserId: number): Promise<AssemblyListEntity> {
+  async reassign(
+    id: number,
+    targetUserId: number,
+  ): Promise<AssemblyListEntity> {
     const list = await this.assemblyListRepository.findByIdOrFail(id);
     await this.assemblyListRepository.updateClaim(list, targetUserId);
     this.eventEmitter.emit("assembly-list.claimChanged", id, targetUserId);
@@ -74,8 +77,7 @@ export class AssemblyListService {
    * @throws ForbiddenException Se não for o claimer nem administrador
    */
   async assertCanAdvanceJoint(jointId: number, userId: number): Promise<void> {
-    const list =
-      await this.assemblyListRepository.findByJointIdOrFail(jointId);
+    const list = await this.assemblyListRepository.findByJointIdOrFail(jointId);
     await this.assertClaimerOrAdmin(list, userId);
   }
 

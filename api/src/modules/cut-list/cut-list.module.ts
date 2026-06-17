@@ -5,11 +5,11 @@ import { UserRoleModule } from "@modules/user-role";
 import { CutListController } from "@modules/cut-list/cut-list.controller";
 import { CutListService } from "@modules/cut-list/cut-list.service";
 import { CutListRepository } from "@modules/cut-list/cut-list.repository";
-import { CutListGateway } from "@modules/cut-list/cut-list.gateway";
 
 @Module({
   imports: [MikroOrmModule.forFeature([CutListEntity]), UserRoleModule],
   controllers: [CutListController],
-  providers: [CutListService, CutListRepository, CutListGateway],
+  providers: [CutListService, CutListRepository],
+  exports: [CutListService],
 })
 export class CutListModule {}

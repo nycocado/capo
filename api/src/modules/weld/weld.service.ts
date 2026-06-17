@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { WeldRepository } from "@modules/weld/weld.repository";
 import {
@@ -45,7 +49,10 @@ export class WeldService {
     this.assertTransition(weld.status, dto.status);
 
     if (dto.status === WeldStatus.DONE) {
-      if (!(dto.fillerMaterialId ?? weld.fillerMaterial) || !(dto.wpsId ?? weld.wps)) {
+      if (
+        !(dto.fillerMaterialId ?? weld.fillerMaterial) ||
+        !(dto.wpsId ?? weld.wps)
+      ) {
         throw new BadRequestException(
           "fillerMaterial and wps are required to finish a weld",
         );

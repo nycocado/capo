@@ -1,51 +1,63 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
+  Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { AssemblyListService } from "@modules/assembly-list/assembly-list.service";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
-import { Roles, SerializeResponse, User } from "@common/decorators";
-import { AssemblyListResponseDto } from "@modules/assembly-list/dto";
+import { Roles, User } from "@common/decorators";
 import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { ReassignClaimDto } from "@shared/dto";
 
 @Controller("assembly-lists")
+@UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class AssemblyListController {
   constructor(private readonly assemblyListService: AssemblyListService) {}
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("pipe-fitter", "admin")
-  @Get("to-do")
-  @SerializeResponse(AssemblyListResponseDto, "assembly-list")
-  async getAssemblyListsToDo(): Promise<AssemblyListEntity[]> {
-    return this.assemblyListService.getToDo();
+  @Get()
+  @Roles("pipe-fitter", "administrator")
+  async getAll(): Promise<AssemblyListEntity[]> {
+    return this.assemblyListService.getAll();
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("pipe-fitter", "admin")
   @Get(":id")
-  @SerializeResponse(AssemblyListResponseDto, "assembly-list")
-  async getAssemblyListById(
+  @Roles("pipe-fitter", "administrator")
+  async getById(
     @Param("id", ParseIntPipe) id: number,
   ): Promise<AssemblyListEntity> {
     return this.assemblyListService.getById(id);
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("pipe-fitter", "admin")
-  @Patch(":id/set-working")
-  @SerializeResponse(AssemblyListResponseDto, "assembly-list")
-  async setAssemblyListToWorking(
+  @Post(":id/claim")
+  @Roles("pipe-fitter", "administrator")
+  async claim(
+    @Param("id", ParseIntPipe) id: number,
     @User("id") userId: number,
-    @Param("id", ParseIntPipe) assemblyListId: number,
   ): Promise<AssemblyListEntity> {
-    const assemblyList = await this.assemblyListService.getById(assemblyListId);
-    return this.assemblyListService.updateWorkStatusToWorking(
-      assemblyList,
-      userId,
-    );
+    return this.assemblyListService.claim(id, userId);
+  }
+
+  @Delete(":id/claim")
+  @Roles("pipe-fitter", "administrator")
+  async release(
+    @Param("id", ParseIntPipe) id: number,
+    @User("id") userId: number,
+  ): Promise<AssemblyListEntity> {
+    return this.assemblyListService.release(id, userId);
+  }
+
+  @Put(":id/claim")
+  @Roles("administrator")
+  async reassign(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ReassignClaimDto,
+  ): Promise<AssemblyListEntity> {
+    return this.assemblyListService.reassign(id, dto.userId);
   }
 }

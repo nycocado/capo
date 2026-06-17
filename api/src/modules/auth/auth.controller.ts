@@ -2,36 +2,28 @@ import {
   Body,
   Controller,
   Get,
-  Param,
+  HttpCode,
+  HttpStatus,
   Post,
-  Req,
   Res,
   UseGuards,
 } from "@nestjs/common";
-import { UserRoleService } from "@modules/user-role";
-import { AuthService } from "@modules/auth/auth.service";
+import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
-import {
-  ApiHasRole,
-  ApiLogin,
-  ApiValidateToken,
-} from "@modules/auth/auth.swagger";
-import {
-  HasRoleResponseDto,
-  LoginRequestDto,
-  LoginResponseDto,
-  ValidateResponseDto,
-} from "@modules/auth/dto";
+import { AuthService } from "@modules/auth/auth.service";
+import { UserService } from "@modules/user";
+import { ApiLogin, ApiLogout, ApiMe } from "@modules/auth/auth.swagger";
+import { LoginRequestDto } from "@modules/auth/dto";
 import { JwtCookieAuthGuard } from "@common/guards";
-import { Request } from "express";
 import { User } from "@common/decorators";
+import { UserEntity } from "@modules/user/entities";
 import { durationToMs } from "@common/utils/parse-duration";
 
 @Controller("auth")
 export class AuthController {
   constructor(
-    private readonly userRoleService: UserRoleService,
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -39,50 +31,46 @@ export class AuthController {
   @ApiLogin()
   async login(
     @Body() loginDto: LoginRequestDto,
-    @Res({ passthrough: true }) res: any,
-  ): Promise<LoginResponseDto> {
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<UserEntity> {
     const { internalId, password } = loginDto;
-    const accessToken = await this.authService.login(internalId, password);
-    const isProduction = this.configService.get("NODE_ENV") === "production";
+    const { accessToken, user } = await this.authService.login(
+      internalId,
+      password,
+    );
 
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: "strict",
+      ...this.baseCookieOptions(),
       maxAge: durationToMs(
         this.configService.get<string>("JWT_EXPIRATION") ?? "8h",
       ),
     });
 
-    return {
-      accessToken: isProduction ? undefined : accessToken,
-    };
+    return user;
   }
 
   @UseGuards(JwtCookieAuthGuard)
-  @Get("validate")
-  @ApiValidateToken()
-  async validateToken(@Req() req: Request): Promise<ValidateResponseDto> {
-    const isProduction = this.configService.get("NODE_ENV") !== "production";
-    const token: string = isProduction ? req.cookies["token"] : null;
-
-    return {
-      token: token,
-      valid: !!token,
-    };
+  @Post("logout")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiLogout()
+  logout(@Res({ passthrough: true }) res: Response): void {
+    res.clearCookie("token", this.baseCookieOptions());
   }
 
   @UseGuards(JwtCookieAuthGuard)
-  @Get("has-role/:role")
-  @ApiHasRole()
-  async hasRole(
-    @Param("role") role: string,
-    @User("id") userId: number,
-  ): Promise<HasRoleResponseDto> {
-    const hasRole = await this.userRoleService.hasRole(userId, role);
+  @Get("me")
+  @ApiMe()
+  async getMe(@User("id") userId: number): Promise<UserEntity> {
+    return this.userService.findOneWithRolesById(userId);
+  }
 
+  /** Atributos do cookie de sessão partilhados entre set (login) e clear (logout). */
+  private baseCookieOptions() {
+    const isProduction = this.configService.get("NODE_ENV") === "production";
     return {
-      hasRole: hasRole,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict" as const,
     };
   }
 }

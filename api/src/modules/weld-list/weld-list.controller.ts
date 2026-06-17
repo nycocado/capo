@@ -1,48 +1,63 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
+  Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { WeldListService } from "@modules/weld-list/weld-list.service";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
-import { Roles, SerializeResponse, User } from "@common/decorators";
-import { WeldListResponseDto } from "@modules/weld-list/dto";
+import { Roles, User } from "@common/decorators";
 import { WeldListEntity } from "@modules/weld-list/entities";
+import { ReassignClaimDto } from "@shared/dto";
 
 @Controller("weld-lists")
+@UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class WeldListController {
   constructor(private readonly weldListService: WeldListService) {}
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder")
-  @Get("to-do")
-  @SerializeResponse(WeldListResponseDto, "weld-list")
-  async getToDoWeldLists(): Promise<WeldListEntity[]> {
-    return this.weldListService.getToDo();
+  @Get()
+  @Roles("welder", "administrator")
+  async getAll(): Promise<WeldListEntity[]> {
+    return this.weldListService.getAll();
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder")
   @Get(":id")
-  @SerializeResponse(WeldListResponseDto, "weld-list")
-  async getWeldListById(
+  @Roles("welder", "administrator")
+  async getById(
     @Param("id", ParseIntPipe) id: number,
   ): Promise<WeldListEntity> {
     return this.weldListService.getById(id);
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("welder")
-  @Patch(":id/set-working")
-  @SerializeResponse(WeldListResponseDto, "weld-list")
-  async setWeldListToWorking(
-    @User("id") userId: number,
+  @Post(":id/claim")
+  @Roles("welder", "administrator")
+  async claim(
     @Param("id", ParseIntPipe) id: number,
+    @User("id") userId: number,
   ): Promise<WeldListEntity> {
-    const weldList = await this.weldListService.getById(id);
-    return this.weldListService.updateWorkStatusToWorking(weldList, userId);
+    return this.weldListService.claim(id, userId);
+  }
+
+  @Delete(":id/claim")
+  @Roles("welder", "administrator")
+  async release(
+    @Param("id", ParseIntPipe) id: number,
+    @User("id") userId: number,
+  ): Promise<WeldListEntity> {
+    return this.weldListService.release(id, userId);
+  }
+
+  @Put(":id/claim")
+  @Roles("administrator")
+  async reassign(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ReassignClaimDto,
+  ): Promise<WeldListEntity> {
+    return this.weldListService.reassign(id, dto.userId);
   }
 }

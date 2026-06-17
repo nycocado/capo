@@ -62,7 +62,10 @@ export class WeldRepository {
 
     weld.status = status;
     if (fillerMaterialId !== undefined) {
-      weld.fillerMaterial = em.getReference(FillerMaterialEntity, fillerMaterialId);
+      weld.fillerMaterial = em.getReference(
+        FillerMaterialEntity,
+        fillerMaterialId,
+      );
     }
     if (wpsId !== undefined) {
       weld.wps = em.getReference(WpsEntity, wpsId);

@@ -5,7 +5,6 @@ import { createMikroOrmConfig } from "@config/mikroorm.config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
-import { RoleModule } from "@modules/role";
 import { UserRoleModule } from "@modules/user-role";
 import { PipeLengthModule } from "@modules/pipe-length";
 import { CutListModule } from "@modules/cut-list";
@@ -32,7 +31,6 @@ import { AppService } from "./app.service";
     EventEmitterModule.forRoot(),
     AuthModule,
     UserModule,
-    RoleModule,
     UserRoleModule,
     PipeLengthModule,
     CutListModule,

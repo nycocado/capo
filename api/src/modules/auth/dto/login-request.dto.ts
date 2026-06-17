@@ -5,9 +5,9 @@ export class LoginRequestDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  internalId: string;
+  internalId!: string;
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  password: string;
+  password!: string;
 }

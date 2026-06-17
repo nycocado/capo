@@ -5,7 +5,10 @@ import { QueryOrder } from "@mikro-orm/core";
 import { Transactional } from "@mikro-orm/decorators/legacy";
 import { AssemblyListEntity } from "@modules/assembly-list/entities";
 import { JointEntity, JointStatus } from "@modules/joint/entities";
-import { PipeLengthEntity, PipeLengthStatus } from "@modules/pipe-length/entities";
+import {
+  PipeLengthEntity,
+  PipeLengthStatus,
+} from "@modules/pipe-length/entities";
 import { UserEntity } from "@modules/user/entities";
 
 /** Contagem dos joints de um isométrico por estado (para o progresso derivado). */
@@ -68,10 +71,7 @@ export class AssemblyListRepository {
   }
 
   async findByIdOrFail(id: number): Promise<AssemblyListEntity> {
-    return this.repository.findOneOrFail(
-      { id },
-      { populate: ["claimedBy"] },
-    );
+    return this.repository.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
   /** Localiza a assembly_list cujo isométrico contém a junta dada. */
@@ -132,7 +132,9 @@ export class AssemblyListRepository {
     userId: number | null,
   ): Promise<AssemblyListEntity> {
     const em = this.repository.getEntityManager();
-    assemblyList.claimedBy = userId ? em.getReference(UserEntity, userId) : undefined;
+    assemblyList.claimedBy = userId
+      ? em.getReference(UserEntity, userId)
+      : undefined;
     assemblyList.claimedAt = userId ? new Date() : undefined;
     await em.flush();
     return em.populate(assemblyList, ["claimedBy"]);

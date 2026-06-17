@@ -1,4 +1,10 @@
-import { Entity, Index, ManyToOne, PrimaryKey, Property } from "@mikro-orm/decorators/legacy";
+import {
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/decorators/legacy";
 import { UserEntity } from "@modules/user/entities";
 
 /**

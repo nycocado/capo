@@ -4,7 +4,10 @@ import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
 import { Transactional } from "@mikro-orm/decorators/legacy";
 import { CutListEntity } from "@modules/cut-list/entities";
-import { PipeLengthEntity, PipeLengthStatus } from "@modules/pipe-length/entities";
+import {
+  PipeLengthEntity,
+  PipeLengthStatus,
+} from "@modules/pipe-length/entities";
 import { UserEntity } from "@modules/user/entities";
 
 /** Contagem dos pipe_lengths de um isométrico por estado (para o progresso derivado). */
@@ -60,10 +63,7 @@ export class CutListRepository {
   }
 
   async findByIdOrFail(id: number): Promise<CutListEntity> {
-    return this.repository.findOneOrFail(
-      { id },
-      { populate: ["claimedBy"] },
-    );
+    return this.repository.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
   /** Localiza a cut_list cujo isométrico contém o pipe_length dado (via junta/spool). */
@@ -119,7 +119,9 @@ export class CutListRepository {
     userId: number | null,
   ): Promise<CutListEntity> {
     const em = this.repository.getEntityManager();
-    cutList.claimedBy = userId ? em.getReference(UserEntity, userId) : undefined;
+    cutList.claimedBy = userId
+      ? em.getReference(UserEntity, userId)
+      : undefined;
     cutList.claimedAt = userId ? new Date() : undefined;
     await em.flush();
     return em.populate(cutList, ["claimedBy"]);

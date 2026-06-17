@@ -1,48 +1,61 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
+  Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { CutListService } from "@modules/cut-list/cut-list.service";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
-import { Roles, SerializeResponse, User } from "@common/decorators";
-import { CutListResponseDto } from "@modules/cut-list/dto";
+import { Roles, User } from "@common/decorators";
 import { CutListEntity } from "@modules/cut-list/entities";
+import { ReassignClaimDto } from "@shared/dto";
 
 @Controller("cut-lists")
+@UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class CutListController {
   constructor(private readonly cutListService: CutListService) {}
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
+  @Get()
   @Roles("cutting-operator", "administrator")
-  @Get("to-do")
-  @SerializeResponse(CutListResponseDto, "cut-list")
-  async getCutListsToDo(): Promise<CutListEntity[]> {
-    return this.cutListService.getToDo();
+  async getAll(): Promise<CutListEntity[]> {
+    return this.cutListService.getAll();
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
-  @Roles("cutting-operator", "administrator")
   @Get(":id")
-  @SerializeResponse(CutListResponseDto, "cut-list")
-  async getCutListById(
-    @Param("id", ParseIntPipe) id: number,
-  ): Promise<CutListEntity> {
+  @Roles("cutting-operator", "administrator")
+  async getById(@Param("id", ParseIntPipe) id: number): Promise<CutListEntity> {
     return this.cutListService.getById(id);
   }
 
-  @UseGuards(JwtCookieAuthGuard, RolesGuard)
+  @Post(":id/claim")
   @Roles("cutting-operator", "administrator")
-  @Patch(":id/set-working")
-  @SerializeResponse(CutListResponseDto, "cut-list")
-  async setCutListToWorking(
+  async claim(
+    @Param("id", ParseIntPipe) id: number,
     @User("id") userId: number,
-    @Param("id", ParseIntPipe) cutListId: number,
   ): Promise<CutListEntity> {
-    const cutList = await this.cutListService.getById(cutListId);
-    return this.cutListService.updateWorkStatusToWorking(cutList, userId);
+    return this.cutListService.claim(id, userId);
+  }
+
+  @Delete(":id/claim")
+  @Roles("cutting-operator", "administrator")
+  async release(
+    @Param("id", ParseIntPipe) id: number,
+    @User("id") userId: number,
+  ): Promise<CutListEntity> {
+    return this.cutListService.release(id, userId);
+  }
+
+  @Put(":id/claim")
+  @Roles("administrator")
+  async reassign(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ReassignClaimDto,
+  ): Promise<CutListEntity> {
+    return this.cutListService.reassign(id, dto.userId);
   }
 }

@@ -17,11 +17,7 @@ export class JointRepository {
     private readonly repository: EntityRepository<JointEntity>,
   ) {}
 
-  private readonly FULL_POPULATE_FIELDS = [
-    "spool",
-    "part1",
-    "part2",
-  ] as const;
+  private readonly FULL_POPULATE_FIELDS = ["spool", "part1", "part2"] as const;
 
   async findByIdOrFail(id: number): Promise<JointEntity> {
     return this.repository.findOneOrFail({ id });
