@@ -8,7 +8,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
-import { RoleEntity } from "@modules/role/entities";
+import { RoleEntity } from "@database/entities";
 import { UserRoleEntity } from "@modules/user-role/entities";
 
 export enum Gender {

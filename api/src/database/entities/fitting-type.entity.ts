@@ -6,7 +6,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
-import { FittingEntity } from "@modules/fitting/entities";
+import { FittingEntity } from "@database/entities";
 
 @Entity({ tableName: "fitting_type" })
 export class FittingTypeEntity {

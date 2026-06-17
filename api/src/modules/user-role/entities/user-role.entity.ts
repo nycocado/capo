@@ -8,7 +8,7 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { Cascade } from "@mikro-orm/core";
 import { UserEntity } from "@modules/user/entities";
-import { RoleEntity } from "@modules/role/entities";
+import { RoleEntity } from "@database/entities";
 
 @Entity({ tableName: "user_role" })
 @Unique({ properties: ["user", "role"] })

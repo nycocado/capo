@@ -7,8 +7,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade } from "@mikro-orm/core";
-import { FittingEntity } from "@modules/fitting/entities";
-import { DiameterEntity } from "@database/entities";
+import { DiameterEntity, FittingEntity } from "@database/entities";
 
 @Entity({ tableName: "port" })
 @Unique({ properties: ["fitting", "number"] })

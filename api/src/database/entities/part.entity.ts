@@ -9,7 +9,7 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
 import { PipeLengthEntity } from "@modules/pipe-length/entities";
-import { FittingEntity } from "@modules/fitting/entities";
+import { FittingEntity } from "@database/entities";
 import { JointEntity } from "@modules/joint/entities";
 
 export enum PartType {

@@ -8,8 +8,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
-import { ProjectEntity } from "@modules/project/entities";
-import { SpoolEntity } from "@database/entities";
+import { ProjectEntity, SpoolEntity } from "@database/entities";
 
 @Entity({ tableName: "isometric" })
 export class IsometricEntity {

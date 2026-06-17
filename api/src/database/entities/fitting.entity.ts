@@ -9,8 +9,12 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
-import { MaterialEntity, PartEntity, PortEntity } from "@database/entities";
-import { FittingTypeEntity } from "@modules/fitting/entities/fitting-type.entity";
+import {
+  FittingTypeEntity,
+  MaterialEntity,
+  PartEntity,
+  PortEntity,
+} from "@database/entities";
 
 @Entity({ tableName: "fitting" })
 export class FittingEntity {
