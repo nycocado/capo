@@ -9,6 +9,7 @@ import {
 import { Cascade } from "@mikro-orm/core";
 import { IsometricEntity } from "@database/entities";
 import { UserEntity } from "@modules/user/entities";
+import { ListProgress } from "@shared/types";
 
 @Entity({ tableName: "assembly_list" })
 export class AssemblyListEntity {
@@ -40,4 +41,11 @@ export class AssemblyListEntity {
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
+
+  // Derivados dos itens (preenchidos pelo service; não persistidos)
+  @Property({ persist: false })
+  progress?: ListProgress;
+
+  @Property({ persist: false })
+  available?: boolean;
 }

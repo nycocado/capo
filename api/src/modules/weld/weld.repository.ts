@@ -1,168 +1,80 @@
-import { WeldEntity } from "@modules/weld/entities";
-import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityRepository } from "@mikro-orm/mariadb";
+import { QueryOrder } from "@mikro-orm/core";
+import { Transactional } from "@mikro-orm/decorators/legacy";
 import {
-  EntityRepository,
-  QueryOrder,
-  Transactional,
-} from "@mikro-orm/mariadb";
-import { WorkStatusType, WorkStatusTypeEntity } from "@database/entities";
+  WeldEntity,
+  WeldStatus,
+  WeldStatusEventEntity,
+} from "@modules/weld/entities";
+import { UserEntity } from "@modules/user/entities";
 import { FillerMaterialEntity } from "@modules/filler-material/entities";
 import { WpsEntity } from "@modules/wps/entities";
-import { UserEntity } from "@modules/user/entities";
-import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
 
 @Injectable()
 export class WeldRepository {
   constructor(
     @InjectRepository(WeldEntity)
-    private readonly weldRepository: EntityRepository<WeldEntity>,
+    private readonly repository: EntityRepository<WeldEntity>,
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
+    "joint",
     "fillerMaterial",
     "wps",
-    "workStatuses.workStatusType",
   ] as const;
-
-  private readonly WORK_STATUS_TYPE_POPULATE_FIELDS = [
-    "workStatuses.workStatusType",
-  ] as const;
-
-  async findById(id: number): Promise<WeldEntity | null> {
-    return this.weldRepository.findOne(id);
-  }
 
   async findByIdOrFail(id: number): Promise<WeldEntity> {
-    return this.weldRepository.findOneOrFail(id);
-  }
-
-  async findAll(): Promise<WeldEntity[]> {
-    return this.weldRepository.findAll();
-  }
-
-  async findFullById(id: number): Promise<WeldEntity | null> {
-    return this.weldRepository.findOne(id, {
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
+    return this.repository.findOneOrFail({ id });
   }
 
   async findFullByIdOrFail(id: number): Promise<WeldEntity> {
-    return this.weldRepository.findOneOrFail(id, {
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
+    return this.repository.findOneOrFail(
+      { id },
+      { populate: this.FULL_POPULATE_FIELDS },
+    );
   }
 
-  async findFullAll(): Promise<WeldEntity[]> {
-    return this.weldRepository.findAll({
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        id: "ASC",
-        workStatuses: { id: QueryOrder.ASC },
+  async findStatusEvents(id: number): Promise<WeldStatusEventEntity[]> {
+    const em = this.repository.getEntityManager();
+    return em.find(
+      WeldStatusEventEntity,
+      { weld: id },
+      {
+        populate: ["createdBy"],
+        orderBy: { createdAt: QueryOrder.ASC, id: QueryOrder.ASC },
       },
-    });
+    );
   }
 
-  async findWithWorkStatusesById(id: number): Promise<WeldEntity | null> {
-    return this.weldRepository.findOne(id, {
-      populate: this.WORK_STATUS_TYPE_POPULATE_FIELDS,
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
-  }
-
-  async findWithWorkStatusesByIdOrFail(id: number): Promise<WeldEntity> {
-    return this.weldRepository.findOneOrFail(id, {
-      populate: this.WORK_STATUS_TYPE_POPULATE_FIELDS,
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
-  }
-
-  async findWithWorkStatusesAll(): Promise<WeldEntity[]> {
-    return this.weldRepository.findAll({
-      populate: this.WORK_STATUS_TYPE_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
-  }
-
-  async populateToFull(weld: WeldEntity): Promise<WeldEntity> {
-    const em = this.weldRepository.getEntityManager();
-    return em.populate(weld, this.FULL_POPULATE_FIELDS, {
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
-  }
-
+  /** Aplica a transição de status e regista o evento na trilha, na mesma transação. */
   @Transactional()
-  async updateWorkStatusToFinished(
+  async applyStatusEvent(
     weld: WeldEntity,
+    status: WeldStatus,
     userId: number,
-    fillerMaterial?: string,
-    wps?: string,
+    fillerMaterialId?: number,
+    wpsId?: number,
     notes?: string,
   ): Promise<WeldEntity> {
-    const em = this.weldRepository.getEntityManager();
+    const em = this.repository.getEntityManager();
 
-    const [workingType, fillerMaterialEntity, wpsEntity] = await Promise.all([
-      em.findOneOrFail(WorkStatusTypeEntity, {
-        name: WorkStatusType.FINISHED,
-      }),
-      em.findOneOrFail(FillerMaterialEntity, {
-        name: fillerMaterial,
-      }),
-      em.findOneOrFail(WpsEntity, { internalId: wps }),
-    ]);
+    weld.status = status;
+    if (fillerMaterialId !== undefined) {
+      weld.fillerMaterial = em.getReference(FillerMaterialEntity, fillerMaterialId);
+    }
+    if (wpsId !== undefined) {
+      weld.wps = em.getReference(WpsEntity, wpsId);
+    }
 
-    const newWorkStatus = new WeldWorkStatusEntity(
-      weld,
-      workingType,
-      notes,
-      em.getReference(UserEntity, userId),
-    );
+    const event = new WeldStatusEventEntity();
+    event.status = status;
+    event.weld = weld;
+    event.notes = notes;
+    event.createdBy = em.getReference(UserEntity, userId);
+    em.persist(event);
 
-    weld.workStatuses.add(newWorkStatus);
-    weld.fillerMaterial = fillerMaterialEntity;
-    weld.wps = wpsEntity;
-    em.persist(newWorkStatus);
-    em.persist(weld);
-    await em.flush();
-    return em.populate(weld, this.FULL_POPULATE_FIELDS);
-  }
-
-  @Transactional()
-  async updateFillerMaterial(
-    weld: WeldEntity,
-    fillerMaterial?: string,
-  ): Promise<WeldEntity> {
-    const em = this.weldRepository.getEntityManager();
-
-    weld.fillerMaterial = await em.findOneOrFail(FillerMaterialEntity, {
-      name: fillerMaterial,
-    });
-    em.persist(weld);
-    await em.flush();
-    return em.populate(weld, this.FULL_POPULATE_FIELDS);
-  }
-
-  @Transactional()
-  async updateWps(weld: WeldEntity, wps?: string): Promise<WeldEntity> {
-    const em = this.weldRepository.getEntityManager();
-
-    weld.wps = await em.findOneOrFail(WpsEntity, { internalId: wps });
-    em.persist(weld);
     await em.flush();
     return em.populate(weld, this.FULL_POPULATE_FIELDS);
   }

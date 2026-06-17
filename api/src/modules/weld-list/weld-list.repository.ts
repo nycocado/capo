@@ -1,225 +1,121 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityRepository } from "@mikro-orm/mariadb";
+import { QueryOrder } from "@mikro-orm/core";
+import { Transactional } from "@mikro-orm/decorators/legacy";
 import { WeldListEntity } from "@modules/weld-list/entities";
-import {
-  EntityRepository,
-  LoadStrategy,
-  QueryOrder,
-  Transactional,
-} from "@mikro-orm/mariadb";
-import {
-  SpoolEntity,
-  WorkStatusType,
-  WorkStatusTypeEntity,
-} from "@database/entities";
+import { JointEntity, JointStatus } from "@modules/joint/entities";
+import { WeldEntity, WeldStatus } from "@modules/weld/entities";
 import { UserEntity } from "@modules/user/entities";
-import { WeldListWorkStatusEntity } from "@modules/weld-list/entities/weld-list-work-status.entity";
+
+/** Contagem dos welds de um spool por estado (para o progresso derivado). */
+export interface WeldStatusCounts {
+  total: number;
+  done: number;
+  inProgress: number;
+}
+
+/** Contagem dos joints de um spool por estado (para o gating). */
+export interface JointStatusCounts {
+  total: number;
+  done: number;
+  inProgress: number;
+}
 
 @Injectable()
 export class WeldListRepository {
   constructor(
     @InjectRepository(WeldListEntity)
-    private readonly weldListRepository: EntityRepository<WeldListEntity>,
+    private readonly repository: EntityRepository<WeldListEntity>,
   ) {}
 
+  // Árvore do spool para a grelha de soldagem.
   private readonly FULL_POPULATE_FIELDS = [
-    "workStatuses.workStatusType",
-    "spool.joints.welds.workStatuses.workStatusType",
+    "claimedBy",
+    "spool.joints.part1.pipeLength.material",
+    "spool.joints.part1.pipeLength.diameter",
+    "spool.joints.part1.fitting.material",
+    "spool.joints.part1.fitting.fittingType",
+    "spool.joints.part1.fitting.ports.diameter",
+    "spool.joints.part2.pipeLength.material",
+    "spool.joints.part2.pipeLength.diameter",
+    "spool.joints.part2.fitting.material",
+    "spool.joints.part2.fitting.fittingType",
+    "spool.joints.part2.fitting.ports.diameter",
     "spool.joints.welds.fillerMaterial",
     "spool.joints.welds.wps",
   ] as const;
 
-  private readonly MINIMAL_POPULATE_FIELDS = [
-    "workStatuses.workStatusType",
-    "spool",
-  ] as const;
+  private readonly LIGHT_POPULATE_FIELDS = ["claimedBy", "spool"] as const;
 
-  async findMinimalByIdOrFail(id: number): Promise<WeldListEntity> {
-    return this.weldListRepository.findOneOrFail(id, {
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        spool: { id: QueryOrder.ASC },
-        workStatuses: { id: QueryOrder.ASC },
-      },
-      strategy: LoadStrategy.SELECT_IN,
+  async findAllLight(): Promise<WeldListEntity[]> {
+    return this.repository.findAll({
+      populate: this.LIGHT_POPULATE_FIELDS,
+      orderBy: { id: QueryOrder.ASC },
     });
-  }
-
-  async findMinimalAll(): Promise<WeldListEntity[]> {
-    return this.weldListRepository.findAll({
-      populate: this.MINIMAL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        spool: { id: QueryOrder.ASC },
-        workStatuses: { id: QueryOrder.ASC },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
-  async findMinimalByWeldIdOrFail(weldId: number): Promise<WeldListEntity> {
-    return this.weldListRepository.findOneOrFail(
-      {
-        spool: {
-          joints: {
-            welds: {
-              id: weldId,
-            },
-          },
-        },
-      },
-      {
-        populate: this.MINIMAL_POPULATE_FIELDS,
-        orderBy: {
-          spool: { id: QueryOrder.ASC },
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        strategy: LoadStrategy.SELECT_IN,
-      },
-    );
   }
 
   async findFullByIdOrFail(id: number): Promise<WeldListEntity> {
-    return this.weldListRepository.findOneOrFail(id, {
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        spool: {
-          id: QueryOrder.ASC,
-          joints: {
-            welds: {
-              id: QueryOrder.ASC,
-              workStatuses: {
-                id: QueryOrder.ASC,
-              },
-            },
-          },
-        },
-        workStatuses: { id: QueryOrder.ASC },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
-  async findFullByIdsOrFail(ids: number[]): Promise<WeldListEntity[]> {
-    return this.weldListRepository.find(
-      { id: { $in: ids } },
+    return this.repository.findOneOrFail(
+      { id },
       {
         populate: this.FULL_POPULATE_FIELDS,
         orderBy: {
-          spool: {
-            id: QueryOrder.ASC,
-            joints: {
-              welds: {
-                id: QueryOrder.ASC,
-                workStatuses: {
-                  id: QueryOrder.ASC,
-                },
-              },
-            },
-          },
-          workStatuses: { id: QueryOrder.ASC },
+          spool: { id: QueryOrder.ASC, joints: { id: QueryOrder.ASC } },
         },
-        strategy: LoadStrategy.SELECT_IN,
       },
     );
   }
 
-  async findFullAll(): Promise<WeldListEntity[]> {
-    return this.weldListRepository.findAll({
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        spool: {
-          id: QueryOrder.ASC,
-          joints: {
-            welds: {
-              id: QueryOrder.ASC,
-              workStatuses: {
-                id: QueryOrder.ASC,
-              },
-            },
-          },
-        },
-        workStatuses: { id: QueryOrder.ASC },
-      },
-      strategy: LoadStrategy.SELECT_IN,
+  async findByIdOrFail(id: number): Promise<WeldListEntity> {
+    return this.repository.findOneOrFail(
+      { id },
+      { populate: ["claimedBy"] },
+    );
+  }
+
+  /** Localiza a weld_list cujo spool contém a solda dada. */
+  async findByWeldIdOrFail(weldId: number): Promise<WeldListEntity> {
+    return this.repository.findOneOrFail(
+      { spool: { joints: { welds: weldId } } },
+      { populate: ["claimedBy"] },
+    );
+  }
+
+  /** Conta os welds do spool por estado. */
+  async getWeldStatusCounts(spoolId: number): Promise<WeldStatusCounts> {
+    const em = this.repository.getEntityManager();
+    const total = await em.count(WeldEntity, {
+      joint: { spool: spoolId },
     });
-  }
-
-  async populateToFull(weldList: WeldListEntity): Promise<WeldListEntity> {
-    const em = this.weldListRepository.getEntityManager();
-    return em.populate(weldList, this.FULL_POPULATE_FIELDS, {
-      strategy: LoadStrategy.SELECT_IN,
+    const done = await em.count(WeldEntity, {
+      joint: { spool: spoolId },
+      status: WeldStatus.DONE,
     });
+    return { total, done, inProgress: 0 };
   }
 
-  async updateWorkStatusToWorking(
-    weldList: WeldListEntity,
-    userId: number,
-  ): Promise<WeldListEntity> {
-    return this.updateWorkStatus(weldList, userId, WorkStatusType.WORKING);
+  /** Conta os joints do spool por estado (para gating). */
+  async getJointStatusCounts(spoolId: number): Promise<JointStatusCounts> {
+    const em = this.repository.getEntityManager();
+    const total = await em.count(JointEntity, { spool: spoolId });
+    const done = await em.count(JointEntity, {
+      spool: spoolId,
+      status: JointStatus.DONE,
+    });
+    return { total, done, inProgress: 0 };
   }
 
-  async updateWorkStatusToFinished(
-    weldList: WeldListEntity,
-    userId: number,
-  ): Promise<WeldListEntity> {
-    return this.updateWorkStatus(weldList, userId, WorkStatusType.FINISHED);
-  }
-
+  /** Define ou limpa o claim (userId null = release). */
   @Transactional()
-  async updateWorkStatus(
+  async updateClaim(
     weldList: WeldListEntity,
-    userId: number,
-    workStatusType: string,
+    userId: number | null,
   ): Promise<WeldListEntity> {
-    const em = this.weldListRepository.getEntityManager();
-    const workStatusTypeEntity = await em.findOneOrFail(WorkStatusTypeEntity, {
-      name: workStatusType,
-    });
-
-    const newWorkStatus = new WeldListWorkStatusEntity(
-      weldList,
-      workStatusTypeEntity,
-      undefined,
-      em.getReference(UserEntity, userId),
-    );
-
-    weldList.workStatuses.add(newWorkStatus);
-    em.persist(newWorkStatus);
-    em.persist(weldList);
+    const em = this.repository.getEntityManager();
+    weldList.claimedBy = userId ? em.getReference(UserEntity, userId) : undefined;
+    weldList.claimedAt = userId ? new Date() : undefined;
     await em.flush();
-    return weldList;
-  }
-
-  @Transactional()
-  async create(spoolId: number, userId: number): Promise<WeldListEntity> {
-    const em = this.weldListRepository.getEntityManager();
-
-    const weldList = new WeldListEntity(
-      "default",
-      em.getReference(SpoolEntity, spoolId),
-    );
-
-    const workStatusType = await em.findOneOrFail(WorkStatusTypeEntity, {
-      name: WorkStatusType.TO_DO,
-    });
-
-    const workStatus = new WeldListWorkStatusEntity(
-      weldList,
-      workStatusType,
-      undefined,
-      em.getReference(UserEntity, userId),
-    );
-
-    weldList.workStatuses.add(workStatus);
-    em.persist(weldList);
-    em.persist(workStatus);
-    await em.flush();
-
-    weldList.internalId = `WL${weldList.id.toString().padStart(4, "0")}`;
-    em.persist(weldList);
-    await em.flush();
-    return weldList;
+    return em.populate(weldList, ["claimedBy"]);
   }
 }

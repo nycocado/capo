@@ -1,212 +1,70 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { JointEntity } from "@modules/joint/entities";
+import { EntityRepository } from "@mikro-orm/mariadb";
+import { QueryOrder } from "@mikro-orm/core";
+import { Transactional } from "@mikro-orm/decorators/legacy";
 import {
-  EntityRepository,
-  LoadStrategy,
-  QueryOrder,
-  Transactional,
-} from "@mikro-orm/mariadb";
-import { WorkStatusType, WorkStatusTypeEntity } from "@database/entities";
+  JointEntity,
+  JointStatus,
+  JointStatusEventEntity,
+} from "@modules/joint/entities";
 import { UserEntity } from "@modules/user/entities";
-import { JointWorkStatusEntity } from "@modules/joint/entities/joint-work-status.entity";
 
 @Injectable()
 export class JointRepository {
   constructor(
     @InjectRepository(JointEntity)
-    private readonly jointRepository: EntityRepository<JointEntity>,
+    private readonly repository: EntityRepository<JointEntity>,
   ) {}
 
   private readonly FULL_POPULATE_FIELDS = [
-    "part1.workStatuses.workStatusType",
-    "part1.pipeLength.material",
-    "part1.pipeLength.diameter",
-    "part1.pipeLength.part.workStatuses.workStatusType",
-    "part1.fitting.material",
-    "part1.fitting.fittingType",
-    "part1.fitting.ports.diameter",
-    "part1.fitting.part.workStatuses.workStatusType",
-    "part2.workStatuses.workStatusType",
-    "part2.pipeLength.material",
-    "part2.pipeLength.diameter",
-    "part2.pipeLength.part.workStatuses.workStatusType",
-    "part2.fitting.material",
-    "part2.fitting.fittingType",
-    "part2.fitting.ports.diameter",
-    "part2.fitting.part.workStatuses.workStatusType",
-    "welds.fillerMaterial",
-    "welds.wps",
-    "welds.workStatuses.workStatusType",
-    "workStatuses.workStatusType",
+    "spool",
+    "part1",
+    "part2",
   ] as const;
-
-  private readonly WORK_STATUS_POPULATE_FIELDS = [
-    "workStatuses.workStatusType",
-  ] as const;
-
-  async findById(id: number): Promise<JointEntity | null> {
-    return this.jointRepository.findOne(id);
-  }
 
   async findByIdOrFail(id: number): Promise<JointEntity> {
-    return this.jointRepository.findOneOrFail(id);
-  }
-
-  async findAll(): Promise<JointEntity[]> {
-    return this.jointRepository.findAll();
-  }
-
-  async findFullById(id: number): Promise<JointEntity | null> {
-    return this.jointRepository.findOne(
-      { id: id },
-      {
-        populate: this.FULL_POPULATE_FIELDS,
-        orderBy: {
-          part1: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          part2: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          welds: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        strategy: LoadStrategy.SELECT_IN,
-      },
-    );
+    return this.repository.findOneOrFail({ id });
   }
 
   async findFullByIdOrFail(id: number): Promise<JointEntity> {
-    return this.jointRepository.findOneOrFail(
-      { id: id },
+    return this.repository.findOneOrFail(
+      { id },
+      { populate: this.FULL_POPULATE_FIELDS },
+    );
+  }
+
+  async findStatusEvents(id: number): Promise<JointStatusEventEntity[]> {
+    const em = this.repository.getEntityManager();
+    return em.find(
+      JointStatusEventEntity,
+      { joint: id },
       {
-        populate: this.FULL_POPULATE_FIELDS,
-        orderBy: {
-          part1: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          part2: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          welds: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        strategy: LoadStrategy.SELECT_IN,
+        populate: ["createdBy"],
+        orderBy: { createdAt: QueryOrder.ASC, id: QueryOrder.ASC },
       },
     );
   }
 
-  async findFullAll(): Promise<JointEntity[]> {
-    return this.jointRepository.findAll({
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: {
-        id: QueryOrder.ASC,
-        part1: {
-          id: QueryOrder.ASC,
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        part2: {
-          id: QueryOrder.ASC,
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        welds: {
-          id: QueryOrder.ASC,
-          workStatuses: { id: QueryOrder.ASC },
-        },
-        workStatuses: { id: QueryOrder.ASC },
-      },
-      strategy: LoadStrategy.SELECT_IN,
-    });
-  }
-
-  async findWithWorkStatusesById(id: number): Promise<JointEntity | null> {
-    return this.jointRepository.findOne(
-      { id: id },
-      {
-        populate: this.WORK_STATUS_POPULATE_FIELDS,
-        orderBy: {
-          workStatuses: { id: QueryOrder.ASC },
-        },
-      },
-    );
-  }
-
-  async findWithWorkStatusesByIdOrFail(id: number): Promise<JointEntity> {
-    return this.jointRepository.findOneOrFail(
-      { id: id },
-      {
-        populate: this.WORK_STATUS_POPULATE_FIELDS,
-        orderBy: {
-          workStatuses: { id: QueryOrder.ASC },
-        },
-      },
-    );
-  }
-
-  async findWithWorkStatusesAll() {
-    return this.jointRepository.findAll({
-      populate: this.WORK_STATUS_POPULATE_FIELDS,
-      orderBy: {
-        workStatuses: { id: QueryOrder.ASC },
-      },
-    });
-  }
-
-  async populateToFull(joint: JointEntity): Promise<JointEntity> {
-    return this.jointRepository
-      .getEntityManager()
-      .populate(joint, this.FULL_POPULATE_FIELDS, {
-        orderBy: {
-          part1: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          part2: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          welds: {
-            id: QueryOrder.ASC,
-            workStatuses: { id: QueryOrder.ASC },
-          },
-          workStatuses: { id: QueryOrder.ASC },
-        },
-      });
-  }
-
+  /** Aplica a transição de status e regista o evento na trilha, na mesma transação. */
   @Transactional()
-  async updateWorkStatusToFinished(
+  async applyStatusEvent(
     joint: JointEntity,
+    status: JointStatus,
     userId: number,
     notes?: string,
   ): Promise<JointEntity> {
-    const em = this.jointRepository.getEntityManager();
+    const em = this.repository.getEntityManager();
 
-    const workStatus = await em.findOneOrFail(WorkStatusTypeEntity, {
-      name: WorkStatusType.FINISHED,
-    });
+    joint.status = status;
 
-    const newWorkStatus = new JointWorkStatusEntity(
-      joint,
-      workStatus,
-      notes,
-      em.getReference(UserEntity, userId),
-    );
+    const event = new JointStatusEventEntity();
+    event.status = status;
+    event.joint = joint;
+    event.notes = notes;
+    event.createdBy = em.getReference(UserEntity, userId);
+    em.persist(event);
 
-    joint.workStatuses.add(newWorkStatus);
-    em.persist(newWorkStatus);
-    em.persist(joint);
     await em.flush();
     return em.populate(joint, this.FULL_POPULATE_FIELDS);
   }

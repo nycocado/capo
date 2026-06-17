@@ -1,17 +1,25 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
-import { WeldEntity } from "@modules/weld/entities";
-import { WorkStatusType } from "@database/entities";
-import { WeldRepository } from "@modules/weld/weld.repository";
+import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { WeldRepository } from "@modules/weld/weld.repository";
+import {
+  WeldEntity,
+  WeldStatus,
+  WeldStatusEventEntity,
+} from "@modules/weld/entities";
+import { CreateWeldStatusEventDto } from "@modules/weld/dto";
+import { WeldListService } from "@modules/weld-list";
+
+// Máquina de estados da solda: to_do → done.
+const TRANSITIONS: Record<WeldStatus, WeldStatus[]> = {
+  [WeldStatus.TO_DO]: [WeldStatus.DONE],
+  [WeldStatus.DONE]: [],
+};
 
 @Injectable()
 export class WeldService {
   constructor(
     private readonly weldRepository: WeldRepository,
+    private readonly weldListService: WeldListService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -19,82 +27,49 @@ export class WeldService {
     return this.weldRepository.findFullByIdOrFail(id);
   }
 
-  async getAll(): Promise<WeldEntity[]> {
-    return this.weldRepository.findFullAll();
+  async getStatusEvents(id: number): Promise<WeldStatusEventEntity[]> {
+    await this.weldRepository.findByIdOrFail(id);
+    return this.weldRepository.findStatusEvents(id);
   }
 
-  async updateWorkStatusToFinished(
-    weld: WeldEntity,
-    userId: number,
-    fillerMaterial?: string,
-    wps?: string,
-    notes?: string,
-  ): Promise<WeldEntity> {
-    if (!fillerMaterial || !wps) {
-      throw new BadRequestException();
-    }
-
-    const newWeld = await this.weldRepository.updateWorkStatusToFinished(
-      weld,
-      userId,
-      fillerMaterial,
-      wps,
-      notes,
-    );
-
-    this.eventEmitter.emit("weld.updateWorkStatusToFinished", newWeld, userId);
-
-    return newWeld;
-  }
-
-  async updateWorkStatus(
+  async createStatusEvent(
     id: number,
+    dto: CreateWeldStatusEventDto,
     userId: number,
-    fillerMaterial?: string,
-    wps?: string,
-    notes?: string,
   ): Promise<WeldEntity> {
-    const weld = await this.weldRepository.findWithWorkStatusesByIdOrFail(id);
+    const weld = await this.weldRepository.findByIdOrFail(id);
 
-    const currentWorkStatus = weld.workStatuses[weld.workStatuses.length - 1];
+    // Lock: só o claimer da weld_list (ou admin) avança os itens.
+    await this.weldListService.assertCanAdvanceWeld(id, userId);
 
-    switch (currentWorkStatus?.workStatusType.name) {
-      case WorkStatusType.TO_DO: {
-        return this.updateWorkStatusToFinished(
-          weld,
-          userId,
-          fillerMaterial,
-          wps,
-          notes,
+    this.assertTransition(weld.status, dto.status);
+
+    if (dto.status === WeldStatus.DONE) {
+      if (!(dto.fillerMaterialId ?? weld.fillerMaterial) || !(dto.wpsId ?? weld.wps)) {
+        throw new BadRequestException(
+          "fillerMaterial and wps are required to finish a weld",
         );
       }
-      case WorkStatusType.FINISHED: {
-        return this.weldRepository.populateToFull(weld);
-      }
-      default: {
-        throw new InternalServerErrorException();
-      }
     }
+
+    const updated = await this.weldRepository.applyStatusEvent(
+      weld,
+      dto.status,
+      userId,
+      dto.fillerMaterialId,
+      dto.wpsId,
+      dto.notes,
+    );
+
+    this.eventEmitter.emit("weld.statusChanged", updated, userId);
+    return updated;
   }
 
-  async updateFillerMaterial(
-    id: number,
-    fillerMaterial?: string,
-  ): Promise<WeldEntity> {
-    if (!fillerMaterial) {
-      throw new BadRequestException();
+  private assertTransition(current: WeldStatus, next: WeldStatus): void {
+    if (!TRANSITIONS[current].includes(next)) {
+      throw new ConflictException(
+        `Invalid status transition: ${current} -> ${next}`,
+      );
     }
-
-    const weld = await this.weldRepository.findByIdOrFail(id);
-    return this.weldRepository.updateFillerMaterial(weld, fillerMaterial);
-  }
-
-  async updateWps(id: number, wps?: string): Promise<WeldEntity> {
-    if (!wps) {
-      throw new BadRequestException();
-    }
-
-    const weld = await this.weldRepository.findByIdOrFail(id);
-    return this.weldRepository.updateWps(weld, wps);
   }
 }

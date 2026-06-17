@@ -1,155 +1,112 @@
-import { Injectable } from "@nestjs/common";
-import { IsometricEntity, WorkStatusType } from "@database/entities";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
-import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
-import { WeldEntity } from "@modules/weld/entities";
+import { WeldListEntity } from "@modules/weld-list/entities";
+import { UserRoleService } from "@modules/user-role";
+import { ListProgress, Role } from "@shared/types";
+import { deriveListProgress } from "@common/utils/list-progress.util";
 
 @Injectable()
 export class WeldListService {
   constructor(
     private readonly weldListRepository: WeldListRepository,
+    private readonly userRoleService: UserRoleService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  async getAll(): Promise<WeldListEntity[]> {
+    const lists = await this.weldListRepository.findAllLight();
+    for (const list of lists) {
+      await this.attachDerived(list);
+    }
+    return lists;
+  }
+
   async getById(id: number): Promise<WeldListEntity> {
-    return this.weldListRepository.findFullByIdOrFail(id);
+    const list = await this.weldListRepository.findFullByIdOrFail(id);
+    await this.attachDerived(list);
+    return list;
   }
 
-  async getToDo(): Promise<WeldListEntity[]> {
-    const lists = await this.weldListRepository.findFullAll();
-    return lists.filter((weldList) => {
-      const statuses = weldList.workStatuses.getItems();
-      const lastStatus = statuses[statuses.length - 1];
-      return lastStatus.workStatusType.name !== WorkStatusType.FINISHED;
-    });
-  }
+  async claim(id: number, userId: number): Promise<WeldListEntity> {
+    const list = await this.weldListRepository.findByIdOrFail(id);
+    const progress = await this.computeProgress(list);
 
-  async updateWorkStatusToWorking(
-    weldList: WeldListEntity,
-    userId: number,
-  ): Promise<WeldListEntity> {
-    const workStatus = weldList.workStatuses[weldList.workStatuses.length - 1];
-
-    if (
-      workStatus.workStatusType.name === WorkStatusType.WORKING ||
-      workStatus.workStatusType.name === WorkStatusType.FINISHED
-    ) {
-      return this.weldListRepository.populateToFull(weldList);
+    if (!(await this.computeAvailable(list))) {
+      throw new ConflictException("Prior stage is not complete");
+    }
+    if (progress === ListProgress.DONE) {
+      throw new ConflictException("Cannot claim a completed order");
+    }
+    if (list.claimedBy && list.claimedBy.id !== userId) {
+      throw new ConflictException("Order already claimed by another user");
     }
 
-    const newWeldList = await this.weldListRepository.updateWorkStatusToWorking(
-      weldList,
-      userId,
-    );
-
-    const populatedWeldList =
-      await this.weldListRepository.populateToFull(newWeldList);
-
-    this.eventEmitter.emit(
-      "weld-list.updateWorkStatusToWorking",
-      populatedWeldList,
-      userId,
-    );
-
-    return populatedWeldList;
+    await this.weldListRepository.updateClaim(list, userId);
+    this.eventEmitter.emit("weld-list.claimChanged", id, userId);
+    return this.getById(id);
   }
 
-  async updateWorkStatusToFinished(
-    weldList: WeldListEntity,
-    userId: number,
-  ): Promise<WeldListEntity> {
-    const newWeldList =
-      await this.weldListRepository.updateWorkStatusToFinished(
-        weldList,
-        userId,
-      );
+  async release(id: number, userId: number): Promise<WeldListEntity> {
+    const list = await this.weldListRepository.findByIdOrFail(id);
+    await this.assertClaimerOrAdmin(list, userId);
 
-    const populatedWeldList =
-      await this.weldListRepository.populateToFull(newWeldList);
-
-    this.eventEmitter.emit(
-      "weld-list.updateWorkStatusToFinished",
-      populatedWeldList,
-      userId,
-    );
-
-    return populatedWeldList;
+    await this.weldListRepository.updateClaim(list, null);
+    this.eventEmitter.emit("weld-list.claimChanged", id, userId);
+    return this.getById(id);
   }
 
-  async createForIsometric(
-    isometric: IsometricEntity,
+  async reassign(id: number, targetUserId: number): Promise<WeldListEntity> {
+    const list = await this.weldListRepository.findByIdOrFail(id);
+    await this.weldListRepository.updateClaim(list, targetUserId);
+    this.eventEmitter.emit("weld-list.claimChanged", id, targetUserId);
+    return this.getById(id);
+  }
+
+  /**
+   * Garante que o utilizador pode avançar itens da ordem da solda dada:
+   * tem de ser o claimer ou um administrador.
+   *
+   * @throws ForbiddenException Se não for o claimer nem administrador
+   */
+  async assertCanAdvanceWeld(weldId: number, userId: number): Promise<void> {
+    const list = await this.weldListRepository.findByWeldIdOrFail(weldId);
+    await this.assertClaimerOrAdmin(list, userId);
+  }
+
+  private async assertClaimerOrAdmin(
+    list: WeldListEntity,
     userId: number,
-  ): Promise<WeldListEntity[]> {
-    const weldLists: WeldListEntity[] = [];
-    const sheets = isometric.sheets.getItems();
-    for (const sheet of sheets) {
-      const revisions = sheet.revisions.getItems();
-      if (!revisions.length) continue;
-      const lastRevision = revisions[revisions.length - 1];
-      for (const spool of lastRevision.spools.getItems()) {
-        const weldList = await this.weldListRepository.create(spool.id, userId);
-        weldLists.push(weldList);
-      }
+  ): Promise<void> {
+    if (list.claimedBy?.id === userId) {
+      return;
     }
-    return weldLists;
-  }
-
-  @OnEvent("weld.updateWorkStatusToFinished", { async: true })
-  async handleWorkStatusToFinished(
-    weld: WeldEntity,
-    userId: number,
-  ): Promise<WeldListEntity> {
-    const weldList = await this.weldListRepository.findMinimalByWeldIdOrFail(
-      weld.id,
-    );
-    const workStatus = weldList.workStatuses[weldList.workStatuses.length - 1];
-
-    if (
-      (await this.isWeldListFinished(weldList)) &&
-      workStatus.workStatusType.name !== WorkStatusType.FINISHED
-    ) {
-      return this.updateWorkStatusToFinished(weldList, userId);
+    if (await this.userRoleService.hasRole(userId, Role.ADMINISTRATOR)) {
+      return;
     }
-
-    return this.weldListRepository.populateToFull(weldList);
+    throw new ForbiddenException("Order is not claimed by this user");
   }
 
-  @OnEvent("assembly-list.updateWorkStatusToFinished", { async: true })
-  async handleCreateWeldLists(
-    assemblyList: AssemblyListEntity,
-    userId: number,
-  ): Promise<WeldListEntity[]> {
-    const weldLists = await this.createForIsometric(
-      assemblyList.isometric,
-      userId,
+  private async computeProgress(list: WeldListEntity): Promise<ListProgress> {
+    const counts = await this.weldListRepository.getWeldStatusCounts(
+      list.spool.id,
     );
-    const ids = weldLists.map((weld) => weld.id);
-
-    const newWeldLists = await this.weldListRepository.findFullByIdsOrFail(ids);
-
-    this.eventEmitter.emit("weld-list.creates", newWeldLists);
-
-    return newWeldLists;
+    return deriveListProgress(counts);
   }
 
-  async isWeldListFinished(weldList: WeldListEntity): Promise<boolean> {
-    weldList = await this.weldListRepository.populateToFull(weldList);
+  /** Gating: weld só está disponível quando a montagem do spool está concluída. */
+  private async computeAvailable(list: WeldListEntity): Promise<boolean> {
+    const c = await this.weldListRepository.getJointStatusCounts(list.spool.id);
+    return c.total > 0 && c.done === c.total;
+  }
 
-    const joints = weldList.spool.joints.getItems();
-    for (const joint of joints) {
-      for (const weld of joint.welds.getItems()) {
-        const workStatuses = weld.workStatuses.getItems();
-        if (workStatuses.length === 0) {
-          return false;
-        }
-        const lastStatus = workStatuses[workStatuses.length - 1];
-        if (lastStatus.workStatusType.name !== WorkStatusType.FINISHED) {
-          return false;
-        }
-      }
-    }
-    return true;
+  /** Preenche os campos derivados (progress/available). */
+  private async attachDerived(list: WeldListEntity): Promise<void> {
+    list.progress = await this.computeProgress(list);
+    list.available = await this.computeAvailable(list);
   }
 }

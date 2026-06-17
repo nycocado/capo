@@ -9,6 +9,7 @@ import {
 import { Cascade } from "@mikro-orm/core";
 import { SpoolEntity } from "@database/entities";
 import { UserEntity } from "@modules/user/entities";
+import { ListProgress } from "@shared/types";
 
 @Entity({ tableName: "weld_list" })
 export class WeldListEntity {
@@ -40,4 +41,11 @@ export class WeldListEntity {
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
+
+  // Derivados dos itens (preenchidos pelo service; não persistidos)
+  @Property({ persist: false })
+  progress?: ListProgress;
+
+  @Property({ persist: false })
+  available?: boolean;
 }

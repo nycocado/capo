@@ -1,1 +1,1 @@
-export * from "./joint-response.dto";
+export * from "./create-joint-status-event.dto";

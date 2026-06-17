@@ -1,127 +1,115 @@
-import { Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { CutListRepository } from "@modules/cut-list/cut-list.repository";
 import { CutListEntity } from "@modules/cut-list/entities";
-import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
-import { PartType, WorkStatusType } from "@database/entities";
+import { UserRoleService } from "@modules/user-role";
+import { ListProgress, Role } from "@shared/types";
+import { deriveListProgress } from "@common/utils/list-progress.util";
 
 @Injectable()
 export class CutListService {
   constructor(
     private readonly cutListRepository: CutListRepository,
+    private readonly userRoleService: UserRoleService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  async getAll(): Promise<CutListEntity[]> {
+    const lists = await this.cutListRepository.findAllLight();
+    for (const list of lists) {
+      await this.attachDerived(list);
+    }
+    return lists;
+  }
+
   async getById(id: number): Promise<CutListEntity> {
-    return this.cutListRepository.findFullByIdOrFail(id);
+    const list = await this.cutListRepository.findFullByIdOrFail(id);
+    await this.attachDerived(list);
+    return list;
   }
 
-  async getToDo(): Promise<CutListEntity[]> {
-    const lists = await this.cutListRepository.findFullAll();
-    return lists.filter((cutList) => {
-      const statuses = cutList.workStatuses.getItems();
-      const lastStatus = statuses[statuses.length - 1];
-      return lastStatus.workStatusType.name !== WorkStatusType.FINISHED;
-    });
-  }
+  async claim(id: number, userId: number): Promise<CutListEntity> {
+    const list = await this.cutListRepository.findByIdOrFail(id);
+    const progress = await this.computeProgress(list);
 
-  async updateWorkStatusToWorking(
-    cutList: CutListEntity,
-    userId: number,
-  ): Promise<CutListEntity> {
-    const workStatus = cutList.workStatuses[cutList.workStatuses.length - 1];
-
-    if (
-      workStatus.workStatusType.name === WorkStatusType.WORKING ||
-      workStatus.workStatusType.name === WorkStatusType.FINISHED
-    ) {
-      return this.cutListRepository.populateToFull(cutList);
+    if (!(await this.computeAvailable(list))) {
+      throw new ConflictException("Prior stage is not complete");
+    }
+    if (progress === ListProgress.DONE) {
+      throw new ConflictException("Cannot claim a completed order");
+    }
+    if (list.claimedBy && list.claimedBy.id !== userId) {
+      throw new ConflictException("Order already claimed by another user");
     }
 
-    const newCutList = await this.cutListRepository.updateWorkStatusToWorking(
-      cutList,
-      userId,
-    );
-
-    const populatedCutList =
-      await this.cutListRepository.populateToFull(newCutList);
-
-    this.eventEmitter.emit(
-      "cut-list.updateWorkStatusToWorking",
-      populatedCutList,
-      userId,
-    );
-
-    return populatedCutList;
+    await this.cutListRepository.updateClaim(list, userId);
+    this.eventEmitter.emit("cut-list.claimChanged", id, userId);
+    return this.getById(id);
   }
 
-  async updateWorkStatusToFinished(
-    cutList: CutListEntity,
+  async release(id: number, userId: number): Promise<CutListEntity> {
+    const list = await this.cutListRepository.findByIdOrFail(id);
+    await this.assertClaimerOrAdmin(list, userId);
+
+    await this.cutListRepository.updateClaim(list, null);
+    this.eventEmitter.emit("cut-list.claimChanged", id, userId);
+    return this.getById(id);
+  }
+
+  async reassign(id: number, targetUserId: number): Promise<CutListEntity> {
+    const list = await this.cutListRepository.findByIdOrFail(id);
+    await this.cutListRepository.updateClaim(list, targetUserId);
+    this.eventEmitter.emit("cut-list.claimChanged", id, targetUserId);
+    return this.getById(id);
+  }
+
+  /**
+   * Garante que o utilizador pode avançar itens da ordem do pipe_length dado:
+   * tem de ser o claimer ou um administrador.
+   *
+   * @throws ForbiddenException Se não for o claimer nem administrador
+   */
+  async assertCanAdvancePipeLength(
+    pipeLengthId: number,
     userId: number,
-  ): Promise<CutListEntity> {
-    const newCutList = await this.cutListRepository.updateWorkStatusToFinished(
-      cutList,
-      userId,
-    );
-
-    const populatedCutList =
-      await this.cutListRepository.populateToFull(newCutList);
-
-    this.eventEmitter.emit(
-      "cut-list.updateWorkStatusToFinished",
-      populatedCutList,
-      userId,
-    );
-
-    return populatedCutList;
+  ): Promise<void> {
+    const list =
+      await this.cutListRepository.findByPipeLengthIdOrFail(pipeLengthId);
+    await this.assertClaimerOrAdmin(list, userId);
   }
 
-  @OnEvent("pipe-length.updateWorkStatusToFinished", { async: true })
-  async handleWorkStatusToFinished(
-    pipeLength: PipeLengthEntity,
+  private async assertClaimerOrAdmin(
+    list: CutListEntity,
     userId: number,
-  ): Promise<CutListEntity> {
-    const cutList =
-      await this.cutListRepository.findMinimalByPipeLengthIdOrFail(
-        pipeLength.part.id,
-      );
-    const workStatus = cutList.workStatuses[cutList.workStatuses.length - 1];
-
-    if (
-      (await this.isCutListFinished(cutList)) &&
-      workStatus.workStatusType.name !== WorkStatusType.FINISHED
-    ) {
-      return this.updateWorkStatusToFinished(cutList, userId);
+  ): Promise<void> {
+    if (list.claimedBy?.id === userId) {
+      return;
     }
-
-    return this.cutListRepository.populateToFull(cutList);
+    if (await this.userRoleService.hasRole(userId, Role.ADMINISTRATOR)) {
+      return;
+    }
+    throw new ForbiddenException("Order is not claimed by this user");
   }
 
-  async isCutListFinished(cutList: CutListEntity): Promise<boolean> {
-    cutList = await this.cutListRepository.populateToFull(cutList);
+  private async computeProgress(list: CutListEntity): Promise<ListProgress> {
+    const counts = await this.cutListRepository.getPipeLengthStatusCounts(
+      list.isometric.id,
+    );
+    return deriveListProgress(counts);
+  }
 
-    const sheets = cutList.isometric.sheets.getItems();
-    for (const sheet of sheets) {
-      const revisions = sheet.revisions.getItems();
-      if (!revisions.length) continue;
-      const lastRev = revisions[revisions.length - 1];
-      for (const spool of lastRev.spools.getItems()) {
-        for (const joint of spool.joints.getItems()) {
-          for (const part of [joint.part1, joint.part2]) {
-            if (part.type === PartType.PIPE_LENGTH) {
-              const statuses = part.workStatuses.getItems();
-              if (statuses.length === 0) {
-                return false;
-              }
-              const lastStatus = statuses[statuses.length - 1];
-              if (lastStatus.workStatusType.name !== WorkStatusType.FINISHED) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
+  /** Gating: cut é o 1º estágio, logo está sempre disponível. */
+  private async computeAvailable(_list: CutListEntity): Promise<boolean> {
     return true;
+  }
+
+  /** Preenche os campos derivados (progress/available). */
+  private async attachDerived(list: CutListEntity): Promise<void> {
+    list.progress = await this.computeProgress(list);
+    list.available = await this.computeAvailable(list);
   }
 }

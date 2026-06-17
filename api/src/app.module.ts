@@ -7,9 +7,7 @@ import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
 import { RoleModule } from "@modules/role";
 import { UserRoleModule } from "@modules/user-role";
-import { ProjectModule } from "@modules/project";
 import { PipeLengthModule } from "@modules/pipe-length";
-import { FittingModule } from "@modules/fitting";
 import { CutListModule } from "@modules/cut-list";
 import { JointModule } from "@modules/joint";
 import { WeldModule } from "@modules/weld";
@@ -36,9 +34,7 @@ import { AppService } from "./app.service";
     UserModule,
     RoleModule,
     UserRoleModule,
-    ProjectModule,
     PipeLengthModule,
-    FittingModule,
     CutListModule,
     JointModule,
     WeldModule,

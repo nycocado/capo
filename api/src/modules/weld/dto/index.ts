@@ -1,1 +1,1 @@
-export * from "./weld-response.dto";
+export * from "./create-weld-status-event.dto";

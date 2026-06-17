@@ -1,13 +1,25 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { JointEntity } from "@modules/joint/entities";
-import { WorkStatusType } from "@database/entities";
-import { JointRepository } from "@modules/joint/joint.repository";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { JointRepository } from "@modules/joint/joint.repository";
+import {
+  JointEntity,
+  JointStatus,
+  JointStatusEventEntity,
+} from "@modules/joint/entities";
+import { CreateJointStatusEventDto } from "@modules/joint/dto";
+import { AssemblyListService } from "@modules/assembly-list";
+
+// Máquina de estados da montagem: to_do → done.
+const TRANSITIONS: Record<JointStatus, JointStatus[]> = {
+  [JointStatus.TO_DO]: [JointStatus.DONE],
+  [JointStatus.DONE]: [],
+};
 
 @Injectable()
 export class JointService {
   constructor(
     private readonly jointRepository: JointRepository,
+    private readonly assemblyListService: AssemblyListService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -15,46 +27,39 @@ export class JointService {
     return this.jointRepository.findFullByIdOrFail(id);
   }
 
-  async getAll(): Promise<JointEntity[]> {
-    return this.jointRepository.findFullAll();
+  async getStatusEvents(id: number): Promise<JointStatusEventEntity[]> {
+    await this.jointRepository.findByIdOrFail(id);
+    return this.jointRepository.findStatusEvents(id);
   }
 
-  async updateWorkStatusToFinished(
-    joint: JointEntity,
-    userId: number,
-    notes?: string,
-  ): Promise<JointEntity> {
-    const newJoint = await this.jointRepository.updateWorkStatusToFinished(
-      joint,
-      userId,
-      notes,
-    );
-
-    this.eventEmitter.emit(
-      "joint.updateWorkStatusToFinished",
-      newJoint,
-      userId,
-    );
-
-    return newJoint;
-  }
-
-  async updateWorkStatus(
+  async createStatusEvent(
     id: number,
+    dto: CreateJointStatusEventDto,
     userId: number,
-    notes?: string,
   ): Promise<JointEntity> {
-    const joint = await this.jointRepository.findWithWorkStatusesByIdOrFail(id);
+    const joint = await this.jointRepository.findByIdOrFail(id);
 
-    const currentWorkStatus = joint.workStatuses[joint.workStatuses.length - 1];
+    // Lock: só o claimer da assembly_list (ou admin) avança os itens.
+    await this.assemblyListService.assertCanAdvanceJoint(id, userId);
 
-    switch (currentWorkStatus?.workStatusType.name) {
-      case WorkStatusType.TO_DO:
-        return this.updateWorkStatusToFinished(joint, userId, notes);
-      case WorkStatusType.FINISHED:
-        return this.jointRepository.populateToFull(joint);
-      default:
-        throw new InternalServerErrorException();
+    this.assertTransition(joint.status, dto.status);
+
+    const updated = await this.jointRepository.applyStatusEvent(
+      joint,
+      dto.status,
+      userId,
+      dto.notes,
+    );
+
+    this.eventEmitter.emit("joint.statusChanged", updated, userId);
+    return updated;
+  }
+
+  private assertTransition(current: JointStatus, next: JointStatus): void {
+    if (!TRANSITIONS[current].includes(next)) {
+      throw new ConflictException(
+        `Invalid status transition: ${current} -> ${next}`,
+      );
     }
   }
 }

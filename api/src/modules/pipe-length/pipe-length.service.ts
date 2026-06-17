@@ -1,17 +1,26 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
-import { WorkStatusType } from "@database/entities";
+import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { PipeLengthRepository } from "@modules/pipe-length/pipe-length.repository";
+import {
+  PipeLengthEntity,
+  PipeLengthStatus,
+  PipeLengthStatusEventEntity,
+} from "@modules/pipe-length/entities";
+import { CreatePipeLengthStatusEventDto } from "@modules/pipe-length/dto";
+import { CutListService } from "@modules/cut-list";
+
+// Máquina de estados do corte: to_do → in_progress (exige heat_number) → done.
+const TRANSITIONS: Record<PipeLengthStatus, PipeLengthStatus[]> = {
+  [PipeLengthStatus.TO_DO]: [PipeLengthStatus.IN_PROGRESS],
+  [PipeLengthStatus.IN_PROGRESS]: [PipeLengthStatus.DONE],
+  [PipeLengthStatus.DONE]: [],
+};
 
 @Injectable()
 export class PipeLengthService {
   constructor(
     private readonly pipeLengthRepository: PipeLengthRepository,
+    private readonly cutListService: CutListService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -19,91 +28,51 @@ export class PipeLengthService {
     return this.pipeLengthRepository.findFullByIdOrFail(id);
   }
 
-  async getAll(): Promise<PipeLengthEntity[]> {
-    return this.pipeLengthRepository.findFullAll();
+  async getStatusEvents(id: number): Promise<PipeLengthStatusEventEntity[]> {
+    await this.pipeLengthRepository.findByIdOrFail(id);
+    return this.pipeLengthRepository.findStatusEvents(id);
   }
 
-  async updateWorkStatusToWorking(
-    pipeLength: PipeLengthEntity,
+  async createStatusEvent(
+    id: number,
+    dto: CreatePipeLengthStatusEventDto,
     userId: number,
-    heatNumber?: string,
-    notes?: string,
   ): Promise<PipeLengthEntity> {
-    if (!heatNumber) {
-      throw new BadRequestException();
+    const pipeLength = await this.pipeLengthRepository.findByIdOrFail(id);
+
+    // Lock: só o claimer da cut_list (ou admin) avança os itens.
+    await this.cutListService.assertCanAdvancePipeLength(id, userId);
+
+    this.assertTransition(pipeLength.status, dto.status);
+
+    if (
+      dto.status === PipeLengthStatus.IN_PROGRESS &&
+      !dto.heatNumber &&
+      !pipeLength.heatNumber
+    ) {
+      throw new BadRequestException("heatNumber is required to start cutting");
     }
 
-    return this.pipeLengthRepository.updateWorkStatusToWorking(
+    const updated = await this.pipeLengthRepository.applyStatusEvent(
       pipeLength,
+      dto.status,
       userId,
-      heatNumber,
-      notes,
+      dto.heatNumber,
+      dto.notes,
     );
+
+    this.eventEmitter.emit("pipe-length.statusChanged", updated, userId);
+    return updated;
   }
 
-  async updateWorkStatusToFinished(
-    pipeLength: PipeLengthEntity,
-    userId: number,
-    notes?: string,
-  ): Promise<PipeLengthEntity> {
-    const newPipeLength =
-      await this.pipeLengthRepository.updateWorkStatusToFinished(
-        pipeLength,
-        userId,
-        notes,
+  private assertTransition(
+    current: PipeLengthStatus,
+    next: PipeLengthStatus,
+  ): void {
+    if (!TRANSITIONS[current].includes(next)) {
+      throw new ConflictException(
+        `Invalid status transition: ${current} -> ${next}`,
       );
-
-    this.eventEmitter.emit(
-      "pipe-length.updateWorkStatusToFinished",
-      newPipeLength,
-      userId,
-    );
-
-    return newPipeLength;
-  }
-
-  async updateWorkStatus(
-    id: number,
-    userId: number,
-    heatNumber?: string,
-    notes?: string,
-  ): Promise<PipeLengthEntity> {
-    const pipeLength =
-      await this.pipeLengthRepository.findWithWorkStatusesByIdOrFail(id);
-
-    const workStatuses = pipeLength.part.workStatuses;
-    const currentWorkStatus = workStatuses[workStatuses.length - 1];
-
-    switch (currentWorkStatus?.workStatusType.name) {
-      case WorkStatusType.TO_DO: {
-        return this.updateWorkStatusToWorking(
-          pipeLength,
-          userId,
-          heatNumber,
-          notes,
-        );
-      }
-      case WorkStatusType.WORKING: {
-        return this.updateWorkStatusToFinished(pipeLength, userId, notes);
-      }
-      case WorkStatusType.FINISHED: {
-        return this.pipeLengthRepository.populateToFull(pipeLength);
-      }
-      default: {
-        throw new InternalServerErrorException();
-      }
     }
-  }
-
-  async updateHeatNumber(
-    id: number,
-    heatNumber: string,
-  ): Promise<PipeLengthEntity> {
-    if (!heatNumber) {
-      throw new BadRequestException();
-    }
-
-    const pipeLength = await this.getById(id);
-    return this.pipeLengthRepository.updateHeatNumber(pipeLength, heatNumber);
   }
 }
