@@ -29,9 +29,6 @@ export const createMikroOrmConfig = (config: ConfigService): Options => {
     // Decorators legacy usam metadados de reflexão (emitDecoratorMetadata)
     metadataProvider: ReflectMetadataProvider,
     debug: !isProduction,
-    seeder: {
-      path: "./src/database/seeders",
-    },
     // Relações sempre serializadas como objeto (consistência na serialização nativa)
     serialization: {
       forceObject: true,
