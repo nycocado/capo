@@ -1,13 +1,12 @@
 import {
-  Cascade,
   Entity,
   Index,
   ManyToOne,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
-import { ApiProperty } from "@nestjs/swagger";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade } from "@mikro-orm/core";
 import { UserEntity } from "@modules/user/entities";
 import { RoleEntity } from "@modules/role/entities";
 
@@ -21,12 +20,10 @@ export class UserRoleEntity {
   @Index()
   user!: UserEntity;
 
-  @ApiProperty({ type: () => RoleEntity })
   @ManyToOne(() => RoleEntity, { cascade: [Cascade.ALL] })
   @Index()
   role!: RoleEntity;
 
-  @ApiProperty()
   @Property({ length: 255 })
   document!: string;
 

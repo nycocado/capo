@@ -1,11 +1,11 @@
 import {
-  Collection,
   Entity,
   OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Collection } from "@mikro-orm/core";
 import { FittingEntity } from "@modules/fitting/entities";
 
 @Entity({ tableName: "fitting_type" })

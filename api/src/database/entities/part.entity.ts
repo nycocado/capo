@@ -1,6 +1,4 @@
 import {
-  Cascade,
-  Collection,
   Entity,
   Enum,
   Index,
@@ -8,11 +6,11 @@ import {
   OneToOne,
   PrimaryKey,
   Property,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade, Collection } from "@mikro-orm/core";
 import { PipeLengthEntity } from "@modules/pipe-length/entities";
 import { FittingEntity } from "@modules/fitting/entities";
 import { JointEntity } from "@modules/joint/entities";
-import { PartWorkStatusEntity } from "@database/entities";
 
 export enum PartType {
   PIPE_LENGTH = "pipe_length",
@@ -24,7 +22,6 @@ export class PartEntity {
   @PrimaryKey()
   id!: number;
 
-  @Property()
   @Enum(() => PartType)
   @Index()
   type!: PartType;
@@ -60,10 +57,4 @@ export class PartEntity {
 
   @OneToMany(() => JointEntity, (joint) => joint.part2)
   jointsAsPart2 = new Collection<JointEntity>(this);
-
-  @OneToMany(
-    () => PartWorkStatusEntity,
-    (partWorkStatus) => partWorkStatus.part,
-  )
-  workStatuses = new Collection<PartWorkStatusEntity>(this);
 }

@@ -1,7 +1,5 @@
 import {
-  Cascade,
   Check,
-  Collection,
   Entity,
   Index,
   ManyToOne,
@@ -9,7 +7,8 @@ import {
   OneToOne,
   Property,
   Unique,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade, Collection } from "@mikro-orm/core";
 import { MaterialEntity, PartEntity, PortEntity } from "@database/entities";
 import { FittingTypeEntity } from "@modules/fitting/entities/fitting-type.entity";
 
@@ -49,6 +48,16 @@ export class FittingEntity {
   @ManyToOne(() => FittingTypeEntity)
   @Index()
   fittingType!: FittingTypeEntity;
+
+  @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
+
+  @Property({
+    type: "timestamp",
+    defaultRaw: "CURRENT_TIMESTAMP",
+    onUpdate: () => new Date(),
+  })
+  updatedAt!: Date;
 
   @OneToMany(() => PortEntity, (port) => port.fitting)
   ports = new Collection<PortEntity>(this);

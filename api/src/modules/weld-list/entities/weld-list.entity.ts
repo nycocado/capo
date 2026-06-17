@@ -1,33 +1,35 @@
 import {
-  Cascade,
-  Collection,
   Entity,
   Index,
   ManyToOne,
-  OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
-import { ApiProperty } from "@nestjs/swagger";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade } from "@mikro-orm/core";
 import { SpoolEntity } from "@database/entities";
-import { WeldListWorkStatusEntity } from "@modules/weld-list/entities/weld-list-work-status.entity";
+import { UserEntity } from "@modules/user/entities";
 
 @Entity({ tableName: "weld_list" })
 export class WeldListEntity {
-  @ApiProperty()
   @PrimaryKey()
   id!: number;
 
-  @ApiProperty()
   @Property({ length: 100 })
   @Unique()
   internalId!: string;
 
-  @ApiProperty()
   @ManyToOne(() => SpoolEntity, { cascade: [Cascade.ALL] })
+  @Unique()
   @Index()
   spool!: SpoolEntity;
+
+  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: "set null" })
+  @Index()
+  claimedBy?: UserEntity;
+
+  @Property({ type: "timestamp", nullable: true })
+  claimedAt?: Date;
 
   @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
@@ -38,15 +40,4 @@ export class WeldListEntity {
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
-
-  @OneToMany(
-    () => WeldListWorkStatusEntity,
-    (weldListWorkStatus) => weldListWorkStatus.weldList,
-  )
-  workStatuses = new Collection<WeldListWorkStatusEntity>(this);
-
-  constructor(internalId: string, spool: SpoolEntity) {
-    this.internalId = internalId;
-    this.spool = spool;
-  }
 }

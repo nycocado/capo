@@ -1,13 +1,12 @@
 import {
-  Collection,
   Entity,
   ManyToMany,
   OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
-import { ApiProperty } from "@nestjs/swagger";
+} from "@mikro-orm/decorators/legacy";
+import { Collection } from "@mikro-orm/core";
 import { UserEntity } from "@modules/user/entities";
 import { UserRoleEntity } from "@modules/user-role/entities";
 
@@ -16,7 +15,6 @@ export class RoleEntity {
   @PrimaryKey({ hidden: true })
   id!: number;
 
-  @ApiProperty()
   @Property({ length: 60 })
   @Unique()
   name!: string;

@@ -1,14 +1,14 @@
 import {
-  Cascade,
-  Collection,
   Entity,
-  ManyToMany,
+  Index,
+  ManyToOne,
   OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
-import { RevEntity } from "@database/entities";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade, Collection } from "@mikro-orm/core";
+import { IsometricEntity } from "@database/entities";
 import { JointEntity } from "@modules/joint/entities";
 
 @Entity({ tableName: "spool" })
@@ -20,6 +20,10 @@ export class SpoolEntity {
   @Unique()
   internalId!: string;
 
+  @ManyToOne(() => IsometricEntity, { cascade: [Cascade.ALL] })
+  @Index()
+  isometric!: IsometricEntity;
+
   @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
@@ -29,13 +33,6 @@ export class SpoolEntity {
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
-
-  @ManyToMany({
-    entity: () => RevEntity,
-    mappedBy: (r) => r.spools,
-    cascade: [Cascade.ALL],
-  })
-  revisions = new Collection<RevEntity>(this);
 
   @OneToMany(() => JointEntity, (joint) => joint.spool)
   joints = new Collection<JointEntity>(this);

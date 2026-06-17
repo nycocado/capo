@@ -1,7 +1,7 @@
 import { Module, ValidationPipe } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { microOrmConfig } from "@config/mikroorm.config";
+import { createMikroOrmConfig } from "@config/mikroorm.config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
@@ -26,7 +26,11 @@ import { AppService } from "./app.service";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
-    MikroOrmModule.forRoot(microOrmConfig),
+    MikroOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => createMikroOrmConfig(config),
+    }),
     EventEmitterModule.forRoot(),
     AuthModule,
     UserModule,

@@ -1,33 +1,35 @@
 import {
-  Cascade,
-  Collection,
   Entity,
   Index,
   ManyToOne,
-  OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
-import { ApiProperty } from "@nestjs/swagger";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade } from "@mikro-orm/core";
 import { IsometricEntity } from "@database/entities";
-import { CutListWorkStatusEntity } from "@modules/cut-list/entities/cut-list-work-status.entity";
+import { UserEntity } from "@modules/user/entities";
 
 @Entity({ tableName: "cut_list" })
 export class CutListEntity {
-  @ApiProperty()
   @PrimaryKey()
   id!: number;
 
-  @ApiProperty()
   @Property({ length: 100 })
   @Unique()
   internalId!: string;
 
-  @ApiProperty()
   @ManyToOne(() => IsometricEntity, { cascade: [Cascade.ALL] })
+  @Unique()
   @Index()
   isometric!: IsometricEntity;
+
+  @ManyToOne(() => UserEntity, { nullable: true, deleteRule: "set null" })
+  @Index()
+  claimedBy?: UserEntity;
+
+  @Property({ type: "timestamp", nullable: true })
+  claimedAt?: Date;
 
   @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
@@ -38,10 +40,4 @@ export class CutListEntity {
     onUpdate: () => new Date(),
   })
   updatedAt!: Date;
-
-  @OneToMany(
-    () => CutListWorkStatusEntity,
-    (cutListWorkStatus) => cutListWorkStatus.cutList,
-  )
-  workStatuses = new Collection<CutListWorkStatusEntity>(this);
 }

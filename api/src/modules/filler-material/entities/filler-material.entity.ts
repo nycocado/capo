@@ -1,11 +1,11 @@
 import {
-  Collection,
   Entity,
   OneToMany,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Collection } from "@mikro-orm/core";
 import { WeldEntity } from "@modules/weld/entities";
 
 @Entity({ tableName: "filler_material" })

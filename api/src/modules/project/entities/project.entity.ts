@@ -1,12 +1,12 @@
 import {
   Entity,
+  Index,
+  OneToMany,
   PrimaryKey,
   Property,
   Unique,
-  OneToMany,
-  Collection,
-  Index,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Collection } from "@mikro-orm/core";
 import { IsometricEntity } from "@database/entities";
 
 @Entity({ tableName: "project" })

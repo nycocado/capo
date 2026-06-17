@@ -1,6 +1,4 @@
 import {
-  Cascade,
-  Collection,
   Entity,
   Index,
   ManyToOne,
@@ -8,10 +6,10 @@ import {
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade, Collection } from "@mikro-orm/core";
 import { ProjectEntity } from "@modules/project/entities";
-import { SheetEntity } from "@database/entities";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { SpoolEntity } from "@database/entities";
 
 @Entity({ tableName: "isometric" })
 export class IsometricEntity {
@@ -26,6 +24,9 @@ export class IsometricEntity {
   @Index()
   project!: ProjectEntity;
 
+  @Property({ length: 255 })
+  document!: string;
+
   @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
@@ -36,9 +37,6 @@ export class IsometricEntity {
   })
   updatedAt!: Date;
 
-  @OneToMany(() => SheetEntity, (sheet) => sheet.isometric)
-  sheets = new Collection<SheetEntity>(this);
-
-  @OneToMany(() => CutListEntity, (cutList) => cutList.isometric)
-  cutLists = new Collection<CutListEntity>(this);
+  @OneToMany(() => SpoolEntity, (spool) => spool.isometric)
+  spools = new Collection<SpoolEntity>(this);
 }

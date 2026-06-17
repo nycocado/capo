@@ -1,17 +1,22 @@
 import {
-  Cascade,
-  Collection,
   Entity,
+  Enum,
   Index,
   ManyToOne,
   OneToMany,
   PrimaryKey,
   Property,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade, Collection } from "@mikro-orm/core";
 import { JointEntity } from "@modules/joint/entities";
 import { FillerMaterialEntity } from "@modules/filler-material/entities";
 import { WpsEntity } from "@modules/wps/entities";
-import { WeldWorkStatusEntity } from "@modules/weld/entities/weld-work-status.entity";
+import { WeldStatusEventEntity } from "@modules/weld/entities";
+
+export enum WeldStatus {
+  TO_DO = "to_do",
+  DONE = "done",
+}
 
 @Entity({ tableName: "weld" })
 export class WeldEntity {
@@ -19,12 +24,13 @@ export class WeldEntity {
   id!: number;
 
   @Property({ length: 10 })
-  number: string;
+  number!: string;
 
   @ManyToOne(() => JointEntity, { cascade: [Cascade.ALL] })
   @Index()
   joint!: JointEntity;
 
+  // Capturados na transição para done (estágio de solda)
   @ManyToOne(() => FillerMaterialEntity, {
     nullable: true,
     deleteRule: "set null",
@@ -36,6 +42,10 @@ export class WeldEntity {
   @Index()
   wps?: WpsEntity;
 
+  @Enum({ items: () => WeldStatus, default: WeldStatus.TO_DO })
+  @Index()
+  status: WeldStatus = WeldStatus.TO_DO;
+
   @Property({ type: "timestamp", defaultRaw: "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 
@@ -46,9 +56,6 @@ export class WeldEntity {
   })
   updatedAt!: Date;
 
-  @OneToMany(
-    () => WeldWorkStatusEntity,
-    (weldWorkStatus) => weldWorkStatus.weld,
-  )
-  workStatuses = new Collection<WeldWorkStatusEntity>(this);
+  @OneToMany(() => WeldStatusEventEntity, (event) => event.weld)
+  statusEvents = new Collection<WeldStatusEventEntity>(this);
 }

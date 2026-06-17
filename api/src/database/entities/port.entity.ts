@@ -1,12 +1,12 @@
 import {
-  Cascade,
   Entity,
   Index,
   ManyToOne,
   PrimaryKey,
   Property,
   Unique,
-} from "@mikro-orm/core";
+} from "@mikro-orm/decorators/legacy";
+import { Cascade } from "@mikro-orm/core";
 import { FittingEntity } from "@modules/fitting/entities";
 import { DiameterEntity } from "@database/entities";
 
