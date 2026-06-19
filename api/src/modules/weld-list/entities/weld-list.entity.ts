@@ -48,4 +48,8 @@ export class WeldListEntity {
 
   @Property({ persist: false })
   available?: boolean;
+
+  /** Total de welds do spool (para a lista leve, sem a árvore). */
+  @Property({ persist: false })
+  weldCount?: number;
 }

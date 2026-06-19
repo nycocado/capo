@@ -18,12 +18,27 @@ export class CutListService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  /** Lista leve das cut_lists (sem a árvore), com progresso e total derivados. */
   async getAll(): Promise<CutListEntity[]> {
-    const lists = await this.cutListRepository.findAll();
+    const lists = await this.cutListRepository.findAllLight();
+    const counts =
+      await this.cutListRepository.getPipeLengthCountsByIsometric();
     for (const list of lists) {
-      await this.attachDerived(list);
+      const c = counts.get(list.isometric.id) ?? {
+        total: 0,
+        done: 0,
+        inProgress: 0,
+      };
+      list.progress = deriveListProgress(c);
+      list.available = this.computeAvailable();
+      list.pipeCount = c.total;
     }
     return lists;
+  }
+
+  /** Nº de cut_lists pendentes (para o resumo de estações), via COUNT no DB. */
+  async getPendingCount(): Promise<number> {
+    return this.cutListRepository.getPendingCount();
   }
 
   async getById(id: number): Promise<CutListEntity> {
@@ -107,9 +122,13 @@ export class CutListService {
     return true;
   }
 
-  /** Preenche os campos derivados (progress/available). */
+  /** Preenche os campos derivados (progress/available/pipeCount). */
   private async attachDerived(list: CutListEntity): Promise<void> {
-    list.progress = await this.computeProgress(list);
+    const counts = await this.cutListRepository.getPipeLengthStatusCounts(
+      list.isometric.id,
+    );
+    list.progress = deriveListProgress(counts);
     list.available = this.computeAvailable();
+    list.pipeCount = counts.total;
   }
 }

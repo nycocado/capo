@@ -26,6 +26,13 @@ export class CutListController {
     return this.cutListService.getAll();
   }
 
+  // Declarado antes de ":id" para não ser capturado como parâmetro.
+  @Get("pending-count")
+  @Roles("cutting-operator", "administrator")
+  async getPendingCount(): Promise<{ count: number }> {
+    return { count: await this.cutListService.getPendingCount() };
+  }
+
   @Get(":id")
   @Roles("cutting-operator", "administrator")
   async getById(@Param("id", ParseIntPipe) id: number): Promise<CutListEntity> {

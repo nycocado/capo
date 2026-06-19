@@ -19,6 +19,10 @@ This is an **npm-workspaces monorepo** with two deployable apps plus a database,
 - `db/` — raw SQL schema + seed data (the database is **not** managed by ORM migrations).
 - `nginx/` — reverse proxy: `/api/` → api, `/socket.io/` → api WebSockets, everything else → web.
 
+## Filter in the query, not in JS (IMPORTANT)
+
+**Always filter and aggregate in the database query — never by loading rows and discarding them in JavaScript.** Use the repository query (`WHERE` / QueryBuilder, `count`/`getCount`), not `.filter()`/`.length` over a full result set. This is a hard preference for performance: the DB does the work and only the needed rows cross the wire. The frontend then just renders what the API returns — if a row shouldn't appear, the query shouldn't return it.
+
 ## Commands
 
 Orchestration runs from the repo root. The package manager and script runner is **Bun** (`bun.lock` is the monorepo lockfile); Node runs the apps. **Docker/Compose builds production images** — multi-stage `builder`/`runner` Dockerfiles: web as a Next.js **standalone** server (`node server.js`), API as `node dist/main`, both non-root. **Day-to-day development runs locally with Bun** against the Dockerized DB; there is no hot-reload-in-container workflow (and no `.dev` Dockerfiles). App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.

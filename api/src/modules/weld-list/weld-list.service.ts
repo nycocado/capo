@@ -8,7 +8,12 @@ import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
 import { WeldListEntity } from "@modules/weld-list/entities";
 import { UserRoleService } from "@modules/user-role";
 import { ListProgress, Role } from "@shared/types";
-import { deriveListProgress } from "@common/utils/list-progress.util";
+import {
+  deriveListProgress,
+  StatusCounts,
+} from "@common/utils/list-progress.util";
+
+const ZERO_COUNTS: StatusCounts = { total: 0, done: 0, inProgress: 0 };
 
 @Injectable()
 export class WeldListService {
@@ -18,12 +23,28 @@ export class WeldListService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  /**
+   * Lista leve das weld_lists disponíveis (montagem do spool concluída), com
+   * progresso e contagem derivados. O gating é resolvido na consulta — só os
+   * spools assembly-complete são buscados.
+   */
   async getAll(): Promise<WeldListEntity[]> {
-    const lists = await this.weldListRepository.findAll();
+    const spoolIds =
+      await this.weldListRepository.getAssemblyCompleteSpoolIds();
+    const lists = await this.weldListRepository.findLightBySpoolIds(spoolIds);
+    const weldCounts = await this.weldListRepository.getWeldCountsBySpool();
     for (const list of lists) {
-      await this.attachDerived(list);
+      const w = weldCounts.get(list.spool.id) ?? ZERO_COUNTS;
+      list.progress = deriveListProgress(w);
+      list.available = true;
+      list.weldCount = w.total;
     }
     return lists;
+  }
+
+  /** Nº de weld_lists pendentes (para o resumo de estações), via COUNT no DB. */
+  async getPendingCount(): Promise<number> {
+    return this.weldListRepository.getPendingCount();
   }
 
   async getById(id: number): Promise<WeldListEntity> {
@@ -92,21 +113,28 @@ export class WeldListService {
   }
 
   private async computeProgress(list: WeldListEntity): Promise<ListProgress> {
-    const counts = await this.weldListRepository.getWeldStatusCounts(
-      list.spool.id,
-    );
-    return deriveListProgress(counts);
+    const counts = await this.weldListRepository.getWeldCountsBySpool();
+    return deriveListProgress(counts.get(list.spool.id) ?? ZERO_COUNTS);
   }
 
   /** Gating: weld só está disponível quando a montagem do spool está concluída. */
   private async computeAvailable(list: WeldListEntity): Promise<boolean> {
-    const c = await this.weldListRepository.getJointStatusCounts(list.spool.id);
+    const counts = await this.weldListRepository.getJointCountsBySpool();
+    const c = counts.get(list.spool.id) ?? ZERO_COUNTS;
     return c.total > 0 && c.done === c.total;
   }
 
-  /** Preenche os campos derivados (progress/available). */
+  /** Preenche os campos derivados (progress/available/weldCount). */
   private async attachDerived(list: WeldListEntity): Promise<void> {
-    list.progress = await this.computeProgress(list);
-    list.available = await this.computeAvailable(list);
+    const spoolId = list.spool.id;
+    const [weldCounts, jointCounts] = await Promise.all([
+      this.weldListRepository.getWeldCountsBySpool(),
+      this.weldListRepository.getJointCountsBySpool(),
+    ]);
+    const w = weldCounts.get(spoolId) ?? ZERO_COUNTS;
+    list.progress = deriveListProgress(w);
+    const j = jointCounts.get(spoolId) ?? ZERO_COUNTS;
+    list.available = j.total > 0 && j.done === j.total;
+    list.weldCount = w.total;
   }
 }

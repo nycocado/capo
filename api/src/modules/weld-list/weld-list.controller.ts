@@ -26,6 +26,13 @@ export class WeldListController {
     return this.weldListService.getAll();
   }
 
+  // Declarado antes de ":id" para não ser capturado como parâmetro.
+  @Get("pending-count")
+  @Roles("welder", "administrator")
+  async getPendingCount(): Promise<{ count: number }> {
+    return { count: await this.weldListService.getPendingCount() };
+  }
+
   @Get(":id")
   @Roles("welder", "administrator")
   async getById(

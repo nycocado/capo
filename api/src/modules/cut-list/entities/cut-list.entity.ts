@@ -48,4 +48,8 @@ export class CutListEntity {
 
   @Property({ persist: false })
   available?: boolean;
+
+  /** Total de pipe_lengths do isométrico (para a lista leve, sem a árvore). */
+  @Property({ persist: false })
+  pipeCount?: number;
 }

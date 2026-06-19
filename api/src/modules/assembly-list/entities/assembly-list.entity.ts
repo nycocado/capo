@@ -48,4 +48,12 @@ export class AssemblyListEntity {
 
   @Property({ persist: false })
   available?: boolean;
+
+  /** Total de spools do isométrico (para a lista leve, sem a árvore). */
+  @Property({ persist: false })
+  spoolCount?: number;
+
+  /** Total de welds do isométrico (para a lista leve, sem a árvore). */
+  @Property({ persist: false })
+  weldCount?: number;
 }

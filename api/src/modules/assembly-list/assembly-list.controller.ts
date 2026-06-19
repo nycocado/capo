@@ -26,6 +26,13 @@ export class AssemblyListController {
     return this.assemblyListService.getAll();
   }
 
+  // Declarado antes de ":id" para não ser capturado como parâmetro.
+  @Get("pending-count")
+  @Roles("pipe-fitter", "administrator")
+  async getPendingCount(): Promise<{ count: number }> {
+    return { count: await this.assemblyListService.getPendingCount() };
+  }
+
   @Get(":id")
   @Roles("pipe-fitter", "administrator")
   async getById(

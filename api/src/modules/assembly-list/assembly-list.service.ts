@@ -8,7 +8,12 @@ import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.rep
 import { AssemblyListEntity } from "@modules/assembly-list/entities";
 import { UserRoleService } from "@modules/user-role";
 import { ListProgress, Role } from "@shared/types";
-import { deriveListProgress } from "@common/utils/list-progress.util";
+import {
+  deriveListProgress,
+  StatusCounts,
+} from "@common/utils/list-progress.util";
+
+const ZERO_COUNTS: StatusCounts = { total: 0, done: 0, inProgress: 0 };
 
 @Injectable()
 export class AssemblyListService {
@@ -18,12 +23,34 @@ export class AssemblyListService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  /**
+   * Lista leve das assembly_lists disponíveis (corte do isométrico concluído),
+   * com progresso e contagens derivados. O gating é resolvido na consulta — só
+   * os isométricos cut-complete são buscados.
+   */
   async getAll(): Promise<AssemblyListEntity[]> {
-    const lists = await this.assemblyListRepository.findAll();
+    const isoIds =
+      await this.assemblyListRepository.getCutCompleteIsometricIds();
+    const lists =
+      await this.assemblyListRepository.findLightByIsometricIds(isoIds);
+    const [jointCounts, spoolCounts, weldCounts] = await Promise.all([
+      this.assemblyListRepository.getJointCountsByIsometric(),
+      this.assemblyListRepository.getSpoolCountsByIsometric(),
+      this.assemblyListRepository.getWeldCountsByIsometric(),
+    ]);
     for (const list of lists) {
-      await this.attachDerived(list);
+      const isoId = list.isometric.id;
+      list.progress = deriveListProgress(jointCounts.get(isoId) ?? ZERO_COUNTS);
+      list.available = true;
+      list.spoolCount = spoolCounts.get(isoId) ?? 0;
+      list.weldCount = weldCounts.get(isoId) ?? 0;
     }
     return lists;
+  }
+
+  /** Nº de assembly_lists pendentes (para o resumo de estações), via COUNT no DB. */
+  async getPendingCount(): Promise<number> {
+    return this.assemblyListRepository.getPendingCount();
   }
 
   async getById(id: number): Promise<AssemblyListEntity> {
@@ -97,23 +124,32 @@ export class AssemblyListService {
   private async computeProgress(
     list: AssemblyListEntity,
   ): Promise<ListProgress> {
-    const counts = await this.assemblyListRepository.getJointStatusCounts(
-      list.isometric.id,
-    );
-    return deriveListProgress(counts);
+    const counts =
+      await this.assemblyListRepository.getJointCountsByIsometric();
+    return deriveListProgress(counts.get(list.isometric.id) ?? ZERO_COUNTS);
   }
 
   /** Gating: assembly só está disponível quando o corte do isométrico está concluído. */
   private async computeAvailable(list: AssemblyListEntity): Promise<boolean> {
-    const c = await this.assemblyListRepository.getPipeLengthStatusCounts(
-      list.isometric.id,
-    );
+    const counts =
+      await this.assemblyListRepository.getPipeLengthCountsByIsometric();
+    const c = counts.get(list.isometric.id) ?? ZERO_COUNTS;
     return c.total > 0 && c.done === c.total;
   }
 
-  /** Preenche os campos derivados (progress/available). */
+  /** Preenche os campos derivados (progress/available/spoolCount/weldCount). */
   private async attachDerived(list: AssemblyListEntity): Promise<void> {
-    list.progress = await this.computeProgress(list);
-    list.available = await this.computeAvailable(list);
+    const isoId = list.isometric.id;
+    const [jointCounts, plCounts, spoolCounts, weldCounts] = await Promise.all([
+      this.assemblyListRepository.getJointCountsByIsometric(),
+      this.assemblyListRepository.getPipeLengthCountsByIsometric(),
+      this.assemblyListRepository.getSpoolCountsByIsometric(),
+      this.assemblyListRepository.getWeldCountsByIsometric(),
+    ]);
+    list.progress = deriveListProgress(jointCounts.get(isoId) ?? ZERO_COUNTS);
+    const pl = plCounts.get(isoId) ?? ZERO_COUNTS;
+    list.available = pl.total > 0 && pl.done === pl.total;
+    list.spoolCount = spoolCounts.get(isoId) ?? 0;
+    list.weldCount = weldCounts.get(isoId) ?? 0;
   }
 }

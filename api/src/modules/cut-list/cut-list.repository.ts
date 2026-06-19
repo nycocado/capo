@@ -4,18 +4,8 @@ import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
 import { Transactional } from "@mikro-orm/decorators/legacy";
 import { CutListEntity } from "@modules/cut-list/entities";
-import {
-  PipeLengthEntity,
-  PipeLengthStatus,
-} from "@modules/pipe-length/entities";
 import { UserEntity } from "@modules/user/entities";
-
-/** Contagem dos pipe_lengths de um isométrico por estado (para o progresso derivado). */
-export interface PipeLengthStatusCounts {
-  total: number;
-  done: number;
-  inProgress: number;
-}
+import { StatusCounts } from "@common/utils/list-progress.util";
 
 @Injectable()
 export class CutListRepository {
@@ -24,7 +14,7 @@ export class CutListRepository {
     private readonly repository: EntityRepository<CutListEntity>,
   ) {}
 
-  // Árvore do isométrico para a grelha de corte (peças + juntas do isométrico).
+  // Árvore do isométrico para a grelha de corte (detalhe sob demanda).
   private readonly FULL_POPULATE_FIELDS = [
     "claimedBy",
     "isometric.spools.joints.part1.pipeLength.material",
@@ -39,9 +29,13 @@ export class CutListRepository {
     "isometric.spools.joints.part2.fitting.ports.diameter",
   ] as const;
 
-  async findAll(): Promise<CutListEntity[]> {
+  // Só os metadados da ordem (sem a árvore) para a listagem da tabela.
+  private readonly LIGHT_POPULATE_FIELDS = ["claimedBy", "isometric"] as const;
+
+  /** Lista leve de todas as cut_lists (cut é o 1º estágio: todas disponíveis). */
+  async findAllLight(): Promise<CutListEntity[]> {
     return this.repository.findAll({
-      populate: this.FULL_POPULATE_FIELDS,
+      populate: this.LIGHT_POPULATE_FIELDS,
       orderBy: { id: QueryOrder.ASC },
     });
   }
@@ -80,34 +74,62 @@ export class CutListRepository {
     );
   }
 
-  /** Conta os pipe_lengths do isométrico por estado (distinct — uma peça pode estar em várias juntas). */
-  async getPipeLengthStatusCounts(
-    isometricId: number,
-  ): Promise<PipeLengthStatusCounts> {
+  /**
+   * Contagem dos pipe_lengths por isométrico (uma query agregada para todos),
+   * para preencher progresso e total na listagem sem N+1. O pipe_length é alvo
+   * de uma junta como part1 ou part2 (PK partilhada com part), daí o OR no join
+   * e o DISTINCT (uma peça pode aparecer em várias juntas).
+   *
+   * @returns Mapa isometricId → contagens dos pipe_lengths
+   */
+  async getPipeLengthCountsByIsometric(): Promise<Map<number, StatusCounts>> {
     const em = this.repository.getEntityManager();
-    const base = {
-      part: {
-        $or: [
-          { jointsAsPart1: { spool: { isometric: isometricId } } },
-          { jointsAsPart2: { spool: { isometric: isometricId } } },
-        ],
-      },
-    };
+    const rows = await em.execute<
+      Array<{ iso: number; total: number; done: number; in_progress: number }>
+    >(
+      `SELECT s.isometric_id AS iso,
+              COUNT(DISTINCT pl.id) AS total,
+              COUNT(DISTINCT CASE WHEN pl.status = 'done' THEN pl.id END) AS done,
+              COUNT(DISTINCT CASE WHEN pl.status = 'in_progress' THEN pl.id END) AS in_progress
+       FROM pipe_length pl
+       JOIN joint j ON j.part1_id = pl.id OR j.part2_id = pl.id
+       JOIN spool s ON s.id = j.spool_id
+       GROUP BY s.isometric_id`,
+    );
+    return new Map(
+      rows.map((r) => [
+        Number(r.iso),
+        {
+          total: Number(r.total),
+          done: Number(r.done),
+          inProgress: Number(r.in_progress),
+        },
+      ]),
+    );
+  }
 
-    const total = await em
-      .createQueryBuilder(PipeLengthEntity, "pl")
-      .where(base)
-      .getCount();
-    const done = await em
-      .createQueryBuilder(PipeLengthEntity, "pl")
-      .where({ ...base, status: PipeLengthStatus.DONE })
-      .getCount();
-    const inProgress = await em
-      .createQueryBuilder(PipeLengthEntity, "pl")
-      .where({ ...base, status: PipeLengthStatus.IN_PROGRESS })
-      .getCount();
+  /** Contagem dos pipe_lengths de um único isométrico (para o detalhe/claim). */
+  async getPipeLengthStatusCounts(isometricId: number): Promise<StatusCounts> {
+    const counts = await this.getPipeLengthCountsByIsometric();
+    return counts.get(isometricId) ?? { total: 0, done: 0, inProgress: 0 };
+  }
 
-    return { total, done, inProgress };
+  /** Conta as cut_lists pendentes (isométrico ainda não totalmente cortado). */
+  async getPendingCount(): Promise<number> {
+    const em = this.repository.getEntityManager();
+    const rows = await em.execute<Array<{ pending: number }>>(
+      `SELECT COUNT(*) AS pending FROM cut_list cl
+       WHERE cl.isometric_id NOT IN (
+         SELECT s.isometric_id
+         FROM pipe_length pl
+         JOIN joint j ON j.part1_id = pl.id OR j.part2_id = pl.id
+         JOIN spool s ON s.id = j.spool_id
+         GROUP BY s.isometric_id
+         HAVING COUNT(DISTINCT pl.id) > 0
+            AND COUNT(DISTINCT pl.id) = COUNT(DISTINCT CASE WHEN pl.status = 'done' THEN pl.id END)
+       )`,
+    );
+    return Number(rows[0]?.pending ?? 0);
   }
 
   /** Define ou limpa o claim (userId null = release). */

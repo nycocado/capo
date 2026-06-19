@@ -4,23 +4,8 @@ import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
 import { Transactional } from "@mikro-orm/decorators/legacy";
 import { WeldListEntity } from "@modules/weld-list/entities";
-import { JointEntity, JointStatus } from "@modules/joint/entities";
-import { WeldEntity, WeldStatus } from "@modules/weld/entities";
 import { UserEntity } from "@modules/user/entities";
-
-/** Contagem dos welds de um spool por estado (para o progresso derivado). */
-export interface WeldStatusCounts {
-  total: number;
-  done: number;
-  inProgress: number;
-}
-
-/** Contagem dos joints de um spool por estado (para o gating). */
-export interface JointStatusCounts {
-  total: number;
-  done: number;
-  inProgress: number;
-}
+import { StatusCounts } from "@common/utils/list-progress.util";
 
 @Injectable()
 export class WeldListRepository {
@@ -29,7 +14,7 @@ export class WeldListRepository {
     private readonly repository: EntityRepository<WeldListEntity>,
   ) {}
 
-  // Árvore do spool para a grelha de soldagem.
+  // Árvore do spool para a grelha de soldagem (detalhe sob demanda).
   private readonly FULL_POPULATE_FIELDS = [
     "claimedBy",
     "spool.joints.part1.pipeLength.material",
@@ -46,11 +31,19 @@ export class WeldListRepository {
     "spool.joints.welds.wps",
   ] as const;
 
-  async findAll(): Promise<WeldListEntity[]> {
-    return this.repository.findAll({
-      populate: this.FULL_POPULATE_FIELDS,
-      orderBy: { id: QueryOrder.ASC },
-    });
+  // Só os metadados da ordem (sem a árvore) para a listagem da tabela.
+  private readonly LIGHT_POPULATE_FIELDS = ["claimedBy", "spool"] as const;
+
+  /** Lista leve das weld_lists dos spools dados (gating na consulta). */
+  async findLightBySpoolIds(spoolIds: number[]): Promise<WeldListEntity[]> {
+    if (spoolIds.length === 0) return [];
+    return this.repository.find(
+      { spool: { $in: spoolIds } },
+      {
+        populate: this.LIGHT_POPULATE_FIELDS,
+        orderBy: { id: QueryOrder.ASC },
+      },
+    );
   }
 
   async findFullByIdOrFail(id: number): Promise<WeldListEntity> {
@@ -77,28 +70,85 @@ export class WeldListRepository {
     );
   }
 
-  /** Conta os welds do spool por estado. */
-  async getWeldStatusCounts(spoolId: number): Promise<WeldStatusCounts> {
+  /**
+   * Spools com a montagem concluída (todos os joints done) — o gating da
+   * soldagem, resolvido numa única query no DB.
+   *
+   * @returns Ids dos spools assembly-complete
+   */
+  async getAssemblyCompleteSpoolIds(): Promise<number[]> {
     const em = this.repository.getEntityManager();
-    const total = await em.count(WeldEntity, {
-      joint: { spool: spoolId },
-    });
-    const done = await em.count(WeldEntity, {
-      joint: { spool: spoolId },
-      status: WeldStatus.DONE,
-    });
-    return { total, done, inProgress: 0 };
+    const rows = await em.execute<Array<{ spool: number }>>(
+      `SELECT spool_id AS spool
+       FROM joint
+       GROUP BY spool_id
+       HAVING COUNT(*) > 0
+          AND COUNT(*) = SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END)`,
+    );
+    return rows.map((r) => Number(r.spool));
   }
 
-  /** Conta os joints do spool por estado (para gating). */
-  async getJointStatusCounts(spoolId: number): Promise<JointStatusCounts> {
+  /** Contagem dos joints por spool (para o gating, em batch). */
+  async getJointCountsBySpool(): Promise<Map<number, StatusCounts>> {
     const em = this.repository.getEntityManager();
-    const total = await em.count(JointEntity, { spool: spoolId });
-    const done = await em.count(JointEntity, {
-      spool: spoolId,
-      status: JointStatus.DONE,
-    });
-    return { total, done, inProgress: 0 };
+    const rows = await em.execute<
+      Array<{ spool: number; total: number; done: number }>
+    >(
+      `SELECT spool_id AS spool,
+              COUNT(*) AS total,
+              SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) AS done
+       FROM joint
+       GROUP BY spool_id`,
+    );
+    return new Map(
+      rows.map((r) => [
+        Number(r.spool),
+        { total: Number(r.total), done: Number(r.done), inProgress: 0 },
+      ]),
+    );
+  }
+
+  /** Contagem dos welds por spool (uma query agregada para todos). */
+  async getWeldCountsBySpool(): Promise<Map<number, StatusCounts>> {
+    const em = this.repository.getEntityManager();
+    const rows = await em.execute<
+      Array<{ spool: number; total: number; done: number }>
+    >(
+      `SELECT j.spool_id AS spool,
+              COUNT(w.id) AS total,
+              SUM(CASE WHEN w.status = 'done' THEN 1 ELSE 0 END) AS done
+       FROM weld w
+       JOIN joint j ON j.id = w.joint_id
+       GROUP BY j.spool_id`,
+    );
+    return new Map(
+      rows.map((r) => [
+        Number(r.spool),
+        { total: Number(r.total), done: Number(r.done), inProgress: 0 },
+      ]),
+    );
+  }
+
+  /** Conta as weld_lists pendentes: montagem concluída mas soldagem por terminar. */
+  async getPendingCount(): Promise<number> {
+    const em = this.repository.getEntityManager();
+    const rows = await em.execute<Array<{ pending: number }>>(
+      `SELECT COUNT(*) AS pending FROM weld_list wl
+       WHERE wl.spool_id IN (
+         SELECT spool_id FROM joint
+         GROUP BY spool_id
+         HAVING COUNT(*) > 0
+            AND COUNT(*) = SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END)
+       )
+       AND wl.spool_id NOT IN (
+         SELECT j.spool_id FROM weld w
+         JOIN joint j ON j.id = w.joint_id
+         GROUP BY j.spool_id
+         HAVING COUNT(w.id) > 0
+            AND COUNT(w.id) = SUM(CASE WHEN w.status = 'done' THEN 1 ELSE 0 END)
+       )`,
+    );
+    return Number(rows[0]?.pending ?? 0);
   }
 
   /** Define ou limpa o claim (userId null = release). */
