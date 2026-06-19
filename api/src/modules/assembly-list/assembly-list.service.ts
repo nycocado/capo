@@ -19,7 +19,7 @@ export class AssemblyListService {
   ) {}
 
   async getAll(): Promise<AssemblyListEntity[]> {
-    const lists = await this.assemblyListRepository.findAllLight();
+    const lists = await this.assemblyListRepository.findAll();
     for (const list of lists) {
       await this.attachDerived(list);
     }

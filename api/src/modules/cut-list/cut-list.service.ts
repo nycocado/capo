@@ -19,7 +19,7 @@ export class CutListService {
   ) {}
 
   async getAll(): Promise<CutListEntity[]> {
-    const lists = await this.cutListRepository.findAllLight();
+    const lists = await this.cutListRepository.findAll();
     for (const list of lists) {
       await this.attachDerived(list);
     }

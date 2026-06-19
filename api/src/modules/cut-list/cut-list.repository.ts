@@ -39,11 +39,9 @@ export class CutListRepository {
     "isometric.spools.joints.part2.fitting.ports.diameter",
   ] as const;
 
-  private readonly LIGHT_POPULATE_FIELDS = ["claimedBy", "isometric"] as const;
-
-  async findAllLight(): Promise<CutListEntity[]> {
+  async findAll(): Promise<CutListEntity[]> {
     return this.repository.findAll({
-      populate: this.LIGHT_POPULATE_FIELDS,
+      populate: this.FULL_POPULATE_FIELDS,
       orderBy: { id: QueryOrder.ASC },
     });
   }

@@ -46,11 +46,9 @@ export class WeldListRepository {
     "spool.joints.welds.wps",
   ] as const;
 
-  private readonly LIGHT_POPULATE_FIELDS = ["claimedBy", "spool"] as const;
-
-  async findAllLight(): Promise<WeldListEntity[]> {
+  async findAll(): Promise<WeldListEntity[]> {
     return this.repository.findAll({
-      populate: this.LIGHT_POPULATE_FIELDS,
+      populate: this.FULL_POPULATE_FIELDS,
       orderBy: { id: QueryOrder.ASC },
     });
   }

@@ -19,7 +19,7 @@ export class WeldListService {
   ) {}
 
   async getAll(): Promise<WeldListEntity[]> {
-    const lists = await this.weldListRepository.findAllLight();
+    const lists = await this.weldListRepository.findAll();
     for (const list of lists) {
       await this.attachDerived(list);
     }
