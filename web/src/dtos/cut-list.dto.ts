@@ -10,4 +10,6 @@ export interface CutListDto {
   claimedAt: string | null;
   progress?: ListProgress;
   available?: boolean;
+  /** Nº de pipe-lengths distintos (apenas na resposta da lista leve). */
+  pipeCount?: number;
 }

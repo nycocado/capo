@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useWeldListTable } from "./useWeldListTable";
 import { WeldListDto, UserDto } from "@/dtos";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
@@ -9,16 +9,23 @@ import { useWeldGrid } from "./useWeldGrid";
 import { useWeldDataVerification } from "./useWeldDataVerification";
 import { weldButtonConfig } from "@components/features/ControlPanel";
 import { weldCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
-import { claimWeldList, fetchWeldLists, releaseWeldList } from "@/lib/api";
+import {
+  claimWeldList,
+  fetchWeldLists,
+  getWeldListById,
+  releaseWeldList,
+} from "@/lib/api";
 import { queryKeys } from "@/lib/query/keys";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
+import { useState } from "react";
 
 /** Configuração da etapa de soldagem para o núcleo genérico useWorkStage. */
 const weldStageConfig: WorkStageConfig<WeldListDto> = {
   context: "weld",
   queryKey: queryKeys.weldLists(),
   fetchList: fetchWeldLists,
+  fetchById: getWeldListById,
   claim: claimWeldList,
   release: releaseWeldList,
   ws: {
@@ -49,6 +56,8 @@ export const useWeldWorkflow = ({
 }: UseWeldWorkflowProps) => {
   const {
     items,
+    selectedDetail: selectedWeldList,
+    setSelectedId: setSelectedWeldListId,
     queryClient,
     activeTab,
     setActiveTab,
@@ -61,17 +70,6 @@ export const useWeldWorkflow = ({
     claim,
   } = useWorkStage<WeldListDto>({ ...weldStageConfig, initialItems, fetchError });
 
-  const [selectedWeldListId, setSelectedWeldListId] = useState<number | null>(
-    null,
-  );
-  const selectedWeldList = useMemo<WeldListDto | null>(
-    () =>
-      selectedWeldListId === null
-        ? null
-        : (items.find((wl) => wl.id === selectedWeldListId) ?? null),
-    [items, selectedWeldListId],
-  );
-
   // Último weld selecionado; mantido para ações auxiliares (ex.: abrir o WPS).
   const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
@@ -82,16 +80,17 @@ export const useWeldWorkflow = ({
       setSelectedWeldListId(weldList.id);
       setActiveTab(TAB_TYPES.WORKING);
     },
-    [setActiveTab],
+    [setSelectedWeldListId, setActiveTab],
   );
 
   const startWeldList = useCallback(
     async (id: number): Promise<boolean> => {
       const updated = await claim(id);
-      if (updated) openWorkingView(updated);
+      // O claim já define setSelectedId internamente; só muda a aba.
+      if (updated) setActiveTab(TAB_TYPES.WORKING);
       return Boolean(updated);
     },
-    [claim, openWorkingView],
+    [claim, setActiveTab],
   );
 
   const weldListTable = useWeldListTable(
@@ -110,8 +109,11 @@ export const useWeldWorkflow = ({
 
   const weldDataVerification = useWeldDataVerification({
     onWeldProcessed: (updatedWeld) => {
-      // O servidor recomputa o progresso da ordem; revalida a lista.
+      // O servidor recomputa o progresso da ordem; revalida a lista leve e o detalhe.
       queryClient.invalidateQueries({ queryKey: queryKeys.weldLists() });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.weldLists(), "detail"],
+      });
       setSelectedWeld(updatedWeld);
     },
     onError: setErrorMsg,
@@ -125,8 +127,9 @@ export const useWeldWorkflow = ({
     [weldDataVerification],
   );
 
+  // O grid de welds deriva do detalhe completo (selectedWeldList).
   const weldGrid = useWeldGrid({
-    weldList: selectedWeldList,
+    weldList: selectedWeldList ?? null,
     search: activeTab === TAB_TYPES.WORKING ? "" : search,
     onAllFinished: () => {
       setSelectedWeldListId(null);

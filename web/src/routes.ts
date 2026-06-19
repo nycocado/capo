@@ -41,16 +41,19 @@ export const API_ROUTES = {
     base: `${API_URL}/cut-lists`,
     id: (id: number) => `${API_URL}/cut-lists/${id}`,
     claim: (id: number) => `${API_URL}/cut-lists/${id}/claim`,
+    pendingCount: `${API_URL}/cut-lists/pending-count`,
   },
   assemblyLists: {
     base: `${API_URL}/assembly-lists`,
     id: (id: number) => `${API_URL}/assembly-lists/${id}`,
     claim: (id: number) => `${API_URL}/assembly-lists/${id}/claim`,
+    pendingCount: `${API_URL}/assembly-lists/pending-count`,
   },
   weldLists: {
     base: `${API_URL}/weld-lists`,
     id: (id: number) => `${API_URL}/weld-lists/${id}`,
     claim: (id: number) => `${API_URL}/weld-lists/${id}/claim`,
+    pendingCount: `${API_URL}/weld-lists/pending-count`,
   },
   fillerMaterials: {
     base: `${API_URL}/filler-materials`,

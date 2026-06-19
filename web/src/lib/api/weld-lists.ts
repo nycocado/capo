@@ -12,6 +12,29 @@ export function fetchWeldLists(): Promise<WeldListDto[]> {
   return browserApi.get(API_ROUTES.weldLists.base).json<WeldListDto[]>();
 }
 
+/**
+ * Busca o detalhe completo de uma weld-list (uso no browser, para a vista
+ * de trabalho; inclui spool→joints→welds).
+ *
+ * @param id Id da weld-list.
+ */
+export function getWeldListById(id: number): Promise<WeldListDto> {
+  return browserApi.get(API_ROUTES.weldLists.id(id)).json<WeldListDto>();
+}
+
+/**
+ * Busca o número de weld-lists pendentes (uso no servidor, para o RSC de roles).
+ *
+ * @param token Token de autenticação do cookie.
+ */
+export function getWeldListsPendingCount(
+  token: string | undefined,
+): Promise<{ count: number }> {
+  return serverApi(token)
+    .get(API_ROUTES.weldLists.pendingCount)
+    .json<{ count: number }>();
+}
+
 /** Reivindica (claim) uma weld-list para o utilizador atual. */
 export function claimWeldList(id: number): Promise<WeldListDto> {
   return browserApi.post(API_ROUTES.weldLists.claim(id)).json<WeldListDto>();

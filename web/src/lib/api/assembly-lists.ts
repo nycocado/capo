@@ -16,6 +16,30 @@ export function fetchAssemblyLists(): Promise<AssemblyListDto[]> {
   return browserApi.get(API_ROUTES.assemblyLists.base).json<AssemblyListDto[]>();
 }
 
+/**
+ * Busca o detalhe completo de uma assembly-list (uso no browser, para a vista
+ * de trabalho; inclui isometric→spools→joints→welds).
+ *
+ * @param id Id da assembly-list.
+ */
+export function getAssemblyListById(id: number): Promise<AssemblyListDto> {
+  return browserApi.get(API_ROUTES.assemblyLists.id(id)).json<AssemblyListDto>();
+}
+
+/**
+ * Busca o número de assembly-lists pendentes (uso no servidor, para o RSC de
+ * roles).
+ *
+ * @param token Token de autenticação do cookie.
+ */
+export function getAssemblyListsPendingCount(
+  token: string | undefined,
+): Promise<{ count: number }> {
+  return serverApi(token)
+    .get(API_ROUTES.assemblyLists.pendingCount)
+    .json<{ count: number }>();
+}
+
 /** Reivindica (claim) uma assembly-list para o utilizador atual. */
 export function claimAssemblyList(id: number): Promise<AssemblyListDto> {
   return browserApi

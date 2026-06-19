@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCutOperations } from "./useCutOperations";
 import { useCutListTable } from "./useCutListTable";
 import { usePipeLengthTable } from "./usePipeLengthTable";
@@ -18,7 +18,12 @@ import { cutButtonConfig } from "@components/features/ControlPanel";
 import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
 import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";
 import { WS_EVENTS, WS_ROUTES } from "@/routes";
-import { claimCutList, fetchCutLists, releaseCutList } from "@/lib/api";
+import {
+  claimCutList,
+  fetchCutLists,
+  getCutListById,
+  releaseCutList,
+} from "@/lib/api";
 import { queryKeys } from "@/lib/query/keys";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
@@ -28,6 +33,7 @@ const cutStageConfig: WorkStageConfig<CutListDto> = {
   context: "cut",
   queryKey: queryKeys.cutLists(),
   fetchList: fetchCutLists,
+  fetchById: getCutListById,
   claim: claimCutList,
   release: releaseCutList,
   ws: {
@@ -58,6 +64,8 @@ export const useCutWorkflow = ({
 }: UseCutWorkflowProps) => {
   const {
     items: cutLists,
+    selectedDetail: selectedCutList,
+    setSelectedId: setSelectedCutListId,
     queryClient,
     activeTab,
     setActiveTab,
@@ -70,15 +78,11 @@ export const useCutWorkflow = ({
     claim,
   } = useWorkStage<CutListDto>({ ...cutStageConfig, initialItems, fetchError });
 
-  // A cut-list selecionada define os pipe-lengths da aba Working (derivados).
-  const [selectedCutListId, setSelectedCutListId] = useState<number | null>(
-    null,
-  );
+  // Os pipe-lengths derivam do detalhe completo (selectedCutList), não da lista leve.
   const workingPipeLengths = useMemo<PipeLengthWithContext[]>(() => {
-    if (selectedCutListId === null) return [];
-    const cutList = cutLists.find((cl) => cl.id === selectedCutListId);
-    return cutList ? extractPipeLengthsFromCutList(cutList) : [];
-  }, [cutLists, selectedCutListId]);
+    if (!selectedCutList) return [];
+    return extractPipeLengthsFromCutList(selectedCutList);
+  }, [selectedCutList]);
 
   const modal = useModalState<PipeLengthWithContext>();
   const {
@@ -104,7 +108,7 @@ export const useCutWorkflow = ({
   const startCutList = async (id: number): Promise<boolean> => {
     const updated = await claim(id);
     if (updated) {
-      setSelectedCutListId(updated.id);
+      // O claim já chama setSelectedId internamente; só muda a aba.
       setActiveTab(TAB_TYPES.WORKING);
     }
     return Boolean(updated);

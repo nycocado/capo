@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useAssemblyListTable } from "./useAssemblyListTable";
 import { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerification";
 import { usePDFViewer } from "./usePDFViewer";
@@ -11,6 +11,7 @@ import { WS_EVENTS, WS_ROUTES } from "@/routes";
 import {
   claimAssemblyList,
   fetchAssemblyLists,
+  getAssemblyListById,
   releaseAssemblyList,
 } from "@/lib/api";
 import { queryKeys } from "@/lib/query/keys";
@@ -22,6 +23,7 @@ const assemblyStageConfig: WorkStageConfig<AssemblyListDto> = {
   context: "assembly",
   queryKey: queryKeys.assemblyLists(),
   fetchList: fetchAssemblyLists,
+  fetchById: getAssemblyListById,
   claim: claimAssemblyList,
   release: releaseAssemblyList,
   ws: {
@@ -52,6 +54,8 @@ export const useAssemblyWorkflow = ({
 }: UseAssemblyWorkflowProps) => {
   const {
     items,
+    selectedDetail: selectedAssemblyList,
+    setSelectedId: setSelectedAssemblyListId,
     activeTab,
     setActiveTab,
     search,
@@ -67,34 +71,23 @@ export const useAssemblyWorkflow = ({
     fetchError,
   });
 
-  // A assembly-list selecionada (derivada do cache) alimenta o grid e o PDF.
-  const [selectedAssemblyListId, setSelectedAssemblyListId] = useState<
-    number | null
-  >(null);
-  const selectedAssemblyList = useMemo<AssemblyListDto | null>(
-    () =>
-      selectedAssemblyListId === null
-        ? null
-        : (items.find((al) => al.id === selectedAssemblyListId) ?? null),
-    [items, selectedAssemblyListId],
-  );
-
   const openWorkingView = useCallback(
     (assemblyList: AssemblyListDto) => {
       setSelectedAssemblyListId(assemblyList.id);
       setActiveTab(TAB_TYPES.WORKING);
     },
-    [setActiveTab],
+    [setSelectedAssemblyListId, setActiveTab],
   );
 
   // Reivindica a assembly-list e abre a sua vista de joints.
   const startAssemblyList = useCallback(
     async (id: number): Promise<boolean> => {
       const updated = await claim(id);
-      if (updated) openWorkingView(updated);
+      // O claim já define setSelectedId internamente; só muda a aba.
+      if (updated) setActiveTab(TAB_TYPES.WORKING);
       return Boolean(updated);
     },
-    [claim, openWorkingView],
+    [claim, setActiveTab],
   );
 
   const materialVerification = useAssemblyMaterialVerification();
@@ -123,8 +116,9 @@ export const useAssemblyWorkflow = ({
     searchField,
   );
 
+  // O grid de joints e o PDF derivam do detalhe completo (selectedAssemblyList).
   const weldGrid = useJointGrid({
-    assemblyList: selectedAssemblyList,
+    assemblyList: selectedAssemblyList ?? null,
     search: activeTab === TAB_TYPES.WORKING ? "" : search,
     onAllFinished: () => {
       setSelectedAssemblyListId(null);
@@ -145,7 +139,10 @@ export const useAssemblyWorkflow = ({
     pdfFile,
     loading: pdfLoading,
     error: pdfError,
-  } = usePDFViewer(selectedAssemblyList?.isometric?.document ?? null, "isometric");
+  } = usePDFViewer(
+    selectedAssemblyList?.isometric?.document ?? null,
+    "isometric",
+  );
 
   const handleIsometricClick = useCallback(() => {
     if (pdfFile) {
@@ -178,13 +175,16 @@ export const useAssemblyWorkflow = ({
     { buttonConfig: assemblyButtonConfig },
   );
 
+  // selectedAssemblyList pode ser undefined (query inativa); normaliza para null.
+  const selectedAssemblyListOrNull = selectedAssemblyList ?? null;
+
   return {
     state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
     assemblyListTable,
     materialVerification,
     weldGrid,
     weldItems: weldGrid.weldItems,
-    selectedAssemblyList,
+    selectedAssemblyList: selectedAssemblyListOrNull,
     pdfFile,
     pdfLoading,
     pdfError,

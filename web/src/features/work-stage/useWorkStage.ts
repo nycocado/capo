@@ -17,10 +17,11 @@ export interface UseWorkStageParams<TList extends StageListItem>
 }
 
 /**
- * Núcleo genérico das três etapas (cut/assembly/weld): mantém a lista como
- * estado de servidor no TanStack Query — semeada pelo prefetch RSC e
- * sincronizada por WebSocket — e expõe as mutations de claim/release mais o
- * estado de UI compartilhado (aba, busca, campo de busca, erro).
+ * Núcleo genérico das três etapas (cut/assembly/weld): mantém a lista leve como
+ * estado de servidor no TanStack Query — semeada pelo prefetch RSC e sincronizada
+ * por WebSocket — e o detalhe completo da ordem selecionada numa query separada.
+ * Expõe as mutations de claim/release e o estado de UI compartilhado (aba, busca,
+ * campo de busca, erro).
  *
  * @param params Configuração da etapa somada aos dados do prefetch.
  */
@@ -28,6 +29,7 @@ export function useWorkStage<TList extends StageListItem>({
   context,
   queryKey,
   fetchList,
+  fetchById,
   claim: claimRequest,
   release: releaseRequest,
   ws,
@@ -46,8 +48,34 @@ export function useWorkStage<TList extends StageListItem>({
     refetchOnReconnect: false,
   });
 
-  // Sincroniza a lista em cache com os eventos em tempo real da etapa.
-  useStageSocket({ route: ws.route, queryKey, eventNames: ws.eventNames });
+  // Id da ordem cujo detalhe completo está em cache (a "ordem aberta").
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  // Query do detalhe completo: só ativa quando há uma ordem selecionada.
+  const detailQueryKey = [...(queryKey as unknown[]), "detail", selectedId];
+  const { data: selectedDetail } = useQuery<TList>({
+    queryKey: detailQueryKey,
+    queryFn: () => fetchById(selectedId!),
+    enabled: selectedId !== null,
+    // O detalhe não envelhece sozinho: é invalidado manualmente pelo WS e pelo claim.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  // Sincroniza o cache com os eventos em tempo real da etapa.
+  // Ao receber qualquer evento, invalida a lista leve E o prefixo de detalhe.
+  useStageSocket({
+    route: ws.route,
+    queryKey,
+    eventNames: ws.eventNames,
+    onEvent: () => {
+      // Invalida todos os detalhes em cache (prefixo [...queryKey, "detail"]).
+      queryClient.invalidateQueries({
+        queryKey: [...(queryKey as unknown[]), "detail"],
+      });
+    },
+  });
 
   const [activeTab, setActiveTab] = useState<TabType>(TAB_TYPES.ALL);
   const [search, setSearch] = useState("");
@@ -75,19 +103,33 @@ export function useWorkStage<TList extends StageListItem>({
 
   const claimMutation = useMutation({
     mutationFn: claimRequest,
-    onSuccess: replaceInCache,
+    onSuccess: (full: TList) => {
+      // O retorno do claim é o detalhe completo: popula o cache de detalhe,
+      // invalida a lista leve para atualizar counts/progress e seleciona a ordem.
+      queryClient.setQueryData(
+        [...(queryKey as unknown[]), "detail", full.id],
+        full,
+      );
+      queryClient.invalidateQueries({ queryKey });
+      setSelectedId(full.id);
+    },
     onError: onMutationError,
   });
 
   const releaseMutation = useMutation({
     mutationFn: releaseRequest,
-    onSuccess: replaceInCache,
+    onSuccess: (updated: TList) => {
+      // Atualiza a lista leve com o item liberado e descarta o id selecionado.
+      replaceInCache(updated);
+      queryClient.invalidateQueries({ queryKey });
+      setSelectedId(null);
+    },
     onError: onMutationError,
   });
 
   /**
-   * Reivindica (claim) uma ordem e devolve a lista atualizada, ou `undefined`
-   * em caso de erro (já reportado em `errorMsg`) — ex.: 409 já reclamada.
+   * Reivindica (claim) uma ordem. O detalhe completo é guardado em cache e a
+   * lista leve é invalidada; devolve o detalhe ou `undefined` em caso de erro.
    *
    * @param id Id da ordem a reivindicar.
    */
@@ -100,8 +142,8 @@ export function useWorkStage<TList extends StageListItem>({
   };
 
   /**
-   * Liberta (release) o claim de uma ordem e devolve a lista atualizada, ou
-   * `undefined` em caso de erro (já reportado em `errorMsg`).
+   * Liberta (release) o claim de uma ordem, invalida a lista leve e limpa o
+   * id selecionado. Devolve o item atualizado ou `undefined` em caso de erro.
    *
    * @param id Id da ordem a libertar.
    */
@@ -115,6 +157,9 @@ export function useWorkStage<TList extends StageListItem>({
 
   return {
     items,
+    selectedDetail,
+    selectedId,
+    setSelectedId,
     queryClient,
     activeTab,
     setActiveTab,

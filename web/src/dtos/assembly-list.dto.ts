@@ -10,4 +10,8 @@ export interface AssemblyListDto {
   claimedAt: string | null;
   progress?: ListProgress;
   available?: boolean;
+  /** Nº de spools (apenas na resposta da lista leve). */
+  spoolCount?: number;
+  /** Nº total de welds (apenas na resposta da lista leve). */
+  weldCount?: number;
 }

@@ -8,31 +8,6 @@ import {
 import { PipeLengthWithContext } from "@/interfaces";
 import { Column } from "@components/features/WorkTable/WorkTable";
 
-/** Conta os pipe-lengths distintos de um isométrico (via spools→joints→parts). */
-const countPipeLengths = (cutList: CutListDto): number => {
-  const seen = new Set<number>();
-  for (const spool of cutList.isometric.spools ?? []) {
-    for (const joint of spool.joints ?? []) {
-      for (const part of [joint.part1, joint.part2]) {
-        if (part.type === "pipe_length") seen.add(part.id);
-      }
-    }
-  }
-  return seen.size;
-};
-
-/** Conta os welds de um isométrico (via spools→joints→welds). */
-const countWeldsInIsometric = (list: AssemblyListDto): number =>
-  (list.isometric.spools ?? []).reduce(
-    (total, spool) =>
-      total +
-      (spool.joints ?? []).reduce(
-        (jointTotal, joint) => jointTotal + (joint.welds?.length ?? 0),
-        0,
-      ),
-    0,
-  );
-
 export const columnsCutList: Column<CutListDto>[] = [
   {
     id: "id",
@@ -53,7 +28,7 @@ export const columnsCutList: Column<CutListDto>[] = [
   {
     id: "pipeCount",
     header: "PIPES",
-    accessor: (item) => countPipeLengths(item).toString(),
+    accessor: (item) => (item.pipeCount ?? 0).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -133,7 +108,7 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
   {
     id: "spoolCount",
     header: "SPOOLS",
-    accessor: (item) => (item.isometric.spools?.length ?? 0).toString(),
+    accessor: (item) => (item.spoolCount ?? 0).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -141,7 +116,7 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
   {
     id: "weldCount",
     header: "WELDS",
-    accessor: (item) => countWeldsInIsometric(item).toString(),
+    accessor: (item) => (item.weldCount ?? 0).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -168,13 +143,7 @@ export const columnsWeldList: Column<WeldListDto>[] = [
   {
     id: "weldCount",
     header: "WELDS",
-    accessor: (item) => {
-      const totalWelds = item.spool?.joints?.reduce(
-        (total, joint) => total + (joint.welds?.length || 0),
-        0,
-      );
-      return totalWelds?.toString() || "0";
-    },
+    accessor: (item) => (item.weldCount ?? 0).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,

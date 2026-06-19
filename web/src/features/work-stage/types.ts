@@ -23,6 +23,13 @@ export interface WorkStageConfig<TList extends StageListItem> {
   queryKey: QueryKey;
   /** Busca a lista no browser (queryFn da lista). */
   fetchList: () => Promise<TList[]>;
+  /**
+   * Busca o detalhe completo de uma ordem no browser (árvore completa com a
+   * hierarquia de itens de trabalho).
+   *
+   * @param id Id da ordem.
+   */
+  fetchById: (id: number) => Promise<TList>;
   /** Reivindica (claim) uma ordem para o utilizador atual. */
   claim: (id: number) => Promise<TList>;
   /** Liberta (release) o claim de uma ordem. */

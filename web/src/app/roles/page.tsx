@@ -1,7 +1,12 @@
 import { cookies } from "next/headers";
 import RolesClient from "@/app/roles/RolesClient";
 import { ROUTES } from "@/routes";
-import { getAssemblyLists, getCutLists, getMe, getWeldLists } from "@/lib/api";
+import {
+  getAssemblyListsPendingCount,
+  getCutListsPendingCount,
+  getMe,
+  getWeldListsPendingCount,
+} from "@/lib/api";
 
 /** Estação da linha de produção, na forma serializável passada ao client. */
 export interface Station {
@@ -18,7 +23,7 @@ export interface Station {
 
 /**
  * Estações na ordem real do fluxo do tubo (corte → montagem → solda), cada uma
- * com o fetcher das ordens da sua etapa.
+ * com o fetcher de contagem pendente da sua etapa.
  */
 const STATIONS = [
   {
@@ -27,7 +32,7 @@ const STATIONS = [
     name: "Cutting",
     description: "Mark pipe lengths and log heat numbers.",
     route: ROUTES.cut,
-    fetchLists: getCutLists,
+    fetchPendingCount: getCutListsPendingCount,
   },
   {
     id: "pipe-fitter",
@@ -35,7 +40,7 @@ const STATIONS = [
     name: "Assembly",
     description: "Fit spools and verify materials.",
     route: ROUTES.assembly,
-    fetchLists: getAssemblyLists,
+    fetchPendingCount: getAssemblyListsPendingCount,
   },
   {
     id: "welder",
@@ -43,7 +48,7 @@ const STATIONS = [
     name: "Welding",
     description: "Weld joints and record WPS data.",
     route: ROUTES.weld,
-    fetchLists: getWeldLists,
+    fetchPendingCount: getWeldListsPendingCount,
   },
 ] as const;
 
@@ -59,15 +64,13 @@ export default async function RolesPage() {
     // A contagem só é buscada nas estações certificadas (as demais ficam
     // bloqueadas, sem acesso ao endpoint); falha numa etapa não derruba a página.
     stations = await Promise.all(
-      STATIONS.map(async ({ fetchLists, ...station }) => {
+      STATIONS.map(async ({ fetchPendingCount, ...station }) => {
         const accessible = accessibleIds.has(station.id);
         let pendingCount: number | null = null;
         if (accessible) {
           try {
-            const lists = await fetchLists(token);
-            pendingCount = lists.filter(
-              (list) => list.progress !== "done",
-            ).length;
+            const result = await fetchPendingCount(token);
+            pendingCount = result.count;
           } catch {
             pendingCount = null;
           }
