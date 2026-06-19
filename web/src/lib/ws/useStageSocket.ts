@@ -4,26 +4,14 @@ import { useEffect, useRef } from "react";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
 import { createStageSocket } from "./socket";
 import { WS_EVENTS } from "@/routes";
-import type { Identifiable } from "@/domain/logic/upsertById";
 
-/** Transformação imutável aplicada à lista em cache a cada evento. */
-export type CacheUpdate<T> = (current: T[]) => T[];
-
-/** Mapeia um evento do gateway para uma atualização do cache da lista. */
-export interface StageSocketEvent<T extends Identifiable> {
-  /** Nome do evento emitido pelo gateway (ver `WS_EVENTS`). */
-  name: string;
-  /** Constrói a transformação do cache a partir do payload recebido. */
-  toUpdate: (payload: unknown) => CacheUpdate<T>;
-}
-
-export interface UseStageSocketOptions<T extends Identifiable> {
+export interface UseStageSocketOptions {
   /** URL do namespace da etapa (ver `WS_ROUTES`). */
   route: string;
   /** Query key da lista mantida em cache. */
   queryKey: QueryKey;
-  /** Eventos do gateway a sincronizar com o cache. */
-  events: StageSocketEvent<T>[];
+  /** Nomes de evento do gateway que disparam revalidação da lista. */
+  eventNames: string[];
   /** Quando `false`, não abre a conexão. */
   enabled?: boolean;
 }
@@ -33,29 +21,30 @@ const isDev = process.env.NODE_ENV !== "production";
 
 /**
  * Mantém a lista em cache do TanStack Query sincronizada com os eventos em
- * tempo real de uma etapa, substituindo o antigo `useWebSocket`: cada evento
- * vira um `setQueryData` na `queryKey`, sem estado próprio no React.
+ * tempo real de uma etapa. Os eventos (`claimChanged`/`statusChanged`) são
+ * meras notificações — cada um **invalida** a query, deixando o servidor
+ * recomputar os campos derivados (progress/available/claimedBy) no refetch.
  *
- * Os `events` e a `queryKey` podem mudar de referência entre renders — são
- * lidos via ref, então a conexão só é refeita quando `route`/`enabled` mudam.
+ * A `queryKey` pode mudar de referência entre renders (é lida via ref), então a
+ * conexão só é refeita quando `route`/`enabled` mudam.
  *
- * @param options Namespace, query key e eventos da etapa.
+ * @param options Namespace, query key e nomes de evento da etapa.
  */
-export function useStageSocket<T extends Identifiable>({
+export function useStageSocket({
   route,
   queryKey,
-  events,
+  eventNames,
   enabled = true,
-}: UseStageSocketOptions<T>): void {
+}: UseStageSocketOptions): void {
   const queryClient = useQueryClient();
 
-  const eventsRef = useRef(events);
+  // Lidos via ref: a `queryKey` e os nomes de evento são estáticos por etapa,
+  // então a conexão só é refeita quando `route`/`enabled` mudam.
   const queryKeyRef = useRef(queryKey);
-
-  // Mantém os refs atualizados sem reabrir a conexão a cada render.
+  const eventNamesRef = useRef(eventNames);
   useEffect(() => {
-    eventsRef.current = events;
     queryKeyRef.current = queryKey;
+    eventNamesRef.current = eventNames;
   });
 
   useEffect(() => {
@@ -69,15 +58,9 @@ export function useStageSocket<T extends Identifiable>({
       });
     }
 
-    // Os nomes de evento são estáticos por etapa; cada handler relê os refs
-    // para sempre usar o `toUpdate` e a `queryKey` atuais.
-    for (const { name } of eventsRef.current) {
-      socket.on(name, (payload: unknown) => {
-        const event = eventsRef.current.find((e) => e.name === name);
-        if (!event) return;
-        queryClient.setQueryData<T[]>(queryKeyRef.current, (current = []) =>
-          event.toUpdate(payload)(current),
-        );
+    for (const name of eventNamesRef.current) {
+      socket.on(name, () => {
+        queryClient.invalidateQueries({ queryKey: queryKeyRef.current });
       });
     }
 

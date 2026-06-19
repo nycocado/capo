@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { CutListDto, UserDto } from "@/dtos";
-import { getCurrentUser, getToDoCutLists } from "@/lib/api";
+import { getCutLists, getMe } from "@/lib/api";
 import CutClient from "@/app/(factory)/cut/CutClient";
 
 export default async function CutPage() {
@@ -11,14 +11,14 @@ export default async function CutPage() {
   let fetchError: string | undefined;
 
   try {
-    currentUser = await getCurrentUser(token);
+    currentUser = await getMe(token);
   } catch (err) {
     console.error("Failed to fetch user info:", err);
     fetchError = "Failed to fetch user information";
   }
 
   try {
-    items = await getToDoCutLists(token);
+    items = await getCutLists(token);
   } catch (err) {
     fetchError =
       err instanceof Error

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { JointDto } from "@/dtos";
-import { stepJoint } from "@/lib/api";
+import { createJointStatusEvent } from "@/lib/api";
 
 const INVALID_JOINT_ID = "Invalid joint ID";
 
@@ -9,6 +9,10 @@ export interface UseAssemblyOperationsProps {
   onError?: (error: string) => void;
 }
 
+/**
+ * Operação de montagem sobre um joint: conclui-o (to_do→done) via
+ * `POST status-events`.
+ */
 export function useAssemblyOperations({
   onSuccess,
   onError,
@@ -21,18 +25,19 @@ export function useAssemblyOperations({
         onError?.(INVALID_JOINT_ID);
         return false;
       }
-
       setIsSubmitting(true);
       try {
-        const updatedJoint = await stepJoint(jointId);
+        const updatedJoint = await createJointStatusEvent(jointId, {
+          status: "done",
+        });
         onSuccess?.(updatedJoint);
         return true;
       } catch (error) {
-        const errorMessage =
+        const message =
           error instanceof Error
             ? error.message
             : "Unexpected error processing joint";
-        onError?.(errorMessage);
+        onError?.(message);
         return false;
       } finally {
         setIsSubmitting(false);
@@ -41,8 +46,5 @@ export function useAssemblyOperations({
     [onSuccess, onError],
   );
 
-  return {
-    processJoint,
-    isSubmitting,
-  };
+  return { processJoint, isSubmitting };
 }

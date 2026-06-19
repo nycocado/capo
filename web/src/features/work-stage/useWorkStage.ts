@@ -19,7 +19,7 @@ export interface UseWorkStageParams<TList extends StageListItem>
 /**
  * Núcleo genérico das três etapas (cut/assembly/weld): mantém a lista como
  * estado de servidor no TanStack Query — semeada pelo prefetch RSC e
- * sincronizada por WebSocket — e expõe a mutation de "set working" mais o
+ * sincronizada por WebSocket — e expõe as mutations de claim/release mais o
  * estado de UI compartilhado (aba, busca, campo de busca, erro).
  *
  * @param params Configuração da etapa somada aos dados do prefetch.
@@ -27,8 +27,9 @@ export interface UseWorkStageParams<TList extends StageListItem>
 export function useWorkStage<TList extends StageListItem>({
   context,
   queryKey,
-  fetchToDo,
-  setWorking: setWorkingRequest,
+  fetchList,
+  claim: claimRequest,
+  release: releaseRequest,
   ws,
   initialItems,
   fetchError,
@@ -37,7 +38,7 @@ export function useWorkStage<TList extends StageListItem>({
 
   const { data: items = [] } = useQuery({
     queryKey,
-    queryFn: fetchToDo,
+    queryFn: fetchList,
     initialData: initialItems,
     // A lista é mantida fresca por WebSocket/mutations; sem refetch em background.
     staleTime: Infinity,
@@ -46,7 +47,7 @@ export function useWorkStage<TList extends StageListItem>({
   });
 
   // Sincroniza a lista em cache com os eventos em tempo real da etapa.
-  useStageSocket<TList>({ route: ws.route, queryKey, events: ws.events });
+  useStageSocket({ route: ws.route, queryKey, eventNames: ws.eventNames });
 
   const [activeTab, setActiveTab] = useState<TabType>(TAB_TYPES.ALL);
   const [search, setSearch] = useState("");
@@ -64,27 +65,49 @@ export function useWorkStage<TList extends StageListItem>({
     setSearchField(fields[0]?.id ?? "id");
   }
 
-  const setWorkingMutation = useMutation({
-    mutationFn: setWorkingRequest,
-    onSuccess: (updated) => {
-      queryClient.setQueryData<TList[]>(queryKey, (current = []) =>
-        replaceById(current, updated),
-      );
-    },
-    onError: (error) => {
-      setErrorMsg(error instanceof Error ? error.message : "Unexpected error");
-    },
+  const replaceInCache = (updated: TList) =>
+    queryClient.setQueryData<TList[]>(queryKey, (current = []) =>
+      replaceById(current, updated),
+    );
+
+  const onMutationError = (error: unknown) =>
+    setErrorMsg(error instanceof Error ? error.message : "Unexpected error");
+
+  const claimMutation = useMutation({
+    mutationFn: claimRequest,
+    onSuccess: replaceInCache,
+    onError: onMutationError,
+  });
+
+  const releaseMutation = useMutation({
+    mutationFn: releaseRequest,
+    onSuccess: replaceInCache,
+    onError: onMutationError,
   });
 
   /**
-   * Dispara o "set working" da lista e devolve a lista atualizada, ou
+   * Reivindica (claim) uma ordem e devolve a lista atualizada, ou `undefined`
+   * em caso de erro (já reportado em `errorMsg`) — ex.: 409 já reclamada.
+   *
+   * @param id Id da ordem a reivindicar.
+   */
+  const claim = async (id: number): Promise<TList | undefined> => {
+    try {
+      return await claimMutation.mutateAsync(id);
+    } catch {
+      return undefined;
+    }
+  };
+
+  /**
+   * Liberta (release) o claim de uma ordem e devolve a lista atualizada, ou
    * `undefined` em caso de erro (já reportado em `errorMsg`).
    *
-   * @param id Id da lista a marcar como "working".
+   * @param id Id da ordem a libertar.
    */
-  const setWorking = async (id: number): Promise<TList | undefined> => {
+  const release = async (id: number): Promise<TList | undefined> => {
     try {
-      return await setWorkingMutation.mutateAsync(id);
+      return await releaseMutation.mutateAsync(id);
     } catch {
       return undefined;
     }
@@ -101,7 +124,9 @@ export function useWorkStage<TList extends StageListItem>({
     setSearchField,
     errorMsg,
     setErrorMsg,
-    setWorking,
-    isSettingWorking: setWorkingMutation.isPending,
+    claim,
+    release,
+    isClaiming: claimMutation.isPending,
+    isReleasing: releaseMutation.isPending,
   };
 }

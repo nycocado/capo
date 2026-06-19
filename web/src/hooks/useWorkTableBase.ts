@@ -1,11 +1,23 @@
-import { useState, useMemo, useCallback } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { TabType } from "@components/features/WorkTabs";
 import { Column } from "@components/features/WorkTable/WorkTable";
 import { filterBySearch, sortFinishedLast } from "./useTableUtils";
 import { useInformationState } from "./useInformationState";
-import { useWorkStatusAccessor } from "./useWorkStatusAccessor";
+import { listToUiState, useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
-import { WorkStatusDto } from "@/dtos";
+
+/** Forma mínima de uma ordem para a tabela base (estado por progresso/claim). */
+type ListLike = {
+  id: number;
+  progress?: string;
+  claimedBy?: { id: number } | null;
+};
 
 export interface UseWorkTableBaseParams<T> {
   items: T[];
@@ -16,39 +28,45 @@ export interface UseWorkTableBaseParams<T> {
   currentUserId?: number;
 }
 
-export function useWorkTableBase<
-  T extends { id: number; workStatus?: WorkStatusDto }
->({
+/**
+ * Estado-base de uma tabela de ordens (cut/assembly/weld na aba "All"):
+ * estado de linha por progresso/claim, ordenação (finished por último),
+ * busca, seleção e estado "information".
+ */
+export function useWorkTableBase<T extends ListLike>({
   items,
-  activeTab,
   search,
   searchField = "id",
   columns,
   currentUserId,
 }: UseWorkTableBaseParams<T>) {
   const info = useInformationState();
-
   const [selectedItem, setSelectedItem] = useState<T | null>(null);
 
+  const resolveRawState = useCallback(
+    (item: T) => listToUiState(item, currentUserId),
+    [currentUserId],
+  );
   const rowStateAccessor = useWorkStatusAccessor<T>(
-    activeTab,
     info.informationIds,
-    currentUserId,
+    resolveRawState,
   );
 
   const { movedIds } = useFinishedItemsSorting<T>(items, rowStateAccessor);
 
-  // Wrapper somente para manter tipagem estável
   const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<T | null>) => {
-      setSelectedItem(value);
-    },
+    (value: SetStateAction<T | null>) => setSelectedItem(value),
     [],
-  );
+  ) as Dispatch<SetStateAction<T | null>>;
 
   const tableItems = useMemo(() => {
     const sorted = sortFinishedLast(items, movedIds);
-    return filterBySearch(sorted as T[], search, searchField, columns as Column<T>[] | undefined);
+    return filterBySearch(
+      sorted as T[],
+      search,
+      searchField,
+      columns as Column<T>[] | undefined,
+    );
   }, [items, movedIds, search, searchField, columns]);
 
   const proceedToWorking = useCallback(
@@ -61,18 +79,13 @@ export function useWorkTableBase<
   );
 
   return {
-    // estado de informação
     informationIds: info.informationIds,
     toggleInformation: info.toggleInformation,
     removeFromInformation: info.removeFromInformation,
     clearAllInformation: info.clearAllInformation,
     hasInformationItems: info.hasInformationItems,
-
-    // seleção
     selectedItem,
     setSelectedItem: setSelectedItemGeneric,
-
-    // tabela
     rowStateAccessor,
     movedIds,
     tableItems,

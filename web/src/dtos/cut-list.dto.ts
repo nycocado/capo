@@ -1,9 +1,13 @@
 import { IsometricDto } from "./isometric.dto";
-import { WorkStatusDto } from "./work-status.dto";
+import { UserDto } from "./user.dto";
+import { ListProgress } from "./status.dto";
 
 export interface CutListDto {
   id: number;
   internalId: string;
   isometric: IsometricDto;
-  workStatus?: WorkStatusDto;
+  claimedBy: UserDto | null;
+  claimedAt: string | null;
+  progress?: ListProgress;
+  available?: boolean;
 }

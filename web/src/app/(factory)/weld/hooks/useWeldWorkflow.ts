@@ -5,14 +5,12 @@ import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useUIConfigurations } from "@/hooks";
 import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
-import { useWeldGrid } from "@/app/(factory)/weld/hooks/useWeldGrid";
-import { useWeldDataVerification } from "@/app/(factory)/weld/hooks/useWeldDataVerification";
-import { mergeWeldIntoWeldLists } from "../utils/weldUtils";
+import { useWeldGrid } from "./useWeldGrid";
+import { useWeldDataVerification } from "./useWeldDataVerification";
 import { weldButtonConfig } from "@components/features/ControlPanel";
 import { weldCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
-import { fetchToDoWeldLists, setWeldListWorking } from "@/lib/api";
+import { claimWeldList, fetchWeldLists, releaseWeldList } from "@/lib/api";
 import { queryKeys } from "@/lib/query/keys";
-import { replaceById, upsertManyById } from "@/domain/logic/upsertById";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
@@ -20,23 +18,12 @@ import type { WorkStageConfig } from "@/features/work-stage/types";
 const weldStageConfig: WorkStageConfig<WeldListDto> = {
   context: "weld",
   queryKey: queryKeys.weldLists(),
-  fetchToDo: fetchToDoWeldLists,
-  setWorking: setWeldListWorking,
+  fetchList: fetchWeldLists,
+  claim: claimWeldList,
+  release: releaseWeldList,
   ws: {
     route: WS_ROUTES.weldList,
-    events: [
-      {
-        name: WS_EVENTS.weldList.updateWorkStatus,
-        toUpdate: (payload) => (current) =>
-          replaceById(current, payload as WeldListDto),
-      },
-      {
-        // O gateway emite um ARRAY de weld-lists em createsWeldList.
-        name: WS_EVENTS.weldList.create,
-        toUpdate: (payload) => (current) =>
-          upsertManyById(current, payload as WeldListDto[]),
-      },
-    ],
+    eventNames: [WS_EVENTS.stage.claimChanged, WS_EVENTS.stage.statusChanged],
   },
 };
 
@@ -48,11 +35,12 @@ export interface UseWeldWorkflowProps {
 
 /**
  * Hook principal da etapa de soldagem: compõe o núcleo genérico useWorkStage
- * com tabela, verificação de dados do weld, grid de welds e configurações de UI.
+ * com a tabela, o modal de dados do weld (WPS + filler), o grid de welds e as
+ * configurações de UI.
  *
- * @param initialItems Lista prefetchada pelo RSC (seed do cache TanStack Query).
- * @param currentUser Usuário autenticado; usado para controle de acesso à weld-list.
- * @param fetchError Erro do prefetch RSC, exibido até a primeira interação.
+ * @param initialItems Lista prefetchada pelo RSC (seed do cache).
+ * @param currentUser Utilizador autenticado (claim/acesso).
+ * @param fetchError Erro do prefetch RSC.
  */
 export const useWeldWorkflow = ({
   initialItems,
@@ -70,14 +58,9 @@ export const useWeldWorkflow = ({
     setSearchField,
     errorMsg,
     setErrorMsg,
-    setWorking,
-  } = useWorkStage<WeldListDto>({
-    ...weldStageConfig,
-    initialItems,
-    fetchError,
-  });
+    claim,
+  } = useWorkStage<WeldListDto>({ ...weldStageConfig, initialItems, fetchError });
 
-  // A weld-list selecionada (derivada do cache) alimenta o grid de welds.
   const [selectedWeldListId, setSelectedWeldListId] = useState<number | null>(
     null,
   );
@@ -89,12 +72,11 @@ export const useWeldWorkflow = ({
     [items, selectedWeldListId],
   );
 
-  // Último weld selecionado; mantido para ações auxiliares como abrir o WPS.
+  // Último weld selecionado; mantido para ações auxiliares (ex.: abrir o WPS).
   const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
   );
 
-  // Abre uma weld-list na aba Working
   const openWorkingView = useCallback(
     (weldList: WeldListDto) => {
       setSelectedWeldListId(weldList.id);
@@ -103,50 +85,42 @@ export const useWeldWorkflow = ({
     [setActiveTab],
   );
 
-  // Marca a weld-list como working e abre sua vista de welds
   const startWeldList = useCallback(
     async (id: number): Promise<boolean> => {
-      const updated = await setWorking(id);
+      const updated = await claim(id);
       if (updated) openWorkingView(updated);
       return Boolean(updated);
     },
-    [setWorking, openWorkingView],
+    [claim, openWorkingView],
   );
 
-  const weldListTable = useWeldListTable(items, search, currentUser?.id, {
-    onWeldListSelected: async (weldList) => {
-      const currentState = weldList.workStatus?.name || "to-do";
-      if (currentState === "to-do") {
-        await startWeldList(weldList.id);
-      } else {
-        openWorkingView(weldList);
-      }
+  const weldListTable = useWeldListTable(
+    items,
+    search,
+    currentUser?.id,
+    {
+      onWeldListSelected: async (weldList) => {
+        if (weldList.progress === "done") openWorkingView(weldList);
+        else await startWeldList(weldList.id);
+      },
+      onWeldListClaim: async (id) => await startWeldList(id),
     },
-    onWeldListSetWorking: async (id) => await startWeldList(id),
-  });
+    searchField,
+  );
 
   const weldDataVerification = useWeldDataVerification({
     onWeldProcessed: (updatedWeld) => {
-      // Reflete o weld atualizado no cache; o grid deriva da weld-list.
-      queryClient.setQueryData<WeldListDto[]>(
-        queryKeys.weldLists(),
-        (current = []) => mergeWeldIntoWeldLists(current, updatedWeld),
-      );
-      setSelectedWeld(updatedWeld); // mantém foco no weld com dados atualizados
+      // O servidor recomputa o progresso da ordem; revalida a lista.
+      queryClient.invalidateQueries({ queryKey: queryKeys.weldLists() });
+      setSelectedWeld(updatedWeld);
     },
     onError: setErrorMsg,
   });
 
   const handleWeldClick = useCallback(
     (weld: WeldWithContext) => {
-      const currentState = weld.workStatus?.name || "to-do";
-
-      // sempre mantém o último weld selecionado para ações auxiliares (ex.: WPS)
       setSelectedWeld(weld);
-
-      if (currentState === "to-do") {
-        weldDataVerification.startVerification(weld);
-      }
+      if (weld.status !== "done") weldDataVerification.startVerification(weld);
     },
     [weldDataVerification],
   );
@@ -158,7 +132,6 @@ export const useWeldWorkflow = ({
       setSelectedWeldListId(null);
       setActiveTab(TAB_TYPES.ALL);
     },
-    onError: setErrorMsg,
     handleWeldClick,
   });
 
@@ -180,16 +153,13 @@ export const useWeldWorkflow = ({
       setErrorMsg("WPS não disponível para o weld selecionado.");
       return;
     }
-    window.open(API_ROUTES.documents.download(doc), "_blank");
+    window.open(API_ROUTES.documents.download("wps", doc), "_blank");
   }, [selectedWeld, setErrorMsg]);
 
   const { cards, controlButtons } = useUIConfigurations(
     selectedWeld,
     null,
-    {
-      onNextClick: handleNextWorkflow,
-      onWpsClick: handleWpsClick,
-    },
+    { onNextClick: handleNextWorkflow, onWpsClick: handleWpsClick },
     {
       buttonConfig: weldButtonConfig,
       cardConfigs: (item: WeldWithContext | null) =>

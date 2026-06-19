@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ROUTES } from "./routes";
-import { hasRole, validateSession } from "@/lib/api/auth";
+import { getMe } from "@/lib/api/auth";
 
 export const config = {
   matcher: ["/", "/login", "/roles", "/cut", "/assembly", "/weld"],
+};
+
+// Cada estágio exige o seu papel; administradores acessam todos.
+const pageRolesMap: Record<string, string> = {
+  [ROUTES.cut]: "cutting-operator",
+  [ROUTES.assembly]: "pipe-fitter",
+  [ROUTES.weld]: "welder",
 };
 
 export default async function proxy(req: NextRequest) {
@@ -25,28 +32,22 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(ROUTES.roles, req.url));
   }
 
-  await validateSession(token)
-    .then((res) => {
-      if (!res.valid)
-        return NextResponse.redirect(new URL(ROUTES.login, req.url));
-    })
-    .catch(() => {
-      return NextResponse.redirect(new URL(ROUTES.login, req.url));
-    });
-
-  const pageRolesMap: Record<string, string> = {
-    [ROUTES.cut]: "cutting-operator",
-    [ROUTES.assembly]: "pipe-fitter",
-    [ROUTES.weld]: "welder",
-  };
+  // Valida a sessão e obtém os papéis numa única chamada a /auth/me.
+  let roles: string[];
+  try {
+    const user = await getMe(token);
+    roles = (user.roles ?? []).map((role) => role.name);
+  } catch {
+    return NextResponse.redirect(new URL(ROUTES.login, req.url));
+  }
 
   const requiredRole = pageRolesMap[pathname];
-  if (requiredRole) {
-    await hasRole(requiredRole, token)
-      .then((res) => {
-        if (!res.hasRole)
-          return NextResponse.redirect(new URL(ROUTES.unauthorized, req.url));
-      });
+  if (
+    requiredRole &&
+    !roles.includes(requiredRole) &&
+    !roles.includes("administrator")
+  ) {
+    return NextResponse.redirect(new URL(ROUTES.unauthorized, req.url));
   }
 
   return NextResponse.next();

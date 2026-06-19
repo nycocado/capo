@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { PipeLengthDto } from "@/dtos";
-import { VALIDATION } from "@/constants";
-import { setPipeLengthHeatNumber, stepPipeLength } from "@/lib/api";
-
-const INVALID_HEAT_NUMBER = "Please enter a valid heat number";
+import { createPipeLengthStatusEvent } from "@/lib/api";
 
 export interface UseCutOperationsProps {
   onSuccess?: (item: PipeLengthDto) => void;
   onError?: (error: string) => void;
 }
 
+/**
+ * Operações de corte sobre um pipe-length, via `POST status-events`:
+ * iniciar (to_do→in_progress, com heat number) e concluir (in_progress→done).
+ */
 export function useCutOperations({
   onSuccess,
   onError,
@@ -26,59 +27,37 @@ export function useCutOperations({
       onSuccess?.(updatedItem);
       return true;
     } catch (error) {
-      const errorMessage =
+      const message =
         error instanceof Error
           ? error.message
           : `Unexpected error ${errorContext}`;
-      onError?.(errorMessage);
+      onError?.(message);
       return false;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const validateHeatNumber = (heatNumber: number): boolean => {
-    return (
-      Number.isInteger(heatNumber) && heatNumber >= VALIDATION.HEAT_NUMBER_MIN
-    );
-  };
-
-  const startWork = async (
-    item: PipeLengthDto,
-    heatNumber: number,
-  ): Promise<boolean> => {
-    if (!validateHeatNumber(heatNumber)) {
-      onError?.(INVALID_HEAT_NUMBER);
-      return false;
-    }
-    return performOperation(
-      () => stepPipeLength(item.id, heatNumber),
+  /** Inicia o corte: to_do → in_progress, registando o heat number. */
+  const startWork = (
+    item: { id: number },
+    heatNumber: string,
+  ): Promise<boolean> =>
+    performOperation(
+      () =>
+        createPipeLengthStatusEvent(item.id, {
+          status: "in_progress",
+          heatNumber,
+        }),
       "starting work",
     );
-  };
 
-  const finishWork = async (item: PipeLengthDto): Promise<boolean> => {
-    return performOperation(() => stepPipeLength(item.id), "finishing work");
-  };
-
-  const editHeatNumber = async (
-    item: PipeLengthDto,
-    heatNumber: number,
-  ): Promise<boolean> => {
-    if (!validateHeatNumber(heatNumber)) {
-      onError?.(INVALID_HEAT_NUMBER);
-      return false;
-    }
-    return performOperation(
-      () => setPipeLengthHeatNumber(item.id, heatNumber),
-      "editing heat number",
+  /** Conclui o corte: in_progress → done. */
+  const finishWork = (item: { id: number }): Promise<boolean> =>
+    performOperation(
+      () => createPipeLengthStatusEvent(item.id, { status: "done" }),
+      "finishing work",
     );
-  };
 
-  return {
-    startWork,
-    finishWork,
-    editHeatNumber,
-    isSubmitting,
-  };
+  return { startWork, finishWork, isSubmitting };
 }

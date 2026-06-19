@@ -10,7 +10,7 @@ import { PipeLengthDto } from "@/dtos/pipe-length.dto";
 import { FittingDto } from "@/dtos/fitting.dto";
 
 // Os dois passos de verificação partilham a mesma tabela; o item é de um dos tipos.
-type MaterialItem = PipeLengthDto | FittingDto;
+type MaterialItem = (PipeLengthDto | FittingDto) & { id: number };
 
 export interface MaterialVerificationModalProps {
   showModal: boolean;

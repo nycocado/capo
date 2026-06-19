@@ -1,47 +1,39 @@
 import { AssemblyListDto } from "@/dtos";
 import { WeldWithContext } from "@/interfaces";
 
+/**
+ * Extrai os welds de uma assembly-list (spools→joints→welds), cada um com o
+ * spool de contexto para o WorkGrid.
+ *
+ * @param assemblyList Assembly-list com o isométrico e a sua hierarquia.
+ */
 export const extractWeldsFromAssemblyList = (
   assemblyList: AssemblyListDto,
-  sheetNumber?: number,
 ): WeldWithContext[] => {
   const welds: WeldWithContext[] = [];
-
-  const sheets = sheetNumber
-    ? assemblyList.isometric?.sheets?.filter((s) => s.number === sheetNumber) ||
-      []
-    : assemblyList.isometric?.sheets || [];
-
-  sheets.forEach((sheet) => {
-    sheet.spools?.forEach((spool) => {
-      spool.joints?.forEach((joint) => {
-        joint.welds?.forEach((weld) => {
-          welds.push({
-            ...weld,
-            spoolInfo: {
-              internalId: spool.internalId,
-            },
-          });
-        });
-      });
-    });
-  });
-
+  for (const spool of assemblyList.isometric.spools ?? []) {
+    for (const joint of spool.joints ?? []) {
+      for (const weld of joint.welds ?? []) {
+        welds.push({ ...weld, spoolInfo: { internalId: spool.internalId } });
+      }
+    }
+  }
   return welds.sort((a, b) => a.id - b.id);
 };
 
+/**
+ * Localiza o id do joint que contém o weld indicado (spools→joints→welds).
+ *
+ * @param assemblyList Assembly-list onde procurar.
+ * @param weldId Id do weld.
+ */
 export const findJointIdForWeld = (
   assemblyList: AssemblyListDto,
   weldId: number,
 ): number | null => {
-  for (const sheet of assemblyList.isometric?.sheets || []) {
-    for (const spool of sheet.spools || []) {
-      for (const joint of spool.joints || []) {
-        const hasWeld = joint.welds?.some((w) => w.id === weldId);
-        if (hasWeld) {
-          return joint.id;
-        }
-      }
+  for (const spool of assemblyList.isometric.spools ?? []) {
+    for (const joint of spool.joints ?? []) {
+      if (joint.welds?.some((w) => w.id === weldId)) return joint.id;
     }
   }
   return null;

@@ -3,20 +3,6 @@ import ky, { HTTPError, type KyInstance } from "ky";
 /** Mensagem exibida quando a sessão expira (401 em chamada autenticada). */
 export const SESSION_EXPIRED_MESSAGE = "Session expired. Please login again.";
 
-/**
- * Remove chaves com valor `undefined` para montar os `searchParams` do ky.
- *
- * @param params Pares chave/valor, alguns possivelmente `undefined`.
- * @returns Objeto só com os valores definidos.
- */
-export function toSearchParams(
-  params: Record<string, string | number | undefined>,
-): Record<string, string | number> {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, value]) => value !== undefined),
-  ) as Record<string, string | number>;
-}
-
 // Cliente do browser para chamadas autenticadas: envia o cookie de sessão e
 // traduz 401 para a mensagem de sessão expirada.
 export const browserApi: KyInstance = ky.create({

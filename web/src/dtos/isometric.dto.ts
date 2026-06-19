@@ -1,7 +1,8 @@
-import { SheetDto } from "./sheet.dto";
+import { SpoolDto } from "./spool.dto";
 
 export interface IsometricDto {
   id: number;
   internalId: string;
-  sheets?: SheetDto[];
+  document: string;
+  spools?: SpoolDto[];
 }

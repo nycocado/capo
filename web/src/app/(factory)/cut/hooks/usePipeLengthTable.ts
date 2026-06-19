@@ -1,10 +1,18 @@
-import { CutListDto, PipeLengthDto } from "@/dtos";
-import { useCutEventHandlers } from "@/app/(factory)/cut/hooks/useCutEventHandlers";
-import React, { useCallback, useMemo, useState } from "react";
+import { CutListDto } from "@/dtos";
+import { PipeLengthWithContext } from "@/interfaces";
+import { useCutEventHandlers } from "./useCutEventHandlers";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import {
   filterBySearch,
   sortFinishedLast,
+  statusToUiState,
   useFinishedItemsSorting,
   useInformationState,
   useRowStates,
@@ -12,31 +20,33 @@ import {
 } from "@/hooks";
 
 interface UsePipeLengthTableCallbacks {
-  onWorkingTransition?: (item: PipeLengthDto) => void;
-  onItemCompleted?: (item: PipeLengthDto) => void;
-  onItemSelected?: (item: PipeLengthDto) => void;
+  onWorkingTransition?: (item: PipeLengthWithContext) => void;
+  onItemCompleted?: (item: PipeLengthWithContext) => void;
+  onItemSelected?: (item: PipeLengthWithContext) => void;
 }
 
+type Row = PipeLengthWithContext | CutListDto;
+
 /**
- * Gerencia a tabela de pipe-lengths na aba Working: ordenação, busca,
- * seleção, estados de linha e navegação entre itens.
+ * Gerencia a tabela de pipe-lengths na aba Working: ordenação, busca, seleção,
+ * estados de linha (a partir do `status` do item) e navegação entre itens.
  *
  * @param pipeLengths Pipe-lengths derivados da cut-list selecionada.
  * @param search Texto de busca atual.
- * @param callbacks Ações disparadas pelas transições de estado de cada pipe-length.
+ * @param callbacks Ações disparadas pelas transições de estado de cada item.
  * @param searchField Campo de busca ativo.
- * @param searchFunction Função de busca customizada; usa filterBySearch por padrão.
+ * @param searchFunction Função de busca custom; usa filterBySearch por padrão.
  */
 export function usePipeLengthTable(
-  pipeLengths: PipeLengthDto[],
+  pipeLengths: PipeLengthWithContext[],
   search: string,
   callbacks?: UsePipeLengthTableCallbacks,
   searchField: string = "id",
   searchFunction?: (
-    items: PipeLengthDto[],
+    items: PipeLengthWithContext[],
     search: string,
     searchField: string,
-  ) => PipeLengthDto[],
+  ) => PipeLengthWithContext[],
 ) {
   const {
     informationIds,
@@ -51,21 +61,26 @@ export function usePipeLengthTable(
     () => pipeLengths.find((i) => i.id === selectedId) ?? null,
     [pipeLengths, selectedId],
   );
-  const rowStateAccessor = useWorkStatusAccessor(
-    TAB_TYPES.WORKING,
-    informationIds,
+
+  const resolveRawState = useCallback(
+    (item: Row) => statusToUiState((item as PipeLengthWithContext).status),
+    [],
   );
-  // O backend é a única fonte de verdade do estado finished: sem estado local de "moved".
-  const { movedIds } = useFinishedItemsSorting(
-    pipeLengths,
-    rowStateAccessor,
+  const rowStateAccessor = useWorkStatusAccessor<Row>(
+    informationIds,
+    resolveRawState,
   );
 
+  // O backend é a única fonte de verdade do estado finished: sem estado local.
+  const { movedIds } = useFinishedItemsSorting(pipeLengths, rowStateAccessor);
+
   const setSelectedItemGeneric = useCallback(
-    (value: React.SetStateAction<(PipeLengthDto | CutListDto) | null>) => {
+    (value: SetStateAction<Row | null>) => {
       if (typeof value === "function") {
         setSelectedId(() => {
-          const result = value(selectedItem);
+          const result = (value as (prev: Row | null) => Row | null)(
+            selectedItem,
+          );
           return result?.id ?? null;
         });
       } else {
@@ -73,7 +88,7 @@ export function usePipeLengthTable(
       }
     },
     [selectedItem],
-  );
+  ) as Dispatch<SetStateAction<Row | null>>;
 
   const {
     handleRowClick,
@@ -95,13 +110,10 @@ export function usePipeLengthTable(
   const rowStates = useRowStates(TAB_TYPES.WORKING, handleRowClick);
 
   const tableItems = useMemo(() => {
-    const sortedItems = sortFinishedLast(pipeLengths, movedIds);
-
-    if (searchFunction) {
-      return searchFunction(sortedItems, search, searchField);
-    }
-
-    return filterBySearch(sortedItems, search, searchField);
+    const sorted = sortFinishedLast(pipeLengths, movedIds);
+    return searchFunction
+      ? searchFunction(sorted, search, searchField)
+      : filterBySearch(sorted, search, searchField);
   }, [pipeLengths, movedIds, search, searchField, searchFunction]);
 
   const proceedToWorking = (id: number) => {

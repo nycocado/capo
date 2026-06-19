@@ -9,58 +9,48 @@ export interface UseWeldGridProps {
   weldList: WeldListDto | null;
   search: string;
   onAllFinished?: () => void;
-  onError?: (error: string) => void;
-  handleWeldClick?: (weld: WeldWithContext) => void; // Interceptação externa
+  handleWeldClick: (weld: WeldWithContext) => void;
 }
 
+/**
+ * Grid de welds da solda: clicar num weld por concluir abre o modal de dados
+ * (WPS + filler); "Next" abre o modal para o próximo weld por fazer.
+ */
 export function useWeldGrid({
   weldList,
   search,
   onAllFinished,
-  onError,
-  handleWeldClick, // Handler externo para interceptação
+  handleWeldClick,
 }: UseWeldGridProps) {
+  const weldOps = useWeldOperations();
+
   const weldItems = useMemo(() => {
     if (!weldList) return [];
-    const items = extractWeldsFromWeldList(weldList);
-    return filterBySearch(items, search, "number");
+    return filterBySearch(extractWeldsFromWeldList(weldList), search, "number");
   }, [weldList, search]);
 
-  const weldOperations = useWeldOperations({
-    onAllFinished,
-    onError,
-  });
-
-  // Override do handleItemClick para usar interceptação externa
   const handleItemClick = useCallback(
-    (weld: WeldWithContext) => {
-      if (handleWeldClick) {
-        // Usa handler externo (interceptação)
-        handleWeldClick(weld);
-      } else {
-        // Fallback para o sistema original
-        weldOperations.handleWeldClick(weld);
-      }
-    },
-    [handleWeldClick, weldOperations],
+    (weld: WeldWithContext) => handleWeldClick(weld),
+    [handleWeldClick],
   );
 
   const handleNextWorkflow = useCallback(async () => {
-    await weldOperations.handleNextWeld(weldItems);
-  }, [weldOperations, weldItems]);
+    const next = weldItems.find((w) => weldOps.getWeldState(w) === "to-do");
+    if (next) handleWeldClick(next);
+    else onAllFinished?.();
+  }, [weldItems, weldOps, handleWeldClick, onAllFinished]);
 
-  const areAllWorkingItemsFinished = useCallback(() => {
-    return weldOperations.areAllWeldsFinished(weldItems);
-  }, [weldOperations, weldItems]);
+  const areAllWorkingItemsFinished = useCallback(
+    () => weldOps.areAllWeldsFinished(weldItems),
+    [weldOps, weldItems],
+  );
 
   return {
     weldItems,
-    selectedWeld: weldOperations.selectedWeld,
     handleItemClick,
-    itemStates: weldOperations.itemStates,
-    itemStateAccessor: weldOperations.itemStateAccessor,
+    itemStates: weldOps.itemStates,
+    itemStateAccessor: weldOps.itemStateAccessor,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
-    isSubmitting: weldOperations.isSubmitting,
   };
 }

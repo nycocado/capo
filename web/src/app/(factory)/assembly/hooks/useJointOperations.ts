@@ -7,7 +7,6 @@ import { findJointIdForWeld } from "../utils/assemblyUtils";
 type JointState = "to-do" | "finished";
 
 type JointAction =
-  | { type: "setJointFinished"; jointId: number; finished: boolean }
   | { type: "setJointProcessed"; jointId: number }
   | { type: "reset" };
 
@@ -20,21 +19,10 @@ const jointReducer = (
   action: JointAction,
 ): JointStateManagement => {
   switch (action.type) {
-    case "setJointFinished":
-      return {
-        ...state,
-        jointStates: {
-          ...state.jointStates,
-          [action.jointId]: action.finished ? "finished" : "to-do",
-        },
-      };
     case "setJointProcessed":
       return {
         ...state,
-        jointStates: {
-          ...state.jointStates,
-          [action.jointId]: "finished",
-        },
+        jointStates: { ...state.jointStates, [action.jointId]: "finished" },
       };
     case "reset":
       return { jointStates: {} };
@@ -51,14 +39,9 @@ export interface UseJointOperationsProps {
 }
 
 /**
- * Gerencia o estado e as operações dos joints de uma assembly-list:
- * clique em weld (→ step do joint correspondente), navegação para o próximo
- * e verificação de conclusão de todos os joints.
- *
- * @param selectedAssemblyList Lista de montagem ativa cujos joints são processados.
- * @param onJointProcessed Chamado com o id do joint após cada step bem-sucedido.
- * @param onError Chamado com a mensagem de erro caso a operação falhe.
- * @param onAllFinished Chamado quando todos os joints estão finished.
+ * Gerencia o estado e as operações dos joints de uma assembly-list: clique num
+ * weld (→ conclui o joint correspondente), navegação para o próximo e
+ * verificação de conclusão. O estado do joint vem do seu `status` (binário).
  */
 export function useJointOperations({
   selectedAssemblyList,
@@ -77,10 +60,7 @@ export function useJointOperations({
 
   const { processJoint, isSubmitting } = useAssemblyOperations({
     onSuccess: (updatedJoint) => {
-      dispatch({
-        type: "setJointProcessed",
-        jointId: updatedJoint.id,
-      });
+      dispatch({ type: "setJointProcessed", jointId: updatedJoint.id });
       onJointProcessed?.(updatedJoint.id);
       setProcessingJointId(null);
     },
@@ -100,24 +80,13 @@ export function useJointOperations({
       const localState = stateManagement.jointStates[jointId];
       if (localState) return localState;
 
-      // Estado local ausente: consulta o workStatus do joint na árvore isometric → sheets → spools → joints.
+      // Estado local ausente: lê o status do joint (spools→joints).
       let joint = null;
-      for (const sheet of selectedAssemblyList.isometric?.sheets || []) {
-        for (const spool of sheet.spools || []) {
-          joint = spool.joints?.find((j) => j.id === jointId);
-          if (joint) break;
-        }
+      for (const spool of selectedAssemblyList.isometric.spools ?? []) {
+        joint = spool.joints?.find((j) => j.id === jointId) ?? null;
         if (joint) break;
       }
-
-      if (joint?.workStatus) {
-        const statusName = joint.workStatus.name?.toLowerCase();
-        if (statusName === "finished" || statusName === "completed") {
-          return "finished";
-        }
-      }
-
-      return "to-do";
+      return joint?.status === "done" ? "finished" : "to-do";
     },
     [selectedAssemblyList, stateManagement.jointStates],
   );
@@ -131,24 +100,15 @@ export function useJointOperations({
 
       if (currentState === "finished") return;
 
-      if (currentState === "to-do") {
-        const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
-
-        if (jointId) {
-          setProcessingJointId(jointId);
-          await processJoint(jointId);
-        } else {
-          onError?.("Could not find joint information for this weld");
-        }
+      const jointId = findJointIdForWeld(selectedAssemblyList, weld.id);
+      if (jointId) {
+        setProcessingJointId(jointId);
+        await processJoint(jointId);
+      } else {
+        onError?.("Could not find joint information for this weld");
       }
     },
-    [
-      selectedAssemblyList,
-      getJointStateForWeld,
-      processJoint,
-      isSubmitting,
-      onError,
-    ],
+    [selectedAssemblyList, getJointStateForWeld, processJoint, isSubmitting, onError],
   );
 
   const handleNextWeld = useCallback(
@@ -182,28 +142,20 @@ export function useJointOperations({
   }, []);
 
   const itemStates = {
-    toDo: {
-      className: isSubmitting
-        ? "bg-secondary text-white"
-        : "bg-dark text-light",
+    "to-do": {
+      className: isSubmitting ? "bg-secondary text-white" : "bg-dark text-light",
       onClick: async (item: WeldWithContext) => {
-        if (!isSubmitting) {
-          await handleWeldClick(item);
-        }
+        if (!isSubmitting) await handleWeldClick(item);
       },
     },
     finished: {
       className: "bg-success text-white",
-      onClick: (item: WeldWithContext) => {
-        setSelectedWeld(item);
-      },
+      onClick: (item: WeldWithContext) => setSelectedWeld(item),
     },
   };
 
   const itemStateAccessor = useCallback(
-    (item: WeldWithContext) => {
-      return getJointStateForWeld(item);
-    },
+    (item: WeldWithContext) => getJointStateForWeld(item),
     [getJointStateForWeld],
   );
 

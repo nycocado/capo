@@ -1,37 +1,34 @@
 import { API_ROUTES } from "@/routes";
-import { PipeLengthDto } from "@/dtos";
-import { browserApi, toSearchParams } from "./client";
+import { PipeLengthDto, PipeLengthStatus, StatusEventDto } from "@/dtos";
+import { browserApi } from "./client";
 
-/**
- * Avança o status de um pipe-length, opcionalmente registrando o heat number.
- *
- * @param id Id do pipe-length.
- * @param heatNumber Heat number a registrar na transição (opcional).
- */
-export function stepPipeLength(
-  id: number,
-  heatNumber?: number,
-): Promise<PipeLengthDto> {
-  return browserApi
-    .patch(API_ROUTES.pipeLengths.step(id), {
-      searchParams: toSearchParams({ heatNumber }),
-    })
-    .json<PipeLengthDto>();
+export interface CreatePipeLengthStatusEvent {
+  status: PipeLengthStatus;
+  heatNumber?: string;
+  notes?: string;
 }
 
 /**
- * Edita o heat number de um pipe-length.
+ * Regista um evento de status para um pipe-length (avança a máquina de estados).
  *
  * @param id Id do pipe-length.
- * @param heatNumber Novo heat number.
+ * @param body Status alvo e dados da transição (heatNumber/notes).
+ * @returns O pipe-length atualizado.
  */
-export function setPipeLengthHeatNumber(
+export function createPipeLengthStatusEvent(
   id: number,
-  heatNumber: number,
+  body: CreatePipeLengthStatusEvent,
 ): Promise<PipeLengthDto> {
   return browserApi
-    .patch(API_ROUTES.pipeLengths.heatNumber(id), {
-      searchParams: { heatNumber },
-    })
+    .post(API_ROUTES.pipeLengths.statusEvents(id), { json: body })
     .json<PipeLengthDto>();
+}
+
+/** Histórico de eventos de status de um pipe-length (QC). */
+export function getPipeLengthStatusEvents(
+  id: number,
+): Promise<StatusEventDto[]> {
+  return browserApi
+    .get(API_ROUTES.pipeLengths.statusEvents(id))
+    .json<StatusEventDto[]>();
 }

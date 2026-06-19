@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { AssemblyListDto, UserDto } from "@/dtos";
-import { getCurrentUser, getToDoAssemblyLists } from "@/lib/api";
+import { getAssemblyLists, getMe } from "@/lib/api";
 import AssemblyClient from "@/app/(factory)/assembly/AssemblyClient";
 
 export default async function AssemblyPage() {
@@ -11,13 +11,13 @@ export default async function AssemblyPage() {
   let fetchError: string | undefined;
 
   try {
-    currentUser = await getCurrentUser(token);
+    currentUser = await getMe(token);
   } catch (err) {
     console.error("Failed to fetch user info:", err);
   }
 
   try {
-    items = await getToDoAssemblyLists(token);
+    items = await getAssemblyLists(token);
   } catch (err) {
     fetchError =
       err instanceof Error

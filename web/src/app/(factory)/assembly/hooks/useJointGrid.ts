@@ -4,26 +4,28 @@ import { filterBySearch } from "@/hooks";
 import { useJointOperations } from "./useJointOperations";
 import { extractWeldsFromAssemblyList } from "../utils/assemblyUtils";
 
-export interface UseWeldGridProps {
+export interface UseJointGridProps {
   assemblyList: AssemblyListDto | null;
-  sheetNumber: number | null;
   search: string;
   onAllFinished?: () => void;
   onError?: (error: string) => void;
 }
 
+/**
+ * Grid de welds da montagem: cada weld representa o joint a montar; clicar num
+ * weld por concluir conclui o joint correspondente.
+ */
 export function useJointGrid({
   assemblyList,
-  sheetNumber,
   search,
   onAllFinished,
   onError,
-}: UseWeldGridProps) {
+}: UseJointGridProps) {
   const weldItems = useMemo(() => {
-    if (!assemblyList || sheetNumber == null) return [];
-    const items = extractWeldsFromAssemblyList(assemblyList, sheetNumber);
+    if (!assemblyList) return [];
+    const items = extractWeldsFromAssemblyList(assemblyList);
     return filterBySearch(items, search, "number");
-  }, [assemblyList, sheetNumber, search]);
+  }, [assemblyList, search]);
 
   const jointOperations = useJointOperations({
     selectedAssemblyList: assemblyList,

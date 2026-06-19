@@ -1,11 +1,11 @@
-import { UserRoleDto } from "./user-role.dto";
+import { RoleDto } from "./role.dto";
 
 export interface UserDto {
   id: number;
   internalId: string;
   name: string;
-  birthDate: Date;
+  birthDate: string;
   gender: string;
-  photo?: string;
-  userRoles?: UserRoleDto[];
+  photo?: string | null;
+  roles?: RoleDto[];
 }

@@ -1,99 +1,56 @@
 import { useCallback } from "react";
-import { TAB_TYPES, TabType } from "@components/features/WorkTabs";
-import { WorkStatusDto } from "@/dtos";
+import { WORK_STATES } from "@/constants";
 
-export const DEFAULT_WORK_STATES = {
-  TO_DO: "to-do",
-  WORKING: "working",
-  FINISHED: "finished",
-  INFORMATION: "information",
-} as const;
-
-/**
- * Mapeia o workStatus de um item para o estado de UI correspondente.
- *
- * @param workStatus Objeto com o nome do status vindo da API.
- * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
- * @returns Nome do estado de UI (to-do, working, finished).
- */
-export const getWorkStatusState = (
-  workStatus?: { name: string },
-  workStates = DEFAULT_WORK_STATES,
-): string => {
-  if (!workStatus) return workStates.TO_DO;
-
-  switch (workStatus.name.toLowerCase()) {
-    case workStates.TO_DO:
-      return workStates.TO_DO;
-    case workStates.WORKING:
-      return workStates.WORKING;
-    case workStates.FINISHED:
-      return workStates.FINISHED;
+/** Estado de UI a partir do status de um item (pipe-length/joint/weld). */
+export const statusToUiState = (status?: string): string => {
+  switch (status) {
+    case "in_progress":
+      return WORK_STATES.WORKING;
+    case "done":
+      return WORK_STATES.FINISHED;
     default:
-      return workStates.TO_DO;
+      return WORK_STATES.TO_DO;
   }
 };
 
-/**
- * Verifica se o usuário atual pode interagir com um item em estado WORKING.
- * Retorna `true` se o item não está WORKING, não há usuário, ou o status foi
- * criado pelo próprio usuário.
- *
- * @param item Item com workStatus e o id de quem o iniciou.
- * @param currentUserId Id do usuário autenticado.
- * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
- */
-export const canUserAccessItem = <
-  T extends { workStatus?: { name: string; createdBy?: number | null } },
->(
-  item: T,
+/** Uma ordem é acessível se não estiver reclamada (claim) por outro utilizador. */
+export const isListAccessible = (
+  list: { claimedBy?: { id: number } | null },
   currentUserId?: number,
-  workStates = DEFAULT_WORK_STATES,
-): boolean => {
-  if (!currentUserId) return true;
+): boolean =>
+  !list.claimedBy || !currentUserId || list.claimedBy.id === currentUserId;
 
-  const workStatus = getWorkStatusState(item.workStatus, workStates);
-  if (workStatus !== workStates.WORKING) return true;
-
-  const createdBy = item.workStatus?.createdBy;
-  return !createdBy || createdBy === currentUserId;
+/**
+ * Estado de UI de uma ordem: "danger" se reclamada por outro utilizador
+ * (bloqueada), senão derivado do progresso agregado.
+ *
+ * @param list Ordem com progresso e claim.
+ * @param currentUserId Id do utilizador autenticado.
+ */
+export const listToUiState = (
+  list: { progress?: string; claimedBy?: { id: number } | null },
+  currentUserId?: number,
+): string => {
+  if (!isListAccessible(list, currentUserId)) return "danger";
+  return statusToUiState(list.progress);
 };
 
 /**
- * Produz um accessor memoizado que resolve o estado de UI de cada item,
- * priorizando o estado "information" (seleção local) antes do workStatus da API
- * e aplicando a restrição "danger" para itens WORKING de outro utilizador.
+ * Accessor memoizado do estado de UI de cada item: dá prioridade ao estado
+ * "information" (seleção local) e delega no `resolveRawState` para o estado
+ * vindo da API (status do item ou progresso/claim da ordem).
  *
- * @param activeTab Aba ativa; a restrição "danger" só se aplica na aba ALL.
  * @param informationIds Conjunto de ids com estado "information" local.
- * @param currentUserId Id do utilizador autenticado; omitir desativa a restrição.
- * @param workStates Mapa de estados; usa DEFAULT_WORK_STATES por padrão.
+ * @param resolveRawState Resolve o estado de UI a partir dos campos da API.
  */
-export const useWorkStatusAccessor = <
-  T extends {
-    id: number;
-    workStatus?: WorkStatusDto;
-  },
->(
-  activeTab: TabType,
+export const useWorkStatusAccessor = <T extends { id: number }>(
   informationIds: Set<number>,
-  currentUserId?: number,
-  workStates = DEFAULT_WORK_STATES,
-) => {
-  return useCallback(
-    (item: T) => {
-      if (informationIds.has(item.id)) {
-        return workStates.INFORMATION;
-      }
-
-      if (activeTab === TAB_TYPES.ALL) {
-        if (!canUserAccessItem(item, currentUserId, workStates)) {
-          return "danger";
-        }
-      }
-
-      return getWorkStatusState(item.workStatus, workStates);
-    },
-    [activeTab, informationIds, currentUserId, workStates],
+  resolveRawState: (item: T) => string,
+) =>
+  useCallback(
+    (item: T) =>
+      informationIds.has(item.id)
+        ? WORK_STATES.INFORMATION
+        : resolveRawState(item),
+    [informationIds, resolveRawState],
   );
-};

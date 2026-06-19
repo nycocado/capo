@@ -1,6 +1,6 @@
 import { API_ROUTES } from "@/routes";
-import { HasRoleDto, ValidateResDto } from "@/dtos";
-import { publicApi, serverApi } from "./client";
+import { UserDto } from "@/dtos";
+import { browserApi, publicApi, serverApi } from "./client";
 
 export interface LoginCredentials {
   internalId: string;
@@ -8,34 +8,28 @@ export interface LoginCredentials {
 }
 
 /**
- * Autentica o usuário; o backend devolve o token no cookie de sessão.
+ * Autentica o utilizador; o backend devolve o utilizador (com papéis) e grava o
+ * cookie de sessão httpOnly.
  *
  * @param credentials Identificador interno e senha.
+ * @returns O utilizador autenticado com os seus papéis.
  */
-export async function login(credentials: LoginCredentials): Promise<void> {
-  await publicApi.post(API_ROUTES.auth.login, { json: credentials });
+export function login(credentials: LoginCredentials): Promise<UserDto> {
+  return publicApi
+    .post(API_ROUTES.auth.login, { json: credentials })
+    .json<UserDto>();
+}
+
+/** Encerra a sessão (o servidor limpa o cookie). */
+export async function logout(): Promise<void> {
+  await browserApi.post(API_ROUTES.auth.logout);
 }
 
 /**
- * Valida a sessão atual (uso no proxy/servidor).
+ * Busca o utilizador autenticado com os seus papéis (uso no servidor: RSC/proxy).
  *
  * @param token Cookie de sessão da requisição.
  */
-export function validateSession(
-  token: string | undefined,
-): Promise<ValidateResDto> {
-  return serverApi(token).get(API_ROUTES.auth.validate).json<ValidateResDto>();
-}
-
-/**
- * Verifica se a sessão atual possui o papel informado.
- *
- * @param role Papel a checar.
- * @param token Cookie de sessão da requisição.
- */
-export function hasRole(
-  role: string,
-  token: string | undefined,
-): Promise<HasRoleDto> {
-  return serverApi(token).get(API_ROUTES.auth.hasRole(role)).json<HasRoleDto>();
+export function getMe(token: string | undefined): Promise<UserDto> {
+  return serverApi(token).get(API_ROUTES.auth.me).json<UserDto>();
 }

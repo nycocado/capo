@@ -19,60 +19,38 @@ export const API_ROUTES = {
   auth: {
     base: `${API_URL}/auth`,
     login: `${API_URL}/auth/login`,
-    validate: `${API_URL}/auth/validate`,
-    hasRole: (role: string) => `${API_URL}/auth/has-role/${role}`,
-  },
-  users: {
-    base: `${API_URL}/users`,
-    me: `${API_URL}/users/me`,
-  },
-  roles: {
-    base: `${API_URL}/roles`,
-    me: `${API_URL}/roles/me`,
-  },
-  projects: {
-    base: `${API_URL}/projects`,
-    id: (id: number) => `${API_URL}/projects/${id}`,
+    logout: `${API_URL}/auth/logout`,
+    me: `${API_URL}/auth/me`,
   },
   pipeLengths: {
     base: `${API_URL}/pipe-lengths`,
     id: (id: number) => `${API_URL}/pipe-lengths/${id}`,
-    step: (id: number) => `${API_URL}/pipe-lengths/${id}/step`,
-    heatNumber: (id: number) => `${API_URL}/pipe-lengths/${id}/heat-number`,
-  },
-  fittings: {
-    base: `${API_URL}/fittings`,
-    id: (id: number) => `${API_URL}/fittings/${id}`,
+    statusEvents: (id: number) => `${API_URL}/pipe-lengths/${id}/status-events`,
   },
   joints: {
     base: `${API_URL}/joints`,
     id: (id: number) => `${API_URL}/joints/${id}`,
-    step: (id: number) => `${API_URL}/joints/${id}/step`,
+    statusEvents: (id: number) => `${API_URL}/joints/${id}/status-events`,
   },
   welds: {
     base: `${API_URL}/welds`,
     id: (id: number) => `${API_URL}/welds/${id}`,
-    step: (id: number) => `${API_URL}/welds/${id}/step`,
-    fillerMaterial: (id: number) => `${API_URL}/welds/${id}/filler-material`,
-    wps: (id: number) => `${API_URL}/welds/${id}/wps`,
+    statusEvents: (id: number) => `${API_URL}/welds/${id}/status-events`,
   },
   cutLists: {
     base: `${API_URL}/cut-lists`,
-    toDo: `${API_URL}/cut-lists/to-do`,
     id: (id: number) => `${API_URL}/cut-lists/${id}`,
-    setWorking: (id: number) => `${API_URL}/cut-lists/${id}/set-working`,
+    claim: (id: number) => `${API_URL}/cut-lists/${id}/claim`,
   },
   assemblyLists: {
     base: `${API_URL}/assembly-lists`,
-    toDo: `${API_URL}/assembly-lists/to-do`,
     id: (id: number) => `${API_URL}/assembly-lists/${id}`,
-    setWorking: (id: number) => `${API_URL}/assembly-lists/${id}/set-working`,
+    claim: (id: number) => `${API_URL}/assembly-lists/${id}/claim`,
   },
   weldLists: {
     base: `${API_URL}/weld-lists`,
-    toDo: `${API_URL}/weld-lists/to-do`,
     id: (id: number) => `${API_URL}/weld-lists/${id}`,
-    setWorking: (id: number) => `${API_URL}/weld-lists/${id}/set-working`,
+    claim: (id: number) => `${API_URL}/weld-lists/${id}/claim`,
   },
   fillerMaterials: {
     base: `${API_URL}/filler-materials`,
@@ -84,7 +62,8 @@ export const API_ROUTES = {
   },
   documents: {
     base: `${API_URL}/documents`,
-    download: (path: string) => `${API_URL}/documents/${path}`,
+    download: (section: string, filename: string) =>
+      `${API_URL}/documents/${section}/${filename}`,
   },
 };
 
@@ -101,15 +80,9 @@ export const WS_EVENTS = {
     connect_error: "connect_error",
     error: "error",
   },
-  cutList: {
-    updateWorkStatus: "updateWorkStatus",
-  },
-  assemblyList: {
-    updateWorkStatus: "updateWorkStatus",
-    create: "createAssemblyList",
-  },
-  weldList: {
-    updateWorkStatus: "updateWorkStatus",
-    create: "createsWeldList",
+  // Os três namespaces (cut-list/assembly-list/weld-list) emitem os mesmos eventos.
+  stage: {
+    claimChanged: "claimChanged",
+    statusChanged: "statusChanged",
   },
 };

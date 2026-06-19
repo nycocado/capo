@@ -1,193 +1,57 @@
-import React, { useCallback } from "react";
-import { getWorkStatusState, canUserAccessItem } from "@/hooks";
+import { useCallback } from "react";
+import { isListAccessible } from "@/hooks";
 import { TAB_TYPES, type TabType } from "@components/features/WorkTabs";
 import { WeldListDto } from "@/dtos";
 import { WORK_STATES } from "@/constants";
 
 export interface UseWeldTableCallbacks {
   onWeldListSelected?: (weldList: WeldListDto) => void;
-  onWeldListSetWorking?: (weldListId: number) => Promise<boolean>;
+  onWeldListClaim?: (weldListId: number) => Promise<boolean>;
 }
 
 /**
- * Produz os handlers de interação da tabela de soldagem: clique em linha,
- * avanço para o próximo item, verificação de conclusão e foco no painel.
+ * Handlers da tabela de weld-lists (aba "All"): qualquer clique numa ordem
+ * acessível abre-a; "Next" prioriza a ordem em progresso e, na falta, reclama a
+ * próxima por fazer.
  */
 export const useWeldEventHandlers = (
   activeTab: TabType,
-  informationIds: Set<number>,
-  toggleInformation: (id: number) => void,
-  clearAllInformation: () => void,
-  hasInformationItems: () => boolean,
   rowStateAccessor: (item: WeldListDto) => string,
-  setSelectedItem: React.Dispatch<React.SetStateAction<WeldListDto | null>>,
   items: WeldListDto[],
   callbacks?: UseWeldTableCallbacks,
   currentUserId?: number,
 ) => {
   const handleRowClick = useCallback(
     (item: WeldListDto) => {
-      const currentState = rowStateAccessor(item);
-
-      if (activeTab === TAB_TYPES.ALL) {
-        if (currentState === "danger") return;
-
-        // Qualquer clique na aba ALL carrega a weld-list, independente do status.
-        callbacks?.onWeldListSelected?.(item);
-        return;
-      }
-
-      if (activeTab === TAB_TYPES.WORKING) {
-        const hasOtherInformation =
-          hasInformationItems() && !informationIds.has(item.id);
-
-        const hasOtherWorkingItems = items.some((i) => {
-          if (i.id === item.id) return false;
-          const apiState = getWorkStatusState(i.workStatus);
-          return apiState === WORK_STATES.WORKING;
-        });
-
-        if (
-          (hasOtherInformation || hasOtherWorkingItems) &&
-          currentState !== WORK_STATES.FINISHED &&
-          currentState !== WORK_STATES.INFORMATION
-        ) {
-          return;
-        }
-
-        if (currentState === WORK_STATES.TO_DO) {
-          clearAllInformation();
-          toggleInformation(item.id);
-          setSelectedItem(item);
-          return;
-        }
-
-        if (currentState === WORK_STATES.INFORMATION) {
-          clearAllInformation();
-          callbacks?.onWeldListSelected?.(item);
-          return;
-        }
-
-        if (currentState === WORK_STATES.WORKING) {
-          setSelectedItem(item);
-          callbacks?.onWeldListSelected?.(item);
-          return;
-        }
-
-        if (currentState === WORK_STATES.FINISHED) {
-          setSelectedItem(item);
-          callbacks?.onWeldListSelected?.(item);
-          return;
-        }
-      }
+      if (activeTab !== TAB_TYPES.ALL) return;
+      if (rowStateAccessor(item) === "danger") return;
+      callbacks?.onWeldListSelected?.(item);
     },
-    [
-      activeTab,
-      rowStateAccessor,
-      callbacks,
-      clearAllInformation,
-      toggleInformation,
-      setSelectedItem,
-      items,
-      hasInformationItems,
-      informationIds,
-    ],
+    [activeTab, rowStateAccessor, callbacks],
   );
 
   const handleNextWorkflow = useCallback(() => {
-    if (activeTab === TAB_TYPES.ALL) {
-      // Prioridade: working > to-do
-      const workingWeldList = items.find((weldList) => {
-        const currentState = rowStateAccessor(weldList);
-        return (
-          currentState === WORK_STATES.WORKING &&
-          canUserAccessItem(weldList, currentUserId)
-        );
-      });
-
-      if (workingWeldList) {
-        callbacks?.onWeldListSelected?.(workingWeldList);
-        return;
-      }
-
-      const todoWeldList = items.find((weldList) => {
-        const currentState = rowStateAccessor(weldList);
-        return currentState === WORK_STATES.TO_DO;
-      });
-
-      if (todoWeldList) {
-        callbacks?.onWeldListSetWorking?.(todoWeldList.id);
-      }
+    if (activeTab !== TAB_TYPES.ALL) return;
+    const working = items.find(
+      (wl) =>
+        rowStateAccessor(wl) === WORK_STATES.WORKING &&
+        isListAccessible(wl, currentUserId),
+    );
+    if (working) {
+      callbacks?.onWeldListSelected?.(working);
       return;
     }
+    const todo = items.find((wl) => rowStateAccessor(wl) === WORK_STATES.TO_DO);
+    if (todo) callbacks?.onWeldListClaim?.(todo.id);
+  }, [activeTab, items, callbacks, rowStateAccessor, currentUserId]);
 
-    if (activeTab === TAB_TYPES.WORKING) {
-      const availableItems = items.filter((item) => {
-        const apiState = getWorkStatusState(item.workStatus);
-        return apiState !== WORK_STATES.FINISHED;
-      });
-
-      if (availableItems.length === 0) return;
-
-      // Prioridade: working > information > to-do
-      const workingItem = availableItems.find((item) => {
-        const apiState = getWorkStatusState(item.workStatus);
-        return apiState === WORK_STATES.WORKING;
-      });
-
-      if (workingItem) {
-        handleRowClick(workingItem);
-        return;
-      }
-
-      const infoItem = availableItems.find((item) =>
-        informationIds.has(item.id),
-      );
-      if (infoItem) {
-        handleRowClick(infoItem);
-        return;
-      }
-
-      const todoItem = availableItems.find((item) => {
-        const apiState = getWorkStatusState(item.workStatus);
-        return apiState === WORK_STATES.TO_DO;
-      });
-
-      if (todoItem) {
-        handleRowClick(todoItem);
-      }
-    }
-  }, [
-    activeTab,
-    items,
-    informationIds,
-    handleRowClick,
-    callbacks,
-    rowStateAccessor,
-    currentUserId,
-  ]);
-
-  const areAllWorkingItemsFinished = useCallback(() => {
-    if (activeTab !== TAB_TYPES.WORKING) return false;
-
-    if (items.length === 0) return false;
-
-    return items.every((item) => {
-      const apiState = getWorkStatusState(item.workStatus);
-      return apiState === WORK_STATES.FINISHED;
-    });
-  }, [activeTab, items]);
+  const areAllWorkingItemsFinished = useCallback(() => false, []);
 
   const isItemInFocus = useCallback(
     (item: WeldListDto | null): boolean => {
       if (!item) return false;
-
       const state = rowStateAccessor(item);
-      return (
-        state === WORK_STATES.INFORMATION ||
-        state === WORK_STATES.WORKING ||
-        state === WORK_STATES.FINISHED
-      );
+      return state === WORK_STATES.WORKING || state === WORK_STATES.FINISHED;
     },
     [rowStateAccessor],
   );

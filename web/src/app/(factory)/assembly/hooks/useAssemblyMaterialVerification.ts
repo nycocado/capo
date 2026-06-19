@@ -15,8 +15,8 @@ export type VerificationAction =
   | { type: "reset" };
 
 export interface MaterialsResponse {
-  pipeLengths: PipeLengthDto[];
-  fittings: FittingDto[];
+  pipeLengths: (PipeLengthDto & { id: number })[];
+  fittings: (FittingDto & { id: number })[];
 }
 
 const verificationReducer = (
@@ -44,43 +44,42 @@ const verificationReducer = (
         },
       };
     }
-    case "reset": {
-      return {
-        pipeLengthStates: {},
-        fittingStates: {},
-      };
-    }
+    case "reset":
+      return { pipeLengthStates: {}, fittingStates: {} };
     default:
       return state;
   }
 };
 
-/** Extrai pipe-lengths e fittings de todos os sheets do AssemblyListDto sem chamada de API. */
+/** Extrai pipe-lengths e fittings de uma assembly-list (spools→joints→parts). */
 function extractMaterialsFromAssemblyList(
   assemblyList: AssemblyListDto,
 ): MaterialsResponse {
-  const allPipeLengths: PipeLengthDto[] = [];
-  const allFittings: FittingDto[] = [];
+  const pipeLengths: (PipeLengthDto & { id: number })[] = [];
+  const fittings: (FittingDto & { id: number })[] = [];
+  const seen = new Set<number>();
 
-  assemblyList.isometric?.sheets?.forEach((sheet) => {
-    if (sheet.pipeLengths) {
-      allPipeLengths.push(...sheet.pipeLengths);
+  for (const spool of assemblyList.isometric.spools ?? []) {
+    for (const joint of spool.joints ?? []) {
+      for (const part of [joint.part1, joint.part2]) {
+        if (seen.has(part.id)) continue;
+        seen.add(part.id);
+        if (part.type === "pipe_length" && part.pipeLength) {
+          pipeLengths.push({ ...part.pipeLength, id: part.id });
+        } else if (part.type === "fitting" && part.fitting) {
+          fittings.push({ ...part.fitting, id: part.id });
+        }
+      }
     }
-    if (sheet.fittings) {
-      allFittings.push(...sheet.fittings);
-    }
-  });
+  }
 
-  return {
-    pipeLengths: allPipeLengths,
-    fittings: allFittings,
-  };
+  return { pipeLengths, fittings };
 }
 
 /**
  * Controla o fluxo multi-passo de verificação de materiais antes de iniciar uma
  * assembly-list: exibe pipe-lengths e fittings extraídos do DTO para confirmação
- * do operador, e suporta modo de consulta somente-leitura (sem completar a verificação).
+ * do operador, e suporta modo de consulta só-leitura.
  */
 export function useAssemblyMaterialVerification() {
   const [showModal, setShowModal] = useState(false);
@@ -119,12 +118,7 @@ export function useAssemblyMaterialVerification() {
     return currentStep === "pipeLength"
       ? allPipeLengthsVerified
       : allFittingsVerified;
-  }, [
-    currentStep,
-    allPipeLengthsVerified,
-    allFittingsVerified,
-    isConsultationMode,
-  ]);
+  }, [currentStep, allPipeLengthsVerified, allFittingsVerified, isConsultationMode]);
 
   const canGoToPrevious = useMemo(
     () => currentStep === "fitting",
@@ -148,9 +142,7 @@ export function useAssemblyMaterialVerification() {
       dispatch({ type: "reset" });
 
       try {
-        const extractedMaterials =
-          extractMaterialsFromAssemblyList(assemblyList);
-        setMaterials(extractedMaterials);
+        setMaterials(extractMaterialsFromAssemblyList(assemblyList));
         setCurrentStep("pipeLength");
         setShowModal(true);
       } catch (err) {
@@ -172,9 +164,7 @@ export function useAssemblyMaterialVerification() {
       setIsConsultationMode(true);
 
       try {
-        const extractedMaterials =
-          extractMaterialsFromAssemblyList(assemblyList);
-        setMaterials(extractedMaterials);
+        setMaterials(extractMaterialsFromAssemblyList(assemblyList));
         setCurrentStep("pipeLength");
         setShowModal(true);
       } catch (err) {
@@ -240,9 +230,7 @@ export function useAssemblyMaterialVerification() {
   }, [isConsultationMode, currentStep]);
 
   const handlePrevious = useCallback(() => {
-    if (currentStep === "fitting") {
-      setCurrentStep("pipeLength");
-    }
+    if (currentStep === "fitting") setCurrentStep("pipeLength");
   }, [currentStep]);
 
   const handleCancel = useCallback(() => {

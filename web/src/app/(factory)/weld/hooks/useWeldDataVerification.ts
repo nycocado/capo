@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { useWeldFormData } from "./useWeldFormData";
-import { stepWeld } from "@/lib/api";
+import { createWeldStatusEvent } from "@/lib/api";
 
 export interface UseWeldDataVerificationProps {
   onWeldProcessed?: (weld: WeldWithContext) => void;
@@ -9,10 +9,10 @@ export interface UseWeldDataVerificationProps {
 }
 
 /**
- * Controla o fluxo de verificação de dados antes do step de um weld:
- * abre modal com campos WPS e filler material, submete o step e notifica o resultado.
+ * Controla o fluxo de dados antes de concluir um weld: abre um modal com WPS e
+ * filler material, conclui o weld (`POST status-events` com os ids) e notifica.
  *
- * @param onWeldProcessed Chamado com o weld atualizado após step bem-sucedido.
+ * @param onWeldProcessed Chamado com o weld atualizado após a conclusão.
  * @param onError Chamado com a mensagem de erro caso a operação falhe.
  */
 export function useWeldDataVerification({
@@ -35,33 +35,27 @@ export function useWeldDataVerification({
   }, []);
 
   const handleFieldChange = useCallback((fieldId: string, value: string) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [fieldId]: value,
-    }));
+    setFormValues((prev) => ({ ...prev, [fieldId]: value }));
   }, []);
 
   const handleContinue = useCallback(async () => {
     if (!currentWeld) return;
 
-    const { wps, fillerMaterial } = formValues;
-
-    if (!wps || !fillerMaterial) {
+    const wpsId = Number(formValues.wps);
+    const fillerMaterialId = Number(formValues.fillerMaterial);
+    if (!wpsId || !fillerMaterialId) {
       onError?.("Please select both WPS and Filler Material");
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      const updated = await stepWeld(currentWeld.id, { wps, fillerMaterial });
-      const updatedWithContext: WeldWithContext = {
-        ...updated,
-        // preserva o contexto do spool para uso no WorkPanel/grid
-        spoolInfo: currentWeld.spoolInfo,
-      };
-
-      onWeldProcessed?.(updatedWithContext);
+      const updated = await createWeldStatusEvent(currentWeld.id, {
+        status: "done",
+        fillerMaterialId,
+        wpsId,
+      });
+      onWeldProcessed?.({ ...updated, spoolInfo: currentWeld.spoolInfo });
       setShowModal(false);
       setCurrentWeld(null);
       setFormValues({});
@@ -87,10 +81,10 @@ export function useWeldDataVerification({
       type: "select" as const,
       required: true,
       options: wpsOptions
-        .filter((wps) => wps?.internalId && wps?.document)
+        .filter((wps) => wps?.id && wps?.internalId)
         .map((wps) => ({
           label: `${wps.internalId} - ${wps.document}`,
-          value: wps.internalId,
+          value: String(wps.id),
         })),
     },
     {
@@ -99,10 +93,10 @@ export function useWeldDataVerification({
       type: "select" as const,
       required: true,
       options: fillerMaterialOptions
-        .filter((material) => material?.name)
+        .filter((material) => material?.id && material?.name)
         .map((material) => ({
           label: material.name,
-          value: material.name,
+          value: String(material.id),
         })),
     },
   ];

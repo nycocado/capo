@@ -20,16 +20,16 @@ export const cutCardConfigs = (
         {
           type: "tagged",
           label: "Length",
-          value: selectedItem?.length?.toString() ?? "\u00A0",
+          value: selectedItem?.length?.toString() ?? " ",
           tag: "mm",
         },
         {
           type: "double",
           label: "Diameter (DN)",
           primaryValue:
-            selectedItem?.diameter?.nominalMm?.toString() ?? "\u00A0",
+            selectedItem?.diameter?.nominalMm?.toString() ?? " ",
           primaryTag: "mm",
-          secondaryValue: selectedItem?.diameter?.nominalInch ?? "\u00A0",
+          secondaryValue: selectedItem?.diameter?.nominalInch ?? " ",
           secondaryTag: "inch",
         },
       ],
@@ -39,12 +39,12 @@ export const cutCardConfigs = (
         {
           type: "normal",
           label: "ID",
-          value: selectedItem?.internalId ?? "\u00A0",
+          value: selectedItem?.internalId ?? " ",
         },
         {
           type: "normal",
           label: "Heat Number",
-          value: selectedItem?.heatNumber ?? "\u00A0",
+          value: selectedItem?.heatNumber ?? " ",
           onClick: handlers?.onHeatNumberClick,
         },
       ],
@@ -54,27 +54,21 @@ export const cutCardConfigs = (
         {
           type: "normal",
           label: "Isometric",
-          value: selectedItem?.isometricInfo?.internalId ?? "\u00A0",
+          value: selectedItem?.isometricInfo?.internalId ?? " ",
         },
         {
           type: "normal",
-          label: "Sheet",
-          value:
-            selectedItem?.isometricInfo?.sheetNumber?.toString() ?? "\u00A0",
+          label: "Material",
+          value: selectedItem?.material?.name ?? " ",
         },
       ],
     },
     {
       items: [
         {
-          type: "normal",
-          label: "Material",
-          value: selectedItem?.material?.name ?? "\u00A0",
-        },
-        {
           type: "tagged",
           label: "Thickness",
-          value: selectedItem?.thickness?.toString() ?? "\u00A0",
+          value: selectedItem?.thickness?.toString() ?? " ",
           tag: "mm",
         },
       ],
@@ -91,12 +85,12 @@ export const weldCardConfigs = (
       {
         type: "normal",
         label: "Spool",
-        value: selectedItem?.spoolInfo?.internalId ?? "\u00A0",
+        value: selectedItem?.spoolInfo?.internalId ?? " ",
       },
       {
         type: "normal",
         label: "TPI",
-        value: selectedItem?.wps?.tpi?.toString() ?? "\u00A0",
+        value: selectedItem?.wps?.tpi?.toString() ?? " ",
       },
     ],
   },
@@ -105,13 +99,13 @@ export const weldCardConfigs = (
       {
         type: "normal",
         label: "WPS",
-        value: selectedItem?.wps?.internalId ?? "\u00A0",
+        value: selectedItem?.wps?.internalId ?? " ",
         onClick: handlers?.onWPSClick,
       },
       {
         type: "normal",
         label: "Filler Material",
-        value: selectedItem?.fillerMaterial?.name ?? "\u00A0",
+        value: selectedItem?.fillerMaterial?.name ?? " ",
         onClick: handlers?.onFillerClick,
       },
     ],

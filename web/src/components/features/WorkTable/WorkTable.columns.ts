@@ -8,6 +8,31 @@ import {
 import { PipeLengthWithContext } from "@/interfaces";
 import { Column } from "@components/features/WorkTable/WorkTable";
 
+/** Conta os pipe-lengths distintos de um isométrico (via spools→joints→parts). */
+const countPipeLengths = (cutList: CutListDto): number => {
+  const seen = new Set<number>();
+  for (const spool of cutList.isometric.spools ?? []) {
+    for (const joint of spool.joints ?? []) {
+      for (const part of [joint.part1, joint.part2]) {
+        if (part.type === "pipe_length") seen.add(part.id);
+      }
+    }
+  }
+  return seen.size;
+};
+
+/** Conta os welds de um isométrico (via spools→joints→welds). */
+const countWeldsInIsometric = (list: AssemblyListDto): number =>
+  (list.isometric.spools ?? []).reduce(
+    (total, spool) =>
+      total +
+      (spool.joints ?? []).reduce(
+        (jointTotal, joint) => jointTotal + (joint.welds?.length ?? 0),
+        0,
+      ),
+    0,
+  );
+
 export const columnsCutList: Column<CutListDto>[] = [
   {
     id: "id",
@@ -26,25 +51,9 @@ export const columnsCutList: Column<CutListDto>[] = [
     searchable: true,
   },
   {
-    id: "sheets",
-    header: "SHEETS",
-    accessor: (item) => {
-      return item.isometric.sheets?.map((s) => s.number).join(", ") || "-";
-    },
-    className: "text-center",
-    sortable: false,
-    searchable: false,
-  },
-  {
     id: "pipeCount",
     header: "PIPES",
-    accessor: (item) => {
-      const totalPipes =
-        item.isometric.sheets?.reduce((total, sheet) => {
-          return total + (sheet.pipeLengths?.length || 0);
-        }, 0) || 0;
-      return totalPipes.toString();
-    },
+    accessor: (item) => countPipeLengths(item).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -72,14 +81,6 @@ export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
     id: "isometric",
     header: "ISOMETRIC",
     accessor: (item) => item.isometricInfo?.internalId || "-",
-    className: "text-center",
-    sortable: true,
-    searchable: true,
-  },
-  {
-    id: "sheet",
-    header: "SHEET",
-    accessor: (item) => item.isometricInfo?.sheetNumber?.toString() || "-",
     className: "text-center",
     sortable: true,
     searchable: true,
@@ -130,25 +131,9 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
     searchable: true,
   },
   {
-    id: "sheets",
-    header: "SHEETS",
-    accessor: (item) => {
-      return item.isometric?.sheets?.map((s) => s.number).join(", ") || "-";
-    },
-    className: "text-center",
-    sortable: false,
-    searchable: false,
-  },
-  {
     id: "spoolCount",
     header: "SPOOLS",
-    accessor: (item) => {
-      const totalSpools =
-        item.isometric?.sheets?.reduce((total, sheet) => {
-          return total + (sheet.spools?.length || 0);
-        }, 0) || 0;
-      return totalSpools.toString();
-    },
+    accessor: (item) => (item.isometric.spools?.length ?? 0).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -156,21 +141,7 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
   {
     id: "weldCount",
     header: "WELDS",
-    accessor: (item) => {
-      const totalWelds =
-        item.isometric?.sheets?.reduce((sheetTotal, sheet) => {
-          const sheetWelds =
-            sheet.spools?.reduce((spoolTotal, spool) => {
-              const spoolWelds =
-                spool.joints?.reduce((jointTotal, joint) => {
-                  return jointTotal + (joint.welds?.length || 0);
-                }, 0) || 0;
-              return spoolTotal + spoolWelds;
-            }, 0) || 0;
-          return sheetTotal + sheetWelds;
-        }, 0) || 0;
-      return totalWelds.toString();
-    },
+    accessor: (item) => countWeldsInIsometric(item).toString(),
     className: "text-center",
     sortable: true,
     searchable: false,
@@ -198,9 +169,10 @@ export const columnsWeldList: Column<WeldListDto>[] = [
     id: "weldCount",
     header: "WELDS",
     accessor: (item) => {
-      const totalWelds = item.spool?.joints?.reduce((total, joint) => {
-        return total + (joint.welds?.length || 0);
-      }, 0);
+      const totalWelds = item.spool?.joints?.reduce(
+        (total, joint) => total + (joint.welds?.length || 0),
+        0,
+      );
       return totalWelds?.toString() || "0";
     },
     className: "text-center",
@@ -214,12 +186,6 @@ export const columnsPipeLengthVerification: Column<PipeLengthDto>[] = [
     id: "id",
     header: "ID",
     accessor: (item) => item.internalId,
-    sortable: true,
-  },
-  {
-    id: "number",
-    header: "NUMBER",
-    accessor: (item) => item.number,
     sortable: true,
   },
   {
@@ -254,12 +220,6 @@ export const columnsFittingVerification: Column<FittingDto>[] = [
     id: "id",
     header: "ID",
     accessor: (item) => item.internalId,
-    sortable: true,
-  },
-  {
-    id: "number",
-    header: "NUMBER",
-    accessor: (item) => item.number,
     sortable: true,
   },
   {

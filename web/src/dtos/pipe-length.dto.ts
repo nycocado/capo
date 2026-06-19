@@ -1,10 +1,9 @@
 import { MaterialDto } from "./material.dto";
 import { DiameterDto } from "./diameter.dto";
-import { WorkStatusDto } from "./work-status.dto";
+import { PipeLengthStatus } from "./status.dto";
 
 export interface PipeLengthDto {
-  id: number;
-  number: string;
+  part: number;
   internalId: string;
   description: string;
   length: number;
@@ -12,5 +11,5 @@ export interface PipeLengthDto {
   heatNumber: string | null;
   material: MaterialDto;
   diameter: DiameterDto;
-  workStatus?: WorkStatusDto;
+  status: PipeLengthStatus;
 }

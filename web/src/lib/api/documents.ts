@@ -2,10 +2,16 @@ import { API_ROUTES } from "@/routes";
 import { browserApi } from "./client";
 
 /**
- * Baixa um documento (PDF de rev/WPS) como Blob.
+ * Baixa um documento (PDF de isometric/WPS) como Blob.
  *
- * @param path Caminho do documento (`section/filename`).
+ * @param section Secção/pasta (`isometric` ou `wps`).
+ * @param filename Nome do ficheiro.
  */
-export function downloadDocument(path: string): Promise<Blob> {
-  return browserApi.get(API_ROUTES.documents.download(path)).blob();
+export function downloadDocument(
+  section: string,
+  filename: string,
+): Promise<Blob> {
+  return browserApi
+    .get(API_ROUTES.documents.download(section, filename))
+    .blob();
 }

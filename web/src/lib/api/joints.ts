@@ -1,12 +1,31 @@
 import { API_ROUTES } from "@/routes";
-import { JointDto } from "@/dtos";
+import { JointDto, JointStatus, StatusEventDto } from "@/dtos";
 import { browserApi } from "./client";
 
+export interface CreateJointStatusEvent {
+  status: JointStatus;
+  notes?: string;
+}
+
 /**
- * Avança o status de um joint (assembly).
+ * Regista um evento de status para um joint (avança a máquina de estados).
  *
  * @param id Id do joint.
+ * @param body Status alvo e notas opcionais.
+ * @returns O joint atualizado.
  */
-export function stepJoint(id: number): Promise<JointDto> {
-  return browserApi.patch(API_ROUTES.joints.step(id)).json<JointDto>();
+export function createJointStatusEvent(
+  id: number,
+  body: CreateJointStatusEvent,
+): Promise<JointDto> {
+  return browserApi
+    .post(API_ROUTES.joints.statusEvents(id), { json: body })
+    .json<JointDto>();
+}
+
+/** Histórico de eventos de status de um joint (QC). */
+export function getJointStatusEvents(id: number): Promise<StatusEventDto[]> {
+  return browserApi
+    .get(API_ROUTES.joints.statusEvents(id))
+    .json<StatusEventDto[]>();
 }
