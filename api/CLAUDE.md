@@ -1,58 +1,42 @@
 # api/ — CLAUDE.md
 
-`@capo/api`: **NestJS 11** backend using **MikroORM** over **MariaDB**. See the root `CLAUDE.md` for the monorepo overview, environment, and comment/doc conventions.
+`@capo/api`: NestJS 11 + MikroORM over MariaDB. See the root `CLAUDE.md` for the monorepo overview, domain model, and conventions.
 
 ## Commands
 
-Run locally inside `api/` with Bun (the Docker image is production-only — `node dist/main`):
+Local with Bun (the Docker image is production-only — `node dist/main`):
 
 ```bash
-bun run start:dev        # nest watch mode (needs DB/JWT vars in api/.env.local)
-bun run lint             # eslint --fix
-bun run test             # jest (unit specs: *.spec.ts under src/)
-bun run test cut-list    # run specs matching a path/name
-bun run test:e2e         # jest with test/jest-e2e.json
-bun run build            # nest build → dist/
+bun run start:dev   # nest watch (needs DB/JWT vars in api/.env.local)
+bun run lint        # eslint --fix
+bun run build       # nest build → dist/
 ```
 
 Path aliases (`tsconfig.json`): `@common/*`, `@config/*`, `@modules/*`, `@shared/*`, `@database/*`.
 
 ## Architecture
 
-Each feature under `src/modules/<name>/` follows the same four-layer shape, re-exported via a barrel `index.ts` (which is what `@modules/<name>` resolves to):
+> Changes in F8 (CQRS + rich domain: controller → use-case/handler + custom EntityRepository + EventBus). Current shape below.
 
-- **`*.controller.ts`** — HTTP routes. Guarded with `@UseGuards(JwtCookieAuthGuard, RolesGuard)` + `@Roles(...)`, and serialized with `@SerializeResponse(Dto, "group")`.
-- **`*.service.ts`** — business logic. Emits and listens to cross-module events via `EventEmitter2` / `@OnEvent`.
-- **`*.repository.ts`** — all MikroORM data access. Defines `FULL_POPULATE_FIELDS` / `MINIMAL_POPULATE_FIELDS` constants and uses `@Transactional()` for writes.
-- **`*.gateway.ts`** *(stage modules only)* — socket.io `@WebSocketGateway({ namespace })` that listens for service events and broadcasts to clients.
+Each feature in `src/modules/<name>/` is a barrel (`index.ts` = `@modules/<name>`):
 
-Cross-cutting pieces:
+- **`*.controller.ts`** — HTTP routes; `@UseGuards(JwtCookieAuthGuard, RolesGuard)` + `@Roles(...)`; returns the entity directly.
+- **`*.service.ts`** — business logic: per-item state machine, claim/lock, derived progress/gating; emits `EventEmitter2` events.
+- **`*.repository.ts`** — all MikroORM access; `FULL_POPULATE_FIELDS` constants, aggregate queries (gating/counts) in raw SQL, `@Transactional()` writes.
+- **`*.gateway.ts`** *(list modules only)* — socket.io `@WebSocketGateway({ namespace })`; `@OnEvent` → broadcast.
 
-- **Auth**: JWT carried in a cookie named `token` (`AuthService` signs it; `JwtCookieAuthGuard` + `passport-jwt` validate it). `RolesGuard` checks the `@Roles(...)` metadata against the user's roles. Inject the authenticated user with the `@User()` param decorator. Token/cookie lifetime both derive from `JWT_EXPIRATION` via `durationToMs` (`@common/utils/parse-duration`).
-- **Serialization**: `SerializeInterceptor` calls MikroORM `wrap(entity).toObject()` then `class-transformer`'s `plainToInstance` with `excludeExtraneousValues` + the named group. Response shape is therefore controlled by `@Expose({ groups: [...] })` on the response DTOs in each module's `dto/`.
-- **Error mapping**: `MikroOrmNotFoundInterceptor` (global) turns ORM "not found" errors into 404s, so repositories use `findOneOrFail`.
-- **Shared entities** (`@database/entities`) are the cross-module domain core (`PartEntity`, `WorkStatusTypeEntity`, `IsometricEntity`, etc.); module-local entities live under `modules/<name>/entities/`. Schema is owned by `db/` — see `db/CLAUDE.md`.
-- **API docs**: Swagger UI at `/api` (`SwaggerModule.setup` in `main.ts`); per-endpoint docs come from custom decorators like `@ApiLogin()` defined in each module's `*.swagger.ts`.
-- **Health**: `AppController` exposes the only non-feature route, `GET /health` (liveness), consumed by the Docker healthcheck.
-- **Config & shared layout**: env/ORM/Swagger config in `src/config/`; cross-module DTOs and types in `src/shared/` (e.g. `request-with-user`); reusable decorators (`@Roles`, `@User`, `@SerializeResponse`), guards, interceptors, pipes, and utils in `src/common/`.
+Cross-cutting:
 
-### Work progression (HTTP entry points)
+- **Auth:** JWT in the `token` cookie (`AuthService` signs; `JwtCookieAuthGuard` + passport-jwt validate). `RolesGuard` accepts **any** of the `@Roles(...)`. Inject the user via `@User()`. `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`.
+- **Serialization:** native MikroORM — controllers return the entity; `toJSON()`/`wrap().toObject()` honor `@Property({ hidden })` (secrets) and `@Property({ persist: false })` (derived fields). No interceptor, no class-transformer on responses (request DTOs still use class-validator).
+- **Security baseline:** helmet, `@nestjs/throttler` (stricter on login), global `ValidationPipe` (whitelist/forbidNonWhitelisted/transform), CORS via `config.getOrThrow("CORS_ORIGIN")`, global `AllExceptionsFilter`, Swagger only outside production. `DocumentService` guards path traversal (section allowlist + contained path).
+- **Layout:** env/ORM (factory `createMikroOrmConfig` + `forRootAsync`)/Swagger in `src/config/`; cross-module DTOs/types in `src/shared/`; decorators/guards/filters/utils in `src/common/`; shared entities in `@database/entities`. Health: `GET /health`.
 
-Work advances through two HTTP patterns, both of which run the service → event → gateway flow below:
+### Work progression (HTTP)
 
-- **`PATCH /<item>s/:id/step`** — advances a single item's status (`to-do → working → finished`): `pipe-lengths`, `joints`, `welds`. Optional `heatNumber` / `notes` query params capture data at the transition.
-- **`PATCH /<list>s/:id/set-working`** — list-level transition for the stage lists: `cut-lists`, `assembly-lists`, `weld-lists`.
+- **`POST /<item>s/:id/status-events`** advances an item (`pipe-lengths`/`joints`/`welds`), applying the stage state machine; the body carries `heatNumber` / `fillerMaterial`+`wps` / `notes` as the stage requires. `GET /<item>s/:id` and `.../status-events` (history).
+- **Claim as sub-resource:** `POST` / `DELETE` / `PUT /<x>-lists/:id/claim` (claim / release / admin reassign). Lists are read-only collections (`GET /`, `GET /:id`); progress and gating are computed, not stored.
 
-### Real-time update flow
+### Real-time
 
-The canonical pattern, e.g. when an operator finishes a cut:
-
-1. Controller → `service.updateWorkStatusToWorking/Finished(...)`.
-2. Service persists via repository, then `eventEmitter.emit("cut-list.updateWorkStatusTo...", populatedEntity, userId)`.
-3. Other services may `@OnEvent` that to cascade status (e.g. finishing all pipe-lengths in a cut-list auto-finishes the cut-list).
-4. The module's gateway `@OnEvent` handler broadcasts `server.emit("updateWorkStatus", serialized)` on its namespace.
-5. The web client's `useStageSocket` hook receives it and patches the TanStack Query cache (`setQueryData`).
-
-### Domain model
-
-Production hierarchy (roughly): `Project → Isometric → Sheet → Rev → Spool → Joint → Part`. A `Part` is either a `PipeLength` or a `Fitting` (`PartType` enum). The three shop stages each have a list entity (`CutListEntity`, `AssemblyListEntity`, `WeldListEntity`) and their own `*-work-status` join entity recording status transitions over time. Status is `to-do | working | finished` (`WorkStatusType`); the **last** entry in a `workStatuses` collection is the current status. Roles: `cutting-operator`, `pipe-fitter` (assembly), `welder`, `administrator`.
+Service write → `eventEmitter.emit("<item>.statusChanged" | "<list>.claimChanged", …)` → the stage gateway's `@OnEvent` re-broadcasts on its namespace. The **downstream** gateway also re-emits a signal on upstream changes (cross-stage gating: finishing cut surfaces the now-available assembly order without refresh). Handshake is JWT-authenticated (`createWsAuthMiddleware`). The web client invalidates its query on any event.

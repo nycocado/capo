@@ -1,75 +1,66 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+CAPO (Computer Aided Process Overview) — a metallurgical pipeline-production management system. It tracks parts through three shop-floor stages — **cut**, **assembly**, **weld** — with role-specific operator interfaces and real-time updates.
 
-Per-area detail lives in nested `CLAUDE.md` files, loaded automatically when working in that directory:
-- `api/CLAUDE.md` — NestJS backend (module pattern, auth, real-time, domain model)
-- `web/CLAUDE.md` — Next.js frontend (App Router, hook composition, routing)
-- `db/CLAUDE.md` — database schema & seed
-- `nginx/CLAUDE.md` — reverse proxy
+Bun-workspaces monorepo (package manager **Bun**, `bun.lock`) behind an nginx reverse proxy, via Docker/Podman Compose:
+- `api/` — `@capo/api`, NestJS 11 + MikroORM + MariaDB. See `api/CLAUDE.md`.
+- `web/` — `@capo/web`, Next.js 16 (App Router, React 19). See `web/CLAUDE.md`.
+- `db/` — schema + seed in raw SQL (the DB is **not** managed by ORM migrations). See `db/CLAUDE.md`.
+- `nginx/` — reverse proxy (`/api/`→api, `/socket.io/`→api, `/`→web). See `nginx/CLAUDE.md`.
 
-## What this is
+Each nested `CLAUDE.md` is loaded when working in its folder. **Principle:** this root holds what is global (domain model, conventions, commands); the nested ones hold only their area's specifics, without repeating — they reference, they don't duplicate.
 
-CAPO (Computer Aided Process Overview) is a metallurgical pipeline-production management system. It tracks pipeline parts through three shop-floor stages — **cut**, **assembly**, **weld** — with role-specific operator interfaces and real-time updates.
+## Domain model (canonical)
 
-This is an **npm-workspaces monorepo** with two deployable apps plus a database, wired together by Docker Compose behind an nginx reverse proxy:
+```
+Project → Isometric → Spool → Joint → (part1, part2 : Part)   and   Joint → Weld
+Part = PipeLength | Fitting   (joined-table inheritance, shared PK)
+Fitting → Port
+```
+`isometric.document` holds the drawing PDF (no sheet/rev — those concepts were dropped).
 
-- `api/` — `@capo/api`, a **NestJS 11** backend using **MikroORM** over **MariaDB**.
-- `web/` — `@capo/web`, a **Next.js 16** (App Router, React 19) frontend.
-- `db/` — raw SQL schema + seed data (the database is **not** managed by ORM migrations).
-- `nginx/` — reverse proxy: `/api/` → api, `/socket.io/` → api WebSockets, everything else → web.
+Three stages, each a work order tracking one item type:
+- **cut** → `cut_list` (1:1 isometric), tracks **pipe_lengths** (`to_do→in_progress→done`; `in_progress` captures `heat_number`).
+- **assembly** → `assembly_list` (1:1 isometric), tracks **joints** (`to_do→done`).
+- **weld** → `weld_list` (1:1 spool), tracks **welds** (`to_do→done`; captures `filler_material`+`wps`).
 
-## Filter in the query, not in JS (IMPORTANT)
+Each item has a denormalized `status` (native ENUM) **plus** an append-only `<item>_status_event` trail. Lists store **no** status — progress and gating (prior stage complete) are **derived** from the items. Each list has `claimed_by`/`claimed_at` = **exclusive lock** (only the claimer or an admin advances its items). Roles: `cutting-operator`→cut, `pipe-fitter`→assembly, `welder`→weld, `administrator`→everything.
 
-**Always filter and aggregate in the database query — never by loading rows and discarding them in JavaScript.** Use the repository query (`WHERE` / QueryBuilder, `count`/`getCount`), not `.filter()`/`.length` over a full result set. This is a hard preference for performance: the DB does the work and only the needed rows cross the wire. The frontend then just renders what the API returns — if a row shouldn't appear, the query shouldn't return it.
+## Working in this repo
+
+- **Filter in the query, not in JS:** always filter and aggregate in the DB query (repository `WHERE`/QueryBuilder, `count`/`getCount`) — never load rows and discard them with `.filter()`/`.length`. The DB does the work; the frontend renders what the API returns. If a row shouldn't appear, the query shouldn't return it.
+- **No stray comments in code:** explanation lives in the symbol's **doc** (TSDoc — see below), not in comments dropped into the body. Inline only for a non-obvious *why*/gotcha/invariant/unit; **never** narration that restates the code.
+- **Subagents and skills:** delegate parallel/repetitive or context-heavy work to subagents (Agent) (UI smoke, broad sweeps, per-file migrations); invoke skills (`/<name>`) when a task matches. Prefer a Sonnet subagent for mechanical/verbose work.
 
 ## Commands
 
-Orchestration runs from the repo root. The package manager and script runner is **Bun** (`bun.lock` is the monorepo lockfile); Node runs the apps. **Docker/Compose builds production images** — multi-stage `builder`/`runner` Dockerfiles: web as a Next.js **standalone** server (`node server.js`), API as `node dist/main`, both non-root. **Day-to-day development runs locally with Bun** against the Dockerized DB; there is no hot-reload-in-container workflow (and no `.dev` Dockerfiles). App-specific commands (test, lint, build) live in `api/CLAUDE.md` and `web/CLAUDE.md`.
+Orchestration runs from the root via Bun (scripts in `package.json`: `docker:up`/`down`/`rebuild`, `logs:*`, `exec:db`, `format`). Compose builds **production images** (multi-stage builder/runner; web = standalone `node server.js`, api = `node dist/main`, both non-root). Day-to-day dev runs **locally with Bun** against the Dockerized DB (no hot-reload-in-container). Per-app commands live in `api/CLAUDE.md` and `web/CLAUDE.md`.
 
-```bash
-bun install              # install all workspaces (writes bun.lock)
-bun run docker:up        # build + start the production stack (nginx, db, api, web)
-bun run docker:up:bg     # same, detached
-bun run docker:down      # stop and remove volumes (drops the DB)
-bun run docker:rebuild   # down -v then up --build (full reset, re-seeds DB)
-bun run logs:api         # tail a single service (also logs:web, logs:db)
-bun run exec:db          # mysql shell into the db container
-bun run format           # prettier --write across the whole repo
-
-# local development (against the Dockerized DB):
-cd web && bun run dev        # NextJS dev server (hot reload)
-cd api && bun run start:dev   # NestJS watch mode (needs DB vars in api/.env.local)
-```
+Rebuild gotcha (Podman): `compose up --build` **caches** and may run a stale image — use `compose build --no-cache <svc>` + `up -d --force-recreate` when a change doesn't show up.
 
 ## Environment / config
 
-No `.env` files are committed (all gitignored). Three are required (templates: `.env.example` in each location):
+Three `.env` files (gitignored; templates `.env.example` in each location): root (consumed by `docker-compose.yml`), `api/.env.local`, `web/.env.local`. Per-variable detail: see the `.env.example` files. Non-obvious gotchas:
+- `NEXT_PUBLIC_*` are **build args** baked into the web bundle (fixed at build time, not runtime).
+- `MARIADB_PORT` only publishes the host port; the API connects to the internal `3306` (compose hardcodes `DATABASE_PORT: 3306`).
+- `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the cookie `maxAge` (via `durationToMs`).
+- `.prettierrc` sets `singleQuote: false`; don't run `bun run format` across files you didn't touch.
 
-- Root `.env` — consumed by `docker-compose.yml`: `NGINX_PORT`, `MARIADB_*` (`HOST`, `PORT`, `USER`, `PASSWORD`, `ROOT_PASSWORD`, `DATABASE`), `JWT_SECRET`, `JWT_EXPIRATION`, `API_INTERNAL_PORT`, `CORS_ORIGIN`, and `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_WS_URL` (passed as **build args** to the web image — `NEXT_PUBLIC_*` are baked into the bundle at build time). `NODE_ENV` is set to `production` by the Dockerfiles, not via `.env`. Note: `MARIADB_PORT` only sets the host-published port; the API always connects to the DB's internal `3306` (compose hardcodes `DATABASE_PORT: 3306`), so changing `MARIADB_PORT` won't break it.
-- `api/.env.local` — API config. Under Docker, `DATABASE_*`, `JWT_SECRET`, `JWT_EXPIRATION`, `PORT`, `CORS_ORIGIN` are injected by compose from the root `.env`; the one var that must live here is `STORAGE_PATH` (defaults to `storage`). For **local** API dev, uncomment the DB/JWT block in `api/.env.example`. `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the session cookie's `maxAge` via `durationToMs`.
-- `web/.env.local` — `INTERNAL_API_URL` (server-side fetches, read at runtime) plus `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_WS_URL` for **local** `bun run dev` (in the Docker image these two come from the root-`.env` build args instead). See `web/src/routes.ts`.
+## Comments & docs
 
-**Formatting gotcha:** `.prettierrc` now sets `singleQuote: false` to match the double-quoted code, but still don't run `bun run format` blindly across files you didn't touch — match the surrounding style when editing.
-
-## Comment & doc conventions
-
-Comments are written in **Portuguese**; error/log messages and identifiers stay **English** to match existing code (e.g. `throw new NotFoundException("File not found")`). Rules differ by file type:
-
-- **`.ts` / `.tsx`** — full **TSDoc** on public symbols: a one-line description plus `@param` (description only), `@returns`, and `@throws` where they apply. **Never put types in the JSDoc** (`@param {string}` is wrong — TypeScript already types the signature). Inline comments only for a non-obvious *why*/gotcha/unit/invariant — never narration that restates the code.
-- **`.env` / `.env.example`** — a boxed file header (`# ===`) and variables grouped by category under an UPPERCASE `# LABEL`, ordered by boot flow (rede → banco → API → auth). **No per-variable comments** — the category plus the variable name carry the meaning.
-- **`.yml` (compose)** — no narrative comments; rely on the structure. A genuinely non-obvious decision goes in a `CLAUDE.md`, not inline.
+Comments in **Portuguese**; error/log messages and identifiers in **English** (e.g. `throw new NotFoundException("File not found")`). By file type:
+- **`.ts`/`.tsx`** — TSDoc on exported symbols (description + `@param`/`@returns`/`@throws` **only when they add information**; never types in the JSDoc — TS already types it). No stray comments in the body (see "Working in this repo").
+- **`.env`** — boxed header (`# ===`), variables grouped by UPPERCASE category in boot order; no per-variable comments.
+- **`.yml`/compose** — no narrative comments; a non-obvious decision goes in a `CLAUDE.md`.
 - **`.md`** — concise prose, no redundancy.
-
-Reference points in the repo: the **API modules** are the model (clean, self-documenting); `web/src/**/hooks` were the anti-pattern (line-by-line narration) and are being cleaned up.
 
 ## Git / commits
 
 - **No `Co-Authored-By` trailer** — keep authorship clean.
-- **Format: `[escopo:tipo] assunto`.** Subject in **Portuguese**, lowercase, descriptive, **no action-noun** (the type carries the verb). The type lives **inside the brackets** — never a loose `tipo:` prefix.
-  - **escopo** (monorepo area): `api` `web` `db` `nginx` `infra` `docs` `root`; join with `/` when it spans two (`api/web`).
-  - **tipo** (EN jargon): `feat` `fix` `refactor` `docs` `chore` `perf` `test` `build`. Drop `:tipo` when the scope *is* the type (e.g. `[docs]`). Capitalize tech names in the body (NextJS, Docker, NGINX).
-- **Subject ≤ ~72 chars, one line.** Detail goes in an **optional body**: blank line, then bullets (`- …`) — explain the *why*, not the file-by-file *what*.
+- **Format: `[scope:type] subject`.** Subject in **Portuguese**, lowercase, descriptive, **no action-noun** (the type carries the verb). The type lives **inside the brackets** — never a loose `tipo:` prefix.
+  - **scope** (monorepo area): `api` `web` `db` `nginx` `infra` `docs` `root`; join with `/` when it spans two (`api/web`).
+  - **type** (EN jargon): `feat` `fix` `refactor` `docs` `chore` `perf` `test` `build`. Drop `:type` when the scope *is* the type (e.g. `[docs]`). Capitalize tech names in the body (NextJS, Docker, NGINX).
+- **Subject ≤ ~72 chars, one line** — usually all it needs. Add a body **only** when the *why* genuinely requires it (the exception, not the rule), and keep it to a couple of short bullets — never a file-by-file list.
 
 ```
 [api:refactor] CQRS, rich domain e use-cases

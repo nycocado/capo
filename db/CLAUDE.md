@@ -1,23 +1,16 @@
 # db/ — CLAUDE.md
 
-Raw SQL schema + seed for the MariaDB database. The DB is **not** managed by ORM migrations.
+Raw SQL schema + seed for MariaDB. The DB is **not** managed by ORM migrations — see the domain model in the root `CLAUDE.md`.
 
 - `01-create.sql` — schema (tables, FKs, CHECKs, indexes).
-- `02-insert.sql` — seed data.
-- `99-drop-tables.sql` — manual teardown helper.
+- `02-insert.sql` — seed.
+- `99-drop-tables.sql` — manual teardown.
 
-`01-` and `02-` are mounted into the MariaDB container's init dir and applied **only on first boot of a fresh volume**. To re-apply schema/seed changes you must `bun run docker:down` (drops the volume) then `up`, or `bun run docker:rebuild`.
+`01-`/`02-` are mounted into the container's init dir and applied **only on first boot of a fresh volume**. To re-apply changes: `bun run docker:down` (drops the volume) + `up`, or `bun run docker:rebuild`. The `migrations/`/`seeders/`/`views/` stubs under `api/src/database/` are empty — schema changes are made by editing this SQL and keeping the MikroORM entities in sync by hand.
 
-MikroORM's `migrations/`, `seeders/`, and `views/` directories under `api/src/database/` are **empty stubs** — schema changes are made by editing these SQL files, then kept in sync by hand with the MikroORM entities (`api/src/database/entities/` and `api/src/modules/*/entities/`). Entity changes alone do **not** alter the DB.
+## Structure notes (the non-obvious)
 
-## Domain model
-
-Hierarchy: `Project → Isometric → Spool → Joint → (part1, part2 : Part)`, and `Joint → Weld`. A `Part` is a `PipeLength` **or** a `Fitting` (joined-table inheritance, shared PK). `Fitting → Port`. Revisions/sheets were dropped: each `isometric` carries its drawing PDF directly in `document`.
-
-Three production stages, each a work-order entity that tracks one item type:
-
-- **cut** → `cut_list` (1:1 isometric) tracks **pipe_lengths** (`to_do → in_progress → done`; `in_progress` captures `heat_number`).
-- **assembly** → `assembly_list` (1:1 isometric) tracks **joints** (`to_do → done`).
-- **weld** → `weld_list` (1:1 spool) tracks **welds** (`to_do → done`; capture `filler_material` + `wps`).
-
-Each tracked item has a denormalized current `status` (native `ENUM`) **plus** an append-only audit trail in `<item>_status_event` (status, notes, created_by, created_at). The lists have **no stored status** — their progress/gating is derived from the items. Each list has `claimed_by_id` / `claimed_at` for the exclusive claim/lock.
+- **Joined-table inheritance:** `pipe_length.id` and `fitting.id` are FK = PK of `part` (shared PK). A `pipe_length` is reached via `joint.part1_id`/`part2_id` — queries aggregating by pipe_length need an OR-join on both + `DISTINCT`.
+- **Per-item status:** denormalized `status` native ENUM column (current state) **plus** an append-only `<item>_status_event` table (status, notes, created_by, created_at) as the audit trail. `created_by` is `SET NULL` on user delete.
+- **Statusless lists:** `cut_list`/`assembly_list`/`weld_list` store no status — only `internal_id`, the 1:1 (`UNIQUE`) FK to isometric/spool, and `claimed_by_id`/`claimed_at` (the lock). Progress and gating are derived in the query.
+- `isometric.document` holds the PDF (no sheet/rev).
