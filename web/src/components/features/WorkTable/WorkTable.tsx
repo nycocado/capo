@@ -20,7 +20,7 @@ export interface Column<T> {
 }
 
 export interface PaginationProps {
-  page?: number; // 1-based
+  page?: number;
   pageSize?: number;
 }
 
@@ -33,7 +33,7 @@ export interface WorkTableProps<T> {
   hover?: boolean;
   rowStates?: Record<string, RowStateConfig<T>>;
   rowStateAccessor?: (item: T) => string;
-  pagination?: PaginationProps; // opcional – se não informado, lista completa
+  pagination?: PaginationProps;
 }
 
 export function WorkTable<T extends { id: number | string }>(

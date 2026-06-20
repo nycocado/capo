@@ -17,7 +17,6 @@ const imports = [
     imports: [ConfigModule],
     useFactory: (cs: ConfigService) => ({
       secret: cs.getOrThrow<string>("JWT_SECRET"),
-      // expiresIn em segundos; deriva do mesmo JWT_EXPIRATION que o cookie
       signOptions: {
         expiresIn:
           durationToMs(cs.get<string>("JWT_EXPIRATION") ?? "8h") / 1000,

@@ -38,11 +38,6 @@ export interface UseJointOperationsProps {
   onAllFinished?: () => void;
 }
 
-/**
- * Gerencia o estado e as operações dos joints de uma assembly-list: clique num
- * weld (→ conclui o joint correspondente), navegação para o próximo e
- * verificação de conclusão. O estado do joint vem do seu `status` (binário).
- */
 export function useJointOperations({
   selectedAssemblyList,
   onJointProcessed,
@@ -80,7 +75,6 @@ export function useJointOperations({
       const localState = stateManagement.jointStates[jointId];
       if (localState) return localState;
 
-      // Estado local ausente: lê o status do joint (spools→joints).
       let joint = null;
       for (const spool of selectedAssemblyList.isometric.spools ?? []) {
         joint = spool.joints?.find((j) => j.id === jointId) ?? null;
@@ -108,7 +102,13 @@ export function useJointOperations({
         onError?.("Could not find joint information for this weld");
       }
     },
-    [selectedAssemblyList, getJointStateForWeld, processJoint, isSubmitting, onError],
+    [
+      selectedAssemblyList,
+      getJointStateForWeld,
+      processJoint,
+      isSubmitting,
+      onError,
+    ],
   );
 
   const handleNextWeld = useCallback(
@@ -143,7 +143,9 @@ export function useJointOperations({
 
   const itemStates = {
     "to-do": {
-      className: isSubmitting ? "bg-secondary text-white" : "bg-dark text-light",
+      className: isSubmitting
+        ? "bg-secondary text-white"
+        : "bg-dark text-light",
       onClick: async (item: WeldWithContext) => {
         if (!isSubmitting) await handleWeldClick(item);
       },

@@ -34,10 +34,6 @@ export interface FormModalProps {
   cancelVariant?: string;
 }
 
-/**
- * Modal genérico de formulário (select/text/number) sobre o BaseModal escuro,
- * com validação dos campos obrigatórios e estados de loading/erro.
- */
 export function FormModal(props: FormModalProps) {
   const {
     showModal,

@@ -7,12 +7,6 @@ const UNIT_TO_MS: Record<string, number> = {
   d: 24 * 60 * 60 * 1000,
 };
 
-/**
- * Converte uma duração em milissegundos.
- * @param value - duração no formato <número><s|m|h|d> (ex.: "8h", "30m", "7d")
- * @returns total em milissegundos
- * @throws se o formato for inválido
- */
 export function durationToMs(value: string): number {
   const match = DURATION_PATTERN.exec(value.trim());
   if (!match) {

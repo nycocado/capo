@@ -20,7 +20,6 @@ import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 import { useState } from "react";
 
-/** Configuração da etapa de soldagem para o núcleo genérico useWorkStage. */
 const weldStageConfig: WorkStageConfig<WeldListDto> = {
   context: "weld",
   queryKey: queryKeys.weldLists(),
@@ -40,15 +39,6 @@ export interface UseWeldWorkflowProps {
   fetchError?: string;
 }
 
-/**
- * Hook principal da etapa de soldagem: compõe o núcleo genérico useWorkStage
- * com a tabela, o modal de dados do weld (WPS + filler), o grid de welds e as
- * configurações de UI.
- *
- * @param initialItems Lista prefetchada pelo RSC (seed do cache).
- * @param currentUser Utilizador autenticado (claim/acesso).
- * @param fetchError Erro do prefetch RSC.
- */
 export const useWeldWorkflow = ({
   initialItems,
   currentUser,
@@ -68,9 +58,12 @@ export const useWeldWorkflow = ({
     errorMsg,
     setErrorMsg,
     claim,
-  } = useWorkStage<WeldListDto>({ ...weldStageConfig, initialItems, fetchError });
+  } = useWorkStage<WeldListDto>({
+    ...weldStageConfig,
+    initialItems,
+    fetchError,
+  });
 
-  // Último weld selecionado; mantido para ações auxiliares (ex.: abrir o WPS).
   const [selectedWeld, setSelectedWeld] = useState<WeldWithContext | null>(
     null,
   );
@@ -86,7 +79,6 @@ export const useWeldWorkflow = ({
   const startWeldList = useCallback(
     async (id: number): Promise<boolean> => {
       const updated = await claim(id);
-      // O claim já define setSelectedId internamente; só muda a aba.
       if (updated) setActiveTab(TAB_TYPES.WORKING);
       return Boolean(updated);
     },
@@ -109,7 +101,6 @@ export const useWeldWorkflow = ({
 
   const weldDataVerification = useWeldDataVerification({
     onWeldProcessed: (updatedWeld) => {
-      // O servidor recomputa o progresso da ordem; revalida a lista leve e o detalhe.
       queryClient.invalidateQueries({ queryKey: queryKeys.weldLists() });
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.weldLists(), "detail"],
@@ -127,7 +118,6 @@ export const useWeldWorkflow = ({
     [weldDataVerification],
   );
 
-  // O grid de welds deriva do detalhe completo (selectedWeldList).
   const weldGrid = useWeldGrid({
     weldList: selectedWeldList ?? null,
     search: activeTab === TAB_TYPES.WORKING ? "" : search,

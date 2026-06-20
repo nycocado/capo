@@ -20,7 +20,6 @@ export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
       setLoading(true);
 
       try {
-        // Buscar WPS e FillerMaterials em paralelo
         const [wpsData, fillerMaterialData] = await Promise.all([
           getAllWps(),
           getAllFillerMaterials(),

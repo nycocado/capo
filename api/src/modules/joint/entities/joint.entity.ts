@@ -23,7 +23,6 @@ export enum JointStatus {
   DONE = "done",
 }
 
-/** Máquina de estados da montagem: to_do → done. */
 const TRANSITIONS: Record<JointStatus, JointStatus[]> = {
   [JointStatus.TO_DO]: [JointStatus.DONE],
   [JointStatus.DONE]: [],
@@ -69,11 +68,6 @@ export class JointEntity extends AggregateRoot {
   })
   statusEvents = new Collection<JointStatusEventEntity>(this);
 
-  /**
-   * Conclui a montagem: move to_do → done.
-   *
-   * @throws ConflictException Se o item não estiver em to_do
-   */
   complete(by: UserEntity, notes?: string): void {
     this.assertTransition(JointStatus.DONE);
     this.status = JointStatus.DONE;

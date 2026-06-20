@@ -19,7 +19,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger só fora de produção — não expor a superfície da API em prod.
   if (config.get("NODE_ENV") !== "production") {
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup("api", app, document);

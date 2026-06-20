@@ -27,16 +27,6 @@ interface UsePipeLengthTableCallbacks {
 
 type Row = PipeLengthWithContext | CutListDto;
 
-/**
- * Gerencia a tabela de pipe-lengths na aba Working: ordenação, busca, seleção,
- * estados de linha (a partir do `status` do item) e navegação entre itens.
- *
- * @param pipeLengths Pipe-lengths derivados da cut-list selecionada.
- * @param search Texto de busca atual.
- * @param callbacks Ações disparadas pelas transições de estado de cada item.
- * @param searchField Campo de busca ativo.
- * @param searchFunction Função de busca custom; usa filterBySearch por padrão.
- */
 export function usePipeLengthTable(
   pipeLengths: PipeLengthWithContext[],
   search: string,
@@ -71,7 +61,6 @@ export function usePipeLengthTable(
     resolveRawState,
   );
 
-  // O backend é a única fonte de verdade do estado finished: sem estado local.
   const { movedIds } = useFinishedItemsSorting(pipeLengths, rowStateAccessor);
 
   const setSelectedItemGeneric = useCallback(

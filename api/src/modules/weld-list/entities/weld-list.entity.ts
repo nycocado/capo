@@ -15,7 +15,6 @@ import { AggregateRoot } from "@common/domain";
 import { WeldListClaimChangedEvent } from "@modules/weld-list/events/weld-list-claim-changed.event";
 import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
 
-/** Contexto de gating/progresso usado para validar um claim. */
 export interface ClaimContext {
   available: boolean;
   progress: ListProgress;
@@ -52,23 +51,15 @@ export class WeldListEntity extends AggregateRoot {
   })
   updatedAt!: Date;
 
-  // Derivados dos itens (preenchidos pelo repositório; não persistidos)
   @Property({ persist: false })
   progress?: ListProgress;
 
   @Property({ persist: false })
   available?: boolean;
 
-  /** Total de welds do spool (para a lista leve, sem a árvore). */
   @Property({ persist: false })
   weldCount?: number;
 
-  /**
-   * Reclama a ordem para o utilizador (lock exclusivo).
-   *
-   * @throws ConflictException Se o estágio anterior estiver incompleto, a ordem
-   *   já estiver concluída ou já reclamada por outro utilizador
-   */
   claimBy(user: UserEntity, ctx: ClaimContext): void {
     if (!ctx.available)
       throw new ConflictException("Prior stage is not complete");
@@ -81,14 +72,12 @@ export class WeldListEntity extends AggregateRoot {
     this.raise(new WeldListClaimChangedEvent(this.id, user.id));
   }
 
-  /** Liberta o lock da ordem. */
   release(): void {
     this.claimedBy = undefined;
     this.claimedAt = undefined;
     this.raise(new WeldListClaimChangedEvent(this.id, null));
   }
 
-  /** Reatribui o lock a outro utilizador (operação de administrador). */
   reassignTo(user: UserEntity): void {
     this.claimedBy = user;
     this.claimedAt = new Date();

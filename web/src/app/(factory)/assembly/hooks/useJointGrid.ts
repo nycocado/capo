@@ -11,10 +11,6 @@ export interface UseJointGridProps {
   onError?: (error: string) => void;
 }
 
-/**
- * Grid de welds da montagem: cada weld representa o joint a montar; clicar num
- * weld por concluir conclui o joint correspondente.
- */
 export function useJointGrid({
   assemblyList,
   search,

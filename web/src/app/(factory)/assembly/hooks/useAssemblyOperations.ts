@@ -9,10 +9,6 @@ export interface UseAssemblyOperationsProps {
   onError?: (error: string) => void;
 }
 
-/**
- * Operação de montagem sobre um joint: conclui-o (to_do→done) via
- * `POST status-events`.
- */
 export function useAssemblyOperations({
   onSuccess,
   onError,

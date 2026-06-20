@@ -18,7 +18,6 @@ import { queryKeys } from "@/lib/query/keys";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
-/** Configuração da etapa de montagem para o núcleo genérico useWorkStage. */
 const assemblyStageConfig: WorkStageConfig<AssemblyListDto> = {
   context: "assembly",
   queryKey: queryKeys.assemblyLists(),
@@ -38,15 +37,6 @@ export interface UseAssemblyWorkflowProps {
   fetchError?: string;
 }
 
-/**
- * Hook principal da etapa de montagem: compõe o núcleo genérico useWorkStage
- * com a tabela, a verificação de materiais, o grid de joints, o visualizador de
- * PDF (documento do isométrico) e as configurações de UI.
- *
- * @param initialItems Lista prefetchada pelo RSC (seed do cache).
- * @param currentUser Utilizador autenticado (claim/acesso).
- * @param fetchError Erro do prefetch RSC.
- */
 export const useAssemblyWorkflow = ({
   initialItems,
   currentUser,
@@ -79,11 +69,9 @@ export const useAssemblyWorkflow = ({
     [setSelectedAssemblyListId, setActiveTab],
   );
 
-  // Reivindica a assembly-list e abre a sua vista de joints.
   const startAssemblyList = useCallback(
     async (id: number): Promise<boolean> => {
       const updated = await claim(id);
-      // O claim já define setSelectedId internamente; só muda a aba.
       if (updated) setActiveTab(TAB_TYPES.WORKING);
       return Boolean(updated);
     },
@@ -98,8 +86,6 @@ export const useAssemblyWorkflow = ({
     currentUser?.id,
     {
       onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
-        // A lista da tabela é leve (sem a árvore); busca o detalhe completo para
-        // a verificação extrair pipe-lengths e fittings dos joints.
         try {
           const detail = await getAssemblyListById(assemblyList.id);
           await materialVerification.startVerification(detail, () => {
@@ -118,7 +104,6 @@ export const useAssemblyWorkflow = ({
     searchField,
   );
 
-  // O grid de joints e o PDF derivam do detalhe completo (selectedAssemblyList).
   const weldGrid = useJointGrid({
     assemblyList: selectedAssemblyList ?? null,
     search: activeTab === TAB_TYPES.WORKING ? "" : search,
@@ -160,7 +145,9 @@ export const useAssemblyWorkflow = ({
       return;
     }
     try {
-      await materialVerification.openMaterialsConsultation(selectedAssemblyList);
+      await materialVerification.openMaterialsConsultation(
+        selectedAssemblyList,
+      );
     } catch {
       setErrorMsg("Failed to load materials list");
     }
@@ -177,7 +164,6 @@ export const useAssemblyWorkflow = ({
     { buttonConfig: assemblyButtonConfig },
   );
 
-  // selectedAssemblyList pode ser undefined (query inativa); normaliza para null.
   const selectedAssemblyListOrNull = selectedAssemblyList ?? null;
 
   return {

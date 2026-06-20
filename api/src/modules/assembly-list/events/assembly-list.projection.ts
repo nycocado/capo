@@ -4,7 +4,6 @@ import { AssemblyListClaimChangedEvent } from "@modules/assembly-list/events/ass
 import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events/pipe-length-status-changed.event";
 import { JointStatusChangedEvent } from "@modules/joint/events/joint-status-changed.event";
 
-/** Projeta a mudança de claim da assembly_list no socket do estágio de montagem. */
 @EventsHandler(AssemblyListClaimChangedEvent)
 export class AssemblyListClaimChangedProjection implements IEventHandler<AssemblyListClaimChangedEvent> {
   constructor(private readonly gateway: AssemblyListGateway) {}
@@ -14,10 +13,6 @@ export class AssemblyListClaimChangedProjection implements IEventHandler<Assembl
   }
 }
 
-/**
- * Cross-stage: concluir um pipe_length pode libertar uma ordem de montagem pelo
- * gating; reemite o sinal de invalidação no socket da montagem.
- */
 @EventsHandler(PipeLengthStatusChangedEvent)
 export class AssemblyListUpstreamProjection implements IEventHandler<PipeLengthStatusChangedEvent> {
   constructor(private readonly gateway: AssemblyListGateway) {}
@@ -27,7 +22,6 @@ export class AssemblyListUpstreamProjection implements IEventHandler<PipeLengthS
   }
 }
 
-/** Projeta a mudança de status de um joint no socket do estágio de montagem. */
 @EventsHandler(JointStatusChangedEvent)
 export class AssemblyListJointStatusProjection implements IEventHandler<JointStatusChangedEvent> {
   constructor(private readonly gateway: AssemblyListGateway) {}

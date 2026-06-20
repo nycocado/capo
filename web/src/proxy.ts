@@ -6,7 +6,6 @@ export const config = {
   matcher: ["/", "/login", "/roles", "/cut", "/assembly", "/weld"],
 };
 
-// Cada estágio exige o seu papel; administradores acessam todos.
 const pageRolesMap: Record<string, string> = {
   [ROUTES.cut]: "cutting-operator",
   [ROUTES.assembly]: "pipe-fitter",
@@ -32,7 +31,6 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(ROUTES.roles, req.url));
   }
 
-  // Valida a sessão e obtém os papéis numa única chamada a /auth/me.
   let roles: string[];
   try {
     const user = await getMe(token);

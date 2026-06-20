@@ -8,23 +8,16 @@ import {
   getWeldListsPendingCount,
 } from "@/lib/api";
 
-/** Estação da linha de produção, na forma serializável passada ao client. */
 export interface Station {
   id: "cutting-operator" | "pipe-fitter" | "welder";
   order: number;
   name: string;
   description: string;
   route: string;
-  /** O usuário é certificado nesta estação. */
   accessible: boolean;
-  /** Ordens por concluir; `null` quando bloqueada ou a busca falhou. */
   pendingCount: number | null;
 }
 
-/**
- * Estações na ordem real do fluxo do tubo (corte → montagem → solda), cada uma
- * com o fetcher de contagem pendente da sua etapa.
- */
 const STATIONS = [
   {
     id: "cutting-operator",
@@ -61,8 +54,6 @@ export default async function RolesPage() {
     const user = await getMe(token);
     const accessibleIds = new Set((user.roles ?? []).map((role) => role.name));
 
-    // A contagem só é buscada nas estações certificadas (as demais ficam
-    // bloqueadas, sem acesso ao endpoint); falha numa etapa não derruba a página.
     stations = await Promise.all(
       STATIONS.map(async ({ fetchPendingCount, ...station }) => {
         const accessible = accessibleIds.has(station.id);

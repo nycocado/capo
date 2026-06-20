@@ -41,8 +41,6 @@ export function InputModal(props: InputModalProps) {
     externalValue !== undefined && onValueChange !== undefined;
   const currentValue = isControlled ? externalValue : internalValue;
 
-  // Reseta o valor interno ao abrir (modo não-controlado) ajustando o estado
-  // durante o render — sem efeito, evitando o set-state-in-effect.
   const [wasShown, setWasShown] = useState(show);
   if (show !== wasShown) {
     setWasShown(show);

@@ -6,9 +6,7 @@ import {
   StatusCounts,
 } from "@common/utils/list-progress.util";
 
-/** Acesso a dados das cut_lists (registrado na entidade via `repository`). */
 export class CutListRepository extends EntityRepository<CutListEntity> {
-  // Árvore do isométrico para a grelha de corte (detalhe sob demanda).
   private static readonly FULL_POPULATE = [
     "claimedBy",
     "isometric.spools.joints.part1.pipeLength.material",
@@ -25,7 +23,6 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
 
   private static readonly LIGHT_POPULATE = ["claimedBy", "isometric"] as const;
 
-  /** Lista leve de todas as cut_lists, com progresso e total derivados. */
   async loadAllLight(): Promise<CutListEntity[]> {
     const lists = await this.findAll({
       populate: CutListRepository.LIGHT_POPULATE,
@@ -38,7 +35,6 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
     return lists;
   }
 
-  /** Detalhe (árvore completa) com progresso e total derivados. */
   async loadDetail(id: number): Promise<CutListEntity> {
     const list = await this.findOneOrFail(
       { id },
@@ -60,7 +56,6 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
     return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
-  /** Localiza a cut_list cujo isométrico contém o pipe_length dado. */
   async findByPipeLengthIdOrFail(pipeLengthId: number): Promise<CutListEntity> {
     return this.findOneOrFail(
       {
@@ -74,13 +69,11 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
     );
   }
 
-  /** Progresso derivado de um único isométrico (gating do claim). */
   async deriveProgressByIsometric(isometricId: number): Promise<StatusCounts> {
     const counts = await this.getCountsByIsometric();
     return counts.get(isometricId) ?? { total: 0, done: 0, inProgress: 0 };
   }
 
-  /** Conta as cut_lists pendentes (isométrico ainda não totalmente cortado). */
   async countPending(): Promise<number> {
     const rows = await this.getEntityManager().execute<
       Array<{ pending: number }>
@@ -99,11 +92,6 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
     return Number(rows[0]?.pending ?? 0);
   }
 
-  /**
-   * Contagem dos pipe_lengths por isométrico (uma query agregada, sem N+1). O
-   * pipe_length é alvo de uma junta como part1 ou part2 (PK partilhada com part),
-   * daí o OR no join e o DISTINCT (uma peça pode estar em várias juntas).
-   */
   private async getCountsByIsometric(): Promise<Map<number, StatusCounts>> {
     const rows = await this.getEntityManager().execute<
       Array<{ iso: number; total: number; done: number; in_progress: number }>
@@ -129,7 +117,6 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
     );
   }
 
-  /** Cut é o 1º estágio: a ordem está sempre disponível (gating trivial). */
   private attachDerived(list: CutListEntity, counts?: StatusCounts): void {
     const c = counts ?? { total: 0, done: 0, inProgress: 0 };
     list.progress = deriveListProgress(c);

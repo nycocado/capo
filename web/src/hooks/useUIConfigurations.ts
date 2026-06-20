@@ -11,16 +11,6 @@ interface UIHandlers {
   [key: string]: (() => void) | undefined;
 }
 
-/**
- * Memoiza os botões de controle, cards do painel e dados do modal de conclusão
- * a partir de fábricas de configuração e do item selecionado.
- *
- * @param selectedItem Item selecionado na tabela/grid; `null` omite os cards.
- * @param completedItem Item cuja conclusão foi confirmada; alimenta o modal.
- * @param handlers Callbacks dos botões de controle (next, isometric, list, etc.).
- * @param configFactories Fábricas de configuração de botões, cards e modal.
- * @param options Opções de edição (canEdit + onEditClick) para o botão de edição.
- */
 export const useUIConfigurations = <
   TItem = unknown,
   TCompleted = unknown,
@@ -43,8 +33,6 @@ export const useUIConfigurations = <
     onEditClick?: () => void;
   },
 ) => {
-  // As fábricas são funções estáveis (módulo); destruturá-las dá dependências
-  // de identidade própria para os useMemo, sem reagir à literal de configFactories.
   const { buttonConfig, cardConfigs, modalConfig } = configFactories;
 
   const controlButtons = useMemo(
@@ -54,8 +42,6 @@ export const useUIConfigurations = <
 
   const cards = useMemo(() => {
     if (!cardConfigs) return undefined;
-    // Sem item selecionado o WorkPanel mostra o empty-state, em vez de cards
-    // com rótulos e valores em branco.
     if (!selectedItem) return undefined;
 
     const cardOptions =

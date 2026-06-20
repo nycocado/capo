@@ -37,7 +37,6 @@ export class CreateWeldStatusEventHandler implements ICommandHandler<CreateWeldS
     const em = this.welds.getEntityManager();
     const weld = await this.welds.findByIdOrFail(data.id);
 
-    // Lock: só o claimer da weld_list (ou admin) avança os itens.
     const weldList = await this.weldLists.findByWeldIdOrFail(data.id);
     await this.claimControl.assertControls(weldList, data.userId);
 

@@ -9,11 +9,6 @@ export interface UseAssemblyTableCallbacks {
   onAssemblyListClaim?: (assemblyListId: number) => Promise<boolean>;
 }
 
-/**
- * Handlers da tabela de assembly-lists (aba "All"): qualquer clique numa ordem
- * acessível abre o fluxo de verificação de materiais; "Next" prioriza a ordem
- * em progresso e, na falta, reclama a próxima por fazer.
- */
 export const useAssemblyEventHandlers = (
   activeTab: TabType,
   rowStateAccessor: (item: AssemblyListDto) => string,

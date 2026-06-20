@@ -18,9 +18,6 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly jwtService: JwtService,
   ) {}
 
-  /**
-   * @throws UnauthorizedException Se as credenciais forem inválidas
-   */
   async execute({ data }: LoginCommand): Promise<LoginResult> {
     const user = await this.userService.getByInternalId(data.internalId);
 

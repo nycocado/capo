@@ -3,7 +3,6 @@ import { QueryOrder } from "@mikro-orm/core";
 import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
 import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities/pipe-length-status-event.entity";
 
-/** Acesso a dados dos pipe_lengths (registrado na entidade via `repository`). */
 export class PipeLengthRepository extends EntityRepository<PipeLengthEntity> {
   private static readonly FULL_POPULATE = [
     "part",
@@ -11,12 +10,10 @@ export class PipeLengthRepository extends EntityRepository<PipeLengthEntity> {
     "diameter",
   ] as const;
 
-  /** O pipe_length partilha a PK com `part`, logo filtra-se por `{ part: id }`. */
   async findByIdOrFail(id: number): Promise<PipeLengthEntity> {
     return this.findOneOrFail({ part: id });
   }
 
-  /** Detalhe com material/diâmetro (para resposta HTTP e payload do socket). */
   async loadDetail(id: number): Promise<PipeLengthEntity> {
     return this.findOneOrFail(
       { part: id },

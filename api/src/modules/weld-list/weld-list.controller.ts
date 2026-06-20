@@ -41,7 +41,6 @@ export class WeldListController {
     );
   }
 
-  // Declarado antes de ":id" para não ser capturado como parâmetro.
   @Get("pending-count")
   @Roles("welder", "administrator")
   async getPendingCount(): Promise<{ count: number }> {

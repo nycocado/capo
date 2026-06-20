@@ -1,10 +1,5 @@
 import { useState } from "react";
 
-/**
- * Centraliza o estado dos modais de input e de conclusão de uma etapa.
- *
- * @returns O estado dos dois modais e os setters/reset correspondentes.
- */
 export const useModalState = <T = unknown>() => {
   const [inputShow, setInputShow] = useState(false);
   const [pendingItem, setPendingItem] = useState<T | null>(null);

@@ -29,7 +29,7 @@ Each item has a denormalized `status` (native ENUM) **plus** an append-only `<it
 ## Working in this repo
 
 - **Filter in the query, not in JS:** always filter and aggregate in the DB query (repository `WHERE`/QueryBuilder, `count`/`getCount`) — never load rows and discard them with `.filter()`/`.length`. The DB does the work; the frontend renders what the API returns. If a row shouldn't appear, the query shouldn't return it.
-- **No stray comments in code:** explanation lives in the symbol's **doc** (TSDoc — see below), not in comments dropped into the body. Inline only for a non-obvious *why*/gotcha/invariant/unit; **never** narration that restates the code.
+- **No documentation in code:** zero JSDoc, zero narrative comments (see "Comments & docs"). A well-named, strictly-typed symbol documents itself; a non-obvious rule becomes a **test**, not a comment; architecture lives in the `CLAUDE.md` files.
 - **Subagents and skills:** delegate parallel/repetitive or context-heavy work to subagents (Agent) (UI smoke, broad sweeps, per-file migrations); invoke skills (`/<name>`) when a task matches. Prefer a Sonnet subagent for mechanical/verbose work.
 
 ## Commands
@@ -48,8 +48,8 @@ Three `.env` files (gitignored; templates `.env.example` in each location): root
 
 ## Comments & docs
 
-Comments in **Portuguese**; error/log messages and identifiers in **English** (e.g. `throw new NotFoundException("File not found")`). By file type:
-- **`.ts`/`.tsx`** — TSDoc on exported symbols (description + `@param`/`@returns`/`@throws` **only when they add information**; never types in the JSDoc — TS already types it). No stray comments in the body (see "Working in this repo").
+**No documentation in code** — zero JSDoc, zero narrative comments, in both apps. This is deliberate: a doc-comment isn't compiled or tested, so it drifts and ends up lying — and a stale comment is worse than none. A strictly-typed symbol with a good name already says *what*; the *why* belongs in a **test that locks the behavior** (executable, never rots) or in a clearer structure — not in prose next to the code. Architecture and structure live in the `CLAUDE.md` files. By file type:
+- **`.ts`/`.tsx`** — no JSDoc, no inline `//`/`/* */`. The only survivors are **tool directives** (`// eslint-disable`, `// @ts-*`), which aren't documentation. Identifiers and error/log messages stay in **English**.
 - **`.env`** — boxed header (`# ===`), variables grouped by UPPERCASE category in boot order; no per-variable comments.
 - **`.yml`/compose** — no narrative comments; a non-obvious decision goes in a `CLAUDE.md`.
 - **`.md`** — concise prose, no redundancy.

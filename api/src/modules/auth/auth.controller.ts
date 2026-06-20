@@ -74,7 +74,6 @@ export class AuthController {
     );
   }
 
-  /** Atributos do cookie de sessão partilhados entre set (login) e clear (logout). */
   private baseCookieOptions() {
     const isProduction = this.configService.get("NODE_ENV") === "production";
     return {

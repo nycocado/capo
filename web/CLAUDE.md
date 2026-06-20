@@ -27,4 +27,4 @@ The three operator screens live under the `(factory)` route group: `cut/`, `asse
 - **Routes/events:** all URLs, namespaces, and event names in `src/routes.ts` (`API_ROUTES`, `WS_ROUTES`, `WS_EVENTS`) — add them there, not inline. `/roles`: `StationCard` shows a live pending-count (`useQuery` + `useStageSocket`).
 - **UI:** React-Bootstrap + SCSS (`src/styles/`), Framer Motion; shared pieces in `src/components/`.
 
-Cross-app feature path: API module (entity/repository/service/controller/DTO, gateway if real-time) → mirror the DTO in `src/dtos/` → add to `src/routes.ts` → add a fetcher in `src/lib/api` → wire a hook into the stage's workflow.
+Cross-app feature path: API module (entity + repository, command/query + handler, controller, DTO, gateway if real-time) → mirror the DTO in `src/dtos/` → add to `src/routes.ts` → add a fetcher in `src/lib/api` → wire a hook into the stage's workflow.

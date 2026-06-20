@@ -4,10 +4,6 @@ export interface WorkTabsProps {
   setActiveTab: (value: string) => void;
 }
 
-/**
- * Alternador de visão (All / Working) como segmented control — distingue
- * navegação das ações do ControlPanel e mantém o laranja reservado a estado.
- */
 export function WorkTabs({ tabs, activeTab, setActiveTab }: WorkTabsProps) {
   return (
     <div

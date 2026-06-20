@@ -9,9 +9,7 @@ import { ListProgress } from "@shared/types";
 
 const ZERO: StatusCounts = { total: 0, done: 0, inProgress: 0 };
 
-/** Acesso a dados das weld_lists (registrado na entidade via `repository`). */
 export class WeldListRepository extends EntityRepository<WeldListEntity> {
-  // Árvore do spool para a grelha de soldagem (detalhe sob demanda).
   private static readonly FULL_POPULATE = [
     "claimedBy",
     "spool.joints.part1.pipeLength.material",
@@ -30,7 +28,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
 
   private static readonly LIGHT_POPULATE = ["claimedBy", "spool"] as const;
 
-  /** Lista leve das weld_lists com gating na consulta (montagem concluída). */
   async loadAllLight(): Promise<WeldListEntity[]> {
     const spoolIds = await this.getAssemblyCompleteSpoolIds();
     if (spoolIds.length === 0) return [];
@@ -51,7 +48,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     return lists;
   }
 
-  /** Detalhe (árvore completa) com progresso e total derivados. */
   async loadDetail(id: number): Promise<WeldListEntity> {
     const list = await this.findOneOrFail(
       { id },
@@ -79,7 +75,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
-  /** Localiza a weld_list cujo spool contém a solda dada. */
   async findByWeldIdOrFail(weldId: number): Promise<WeldListEntity> {
     return this.findOneOrFail(
       { spool: { joints: { welds: weldId } } },
@@ -87,7 +82,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     );
   }
 
-  /** Progresso e gating derivados de um único spool (para o claim). */
   async deriveProgressBySpool(
     spoolId: number,
   ): Promise<{ progress: ListProgress; available: boolean }> {
@@ -101,7 +95,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     return { progress, available };
   }
 
-  /** Conta as weld_lists pendentes: montagem concluída mas soldagem por terminar. */
   async countPending(): Promise<number> {
     const rows = await this.getEntityManager().execute<
       Array<{ pending: number }>
@@ -124,10 +117,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     return Number(rows[0]?.pending ?? 0);
   }
 
-  /**
-   * Spools com a montagem concluída (todos os joints done) — o gating da
-   * soldagem, resolvido numa única query no DB.
-   */
   private async getAssemblyCompleteSpoolIds(): Promise<number[]> {
     const rows = await this.getEntityManager().execute<
       Array<{ spool: number }>
@@ -141,7 +130,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     return rows.map((r) => Number(r.spool));
   }
 
-  /** Contagem dos joints por spool (para o gating, em batch). */
   private async getJointCountsBySpool(): Promise<Map<number, StatusCounts>> {
     const rows = await this.getEntityManager().execute<
       Array<{ spool: number; total: number; done: number }>
@@ -160,7 +148,6 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
     );
   }
 
-  /** Contagem dos welds por spool (uma query agregada para todos). */
   private async getWeldCountsBySpool(): Promise<Map<number, StatusCounts>> {
     const rows = await this.getEntityManager().execute<
       Array<{ spool: number; total: number; done: number }>

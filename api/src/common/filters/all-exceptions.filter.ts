@@ -8,11 +8,6 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 
-/**
- * Filtro global de exceções: devolve um corpo de erro consistente e nunca
- * expõe detalhes internos. Exceções HTTP mantêm o seu status/mensagem; tudo
- * o resto vira 500 genérico (com o stack registado apenas no servidor).
- */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);

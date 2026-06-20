@@ -11,24 +11,16 @@ import { useRowStates, useWorkTableBase } from "@/hooks";
 
 type Row = PipeLengthWithContext | CutListDto;
 
-/**
- * Tabela de cut-lists da aba "All": compõe o estado-base da tabela (estado por
- * progresso/claim) com os event handlers de corte.
- *
- * @param cutLists Cut-lists a exibir.
- * @param search Termo de busca atual.
- * @param currentUserId Id do utilizador atual (regras de claim/acesso).
- * @param callbacks Callbacks de seleção/claim da cut-list.
- * @param searchField Campo sobre o qual a busca incide.
- * @param searchFunction Função de busca custom; se ausente, usa a base.
- */
 export function useCutListTable(
   cutLists: CutListDto[],
   search: string,
   currentUserId?: number,
   callbacks?: Pick<
     UseCutTableCallbacks,
-    "onCutListSelected" | "onCutListClaim" | "onWorkingTransition" | "onItemCompleted"
+    | "onCutListSelected"
+    | "onCutListClaim"
+    | "onWorkingTransition"
+    | "onItemCompleted"
   >,
   searchField: string = "id",
   searchFunction?: (

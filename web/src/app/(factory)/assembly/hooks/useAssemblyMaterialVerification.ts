@@ -51,7 +51,6 @@ const verificationReducer = (
   }
 };
 
-/** Extrai pipe-lengths e fittings de uma assembly-list (spools→joints→parts). */
 function extractMaterialsFromAssemblyList(
   assemblyList: AssemblyListDto,
 ): MaterialsResponse {
@@ -76,11 +75,6 @@ function extractMaterialsFromAssemblyList(
   return { pipeLengths, fittings };
 }
 
-/**
- * Controla o fluxo multi-passo de verificação de materiais antes de iniciar uma
- * assembly-list: exibe pipe-lengths e fittings extraídos do DTO para confirmação
- * do operador, e suporta modo de consulta só-leitura.
- */
 export function useAssemblyMaterialVerification() {
   const [showModal, setShowModal] = useState(false);
   const [currentStep, setCurrentStep] =
@@ -118,7 +112,12 @@ export function useAssemblyMaterialVerification() {
     return currentStep === "pipeLength"
       ? allPipeLengthsVerified
       : allFittingsVerified;
-  }, [currentStep, allPipeLengthsVerified, allFittingsVerified, isConsultationMode]);
+  }, [
+    currentStep,
+    allPipeLengthsVerified,
+    allFittingsVerified,
+    isConsultationMode,
+  ]);
 
   const canGoToPrevious = useMemo(
     () => currentStep === "fitting",

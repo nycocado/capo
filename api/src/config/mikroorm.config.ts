@@ -7,12 +7,6 @@ import { ReflectMetadataProvider } from "@mikro-orm/decorators/legacy";
 import { SqlHighlighter } from "@mikro-orm/sql-highlighter";
 import { ConfigService } from "@nestjs/config";
 
-/**
- * Monta a configuração do MikroORM a partir do ConfigService.
- *
- * @param config Serviço de configuração (variáveis de ambiente)
- * @returns Opções do MikroORM para o driver MariaDB
- */
 export const createMikroOrmConfig = (config: ConfigService): Options => {
   const isProduction = config.getOrThrow("NODE_ENV") === "production";
 
@@ -26,10 +20,8 @@ export const createMikroOrmConfig = (config: ConfigService): Options => {
     entities: ["dist/**/*.entity.js"],
     entitiesTs: ["src/**/*.entity.ts"],
     namingStrategy: UnderscoreNamingStrategy,
-    // Decorators legacy usam metadados de reflexão (emitDecoratorMetadata)
     metadataProvider: ReflectMetadataProvider,
     debug: !isProduction,
-    // Relações sempre serializadas como objeto (consistência na serialização nativa)
     serialization: {
       forceObject: true,
     },

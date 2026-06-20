@@ -14,10 +14,6 @@ export interface UseCutTableCallbacks {
   onItemCompleted?: (item: PipeLengthWithContext) => void;
 }
 
-/**
- * Produz os handlers de interação da tabela de corte: clique em linha,
- * avanço para o próximo item, verificação de conclusão e foco no painel.
- */
 export const useCutEventHandlers = (
   activeTab: TabType,
   informationIds: Set<number>,
@@ -39,7 +35,6 @@ export const useCutEventHandlers = (
 
         if (currentState === "danger") return;
 
-        // Fluxo: TO_DO → claim → aba Working; WORKING/FINISHED → abrir.
         if (currentState === WORK_STATES.TO_DO) {
           callbacks?.onCutListClaim?.(cutList.id);
           return;
@@ -116,7 +111,6 @@ export const useCutEventHandlers = (
   const handleNextWorkflow = useCallback(() => {
     if (activeTab === TAB_TYPES.ALL) {
       const cutLists = items as CutListDto[];
-      // Prioridade: WORKING acessível primeiro, depois TO_DO.
       const workingCutList = cutLists.find(
         (cutList) =>
           rowStateAccessor(cutList) === WORK_STATES.WORKING &&
@@ -140,7 +134,6 @@ export const useCutEventHandlers = (
       );
       if (availableItems.length === 0) return;
 
-      // Prioridade: working > information > to-do.
       const workingItem = availableItems.find(
         (item) => statusToUiState(item.status) === WORK_STATES.WORKING,
       );

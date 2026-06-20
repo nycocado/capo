@@ -24,7 +24,6 @@ export enum PipeLengthStatus {
   DONE = "done",
 }
 
-/** Máquina de estados do corte: to_do → in_progress (exige heat) → done. */
 const TRANSITIONS: Record<PipeLengthStatus, PipeLengthStatus[]> = {
   [PipeLengthStatus.TO_DO]: [PipeLengthStatus.IN_PROGRESS],
   [PipeLengthStatus.IN_PROGRESS]: [PipeLengthStatus.DONE],
@@ -56,7 +55,6 @@ export class PipeLengthEntity extends AggregateRoot {
   @Check({ expression: "thickness > 0" })
   thickness!: number;
 
-  // Capturado na transição para in_progress (estágio de corte)
   @Property({ length: 100, nullable: true })
   @Index()
   heatNumber?: string;
@@ -88,12 +86,6 @@ export class PipeLengthEntity extends AggregateRoot {
   })
   statusEvents = new Collection<PipeLengthStatusEventEntity>(this);
 
-  /**
-   * Inicia o corte: regista o heat_number e move to_do → in_progress.
-   *
-   * @throws ConflictException Se o item não estiver em to_do
-   * @throws BadRequestException Se não houver heat_number (novo ou já existente)
-   */
   startCutting(
     heatNumber: string | undefined,
     by: UserEntity,
@@ -108,11 +100,6 @@ export class PipeLengthEntity extends AggregateRoot {
     this.applyStatus(PipeLengthStatus.IN_PROGRESS, by, notes);
   }
 
-  /**
-   * Conclui o corte: move in_progress → done.
-   *
-   * @throws ConflictException Se o item não estiver em in_progress
-   */
   finishCutting(by: UserEntity, notes?: string): void {
     this.assertTransition(PipeLengthStatus.DONE);
     this.applyStatus(PipeLengthStatus.DONE, by, notes);

@@ -26,8 +26,7 @@ export const cutCardConfigs = (
         {
           type: "double",
           label: "Diameter (DN)",
-          primaryValue:
-            selectedItem?.diameter?.nominalMm?.toString() ?? " ",
+          primaryValue: selectedItem?.diameter?.nominalMm?.toString() ?? " ",
           primaryTag: "mm",
           secondaryValue: selectedItem?.diameter?.nominalInch ?? " ",
           secondaryTag: "inch",

@@ -1,12 +1,6 @@
 import { AssemblyListDto } from "@/dtos";
 import { WeldWithContext } from "@/interfaces";
 
-/**
- * Extrai os welds de uma assembly-list (spools→joints→welds), cada um com o
- * spool de contexto para o WorkGrid.
- *
- * @param assemblyList Assembly-list com o isométrico e a sua hierarquia.
- */
 export const extractWeldsFromAssemblyList = (
   assemblyList: AssemblyListDto,
 ): WeldWithContext[] => {
@@ -21,12 +15,6 @@ export const extractWeldsFromAssemblyList = (
   return welds.sort((a, b) => a.id - b.id);
 };
 
-/**
- * Localiza o id do joint que contém o weld indicado (spools→joints→welds).
- *
- * @param assemblyList Assembly-list onde procurar.
- * @param weldId Id do weld.
- */
 export const findJointIdForWeld = (
   assemblyList: AssemblyListDto,
   weldId: number,

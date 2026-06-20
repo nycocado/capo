@@ -11,10 +11,6 @@ interface RolesClientProps {
   error?: string;
 }
 
-/**
- * Landing pós-login: a linha de produção. O operador toca na estação que está
- * certificado a operar; o tubo atravessa as três no sentido do fluxo.
- */
 export default function RolesClient({ stations, error }: RolesClientProps) {
   const router = useRouter();
 

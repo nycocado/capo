@@ -18,14 +18,9 @@ export interface CardConfig {
 export interface WorkPanelProps {
   cards?: CardConfig[];
   containerClassName?: string;
-  /** Mensagem do empty-state, exibida quando não há item selecionado (sem cards). */
   emptyMessage?: string;
 }
 
-/**
- * Painel de detalhes do item selecionado na etapa. Sem seleção (cards vazio),
- * mostra um empty-state discreto em vez de cards com valores em branco.
- */
 export function WorkPanel({
   cards,
   containerClassName,

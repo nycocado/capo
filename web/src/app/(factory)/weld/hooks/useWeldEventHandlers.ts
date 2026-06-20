@@ -9,11 +9,6 @@ export interface UseWeldTableCallbacks {
   onWeldListClaim?: (weldListId: number) => Promise<boolean>;
 }
 
-/**
- * Handlers da tabela de weld-lists (aba "All"): qualquer clique numa ordem
- * acessível abre-a; "Next" prioriza a ordem em progresso e, na falta, reclama a
- * próxima por fazer.
- */
 export const useWeldEventHandlers = (
   activeTab: TabType,
   rowStateAccessor: (item: WeldListDto) => string,

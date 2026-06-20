@@ -12,7 +12,6 @@ import { useInformationState } from "./useInformationState";
 import { listToUiState, useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 
-/** Forma mínima de uma ordem para a tabela base (estado por progresso/claim). */
 type ListLike = {
   id: number;
   progress?: string;
@@ -28,11 +27,6 @@ export interface UseWorkTableBaseParams<T> {
   currentUserId?: number;
 }
 
-/**
- * Estado-base de uma tabela de ordens (cut/assembly/weld na aba "All"):
- * estado de linha por progresso/claim, ordenação (finished por último),
- * busca, seleção e estado "information".
- */
 export function useWorkTableBase<T extends ListLike>({
   items,
   search,

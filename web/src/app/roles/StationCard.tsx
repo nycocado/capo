@@ -11,9 +11,6 @@ import {
 } from "@/lib/api";
 import type { Station } from "./page";
 
-// Por estação: namespace de WebSocket + fetcher da contagem pendente no browser.
-// Cada namespace reemite um sinal quando o gating da etapa muda (estágio anterior
-// concluído), então invalidar a contagem em qualquer evento mantém o /roles vivo.
 const STAGE_LIVE: Record<
   Station["id"],
   { route: string; fetch: () => Promise<{ count: number }> }
@@ -29,14 +26,6 @@ const STAGE_LIVE: Record<
   welder: { route: WS_ROUTES.weldList, fetch: fetchWeldListsPendingCount },
 };
 
-/**
- * Mantém a contagem pendente de uma estação sincronizada em tempo real: semeada
- * pela contagem do prefetch RSC e invalidada pelos eventos do namespace da etapa.
- * Estações não certificadas não consultam o endpoint (devolvem o valor do prefetch).
- *
- * @param station Estação cujo número de ordens pendentes se acompanha.
- * @returns Contagem pendente atual, ou `null` quando bloqueada/indisponível.
- */
 function useLivePendingCount(station: Station): number | null {
   const live = STAGE_LIVE[station.id];
   const queryKey = ["pending-count", station.id];
@@ -65,10 +54,6 @@ interface StationCardProps {
   onSelect: () => void;
 }
 
-/**
- * Glifos das estações: todos partem da seção transversal/eixo do tubo, para
- * amarrar o ícone à assinatura da linha (corte, junção e cordão de solda).
- */
 const STATION_GLYPHS: Record<Station["id"], React.ReactNode> = {
   "cutting-operator": (
     <>
@@ -103,7 +88,6 @@ const STATION_GLYPHS: Record<Station["id"], React.ReactNode> = {
   ),
 };
 
-/** Medidor do rodapé: contagem ao vivo de listas pendentes ou estado bloqueado. */
 function StationGauge({ station }: { station: Station }) {
   const pendingCount = useLivePendingCount(station);
 
@@ -149,10 +133,6 @@ const Glyph = ({ id }: { id: Station["id"] }) => (
   </svg>
 );
 
-/**
- * Placard de uma estação na linha de produção. Estações certificadas são
- * botões clicáveis; as demais aparecem bloqueadas (preservam a visão da linha).
- */
 export default function StationCard({ station, onSelect }: StationCardProps) {
   const order = String(station.order).padStart(2, "0");
 

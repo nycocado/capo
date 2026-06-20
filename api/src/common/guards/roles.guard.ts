@@ -32,7 +32,6 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    // Basta possuir UM dos papéis exigidos (antes só se verificava o primeiro).
     for (const role of requiredRoles) {
       if (await this.userRoleService.hasRole(user.id, role)) {
         return true;

@@ -5,7 +5,6 @@ export class CreatePipeLengthStatusEventDto {
   @IsEnum(PipeLengthStatus)
   status!: PipeLengthStatus;
 
-  // Obrigatório na transição para in_progress (validado no service)
   @IsOptional()
   @IsString()
   @MaxLength(100)

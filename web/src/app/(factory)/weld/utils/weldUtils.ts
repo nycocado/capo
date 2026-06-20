@@ -1,13 +1,6 @@
 import { WeldListDto } from "@/dtos";
 import { WeldWithContext } from "@/interfaces";
 
-/**
- * Extrai os welds de uma weld-list (spool→joints→welds), cada um com o spool de
- * contexto para o WorkGrid e o WorkPanel.
- *
- * @param weldList Weld-list com o spool e a sua hierarquia.
- * @returns Welds ordenados por id, ou array vazio se o spool estiver ausente.
- */
 export const extractWeldsFromWeldList = (
   weldList: WeldListDto,
 ): WeldWithContext[] => {

@@ -3,7 +3,7 @@ import { Card, Spinner } from "react-bootstrap";
 
 interface PDFViewerProps {
   pdfFile?: string | null;
-  height?: string | number; // optional override
+  height?: string | number;
   loading?: boolean;
   error?: string | null;
 }

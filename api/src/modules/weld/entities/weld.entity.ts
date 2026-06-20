@@ -23,7 +23,6 @@ export enum WeldStatus {
   DONE = "done",
 }
 
-/** Máquina de estados da solda: to_do → done (exige filler + wps). */
 const TRANSITIONS: Record<WeldStatus, WeldStatus[]> = {
   [WeldStatus.TO_DO]: [WeldStatus.DONE],
   [WeldStatus.DONE]: [],
@@ -41,7 +40,6 @@ export class WeldEntity extends AggregateRoot {
   @Index()
   joint!: JointEntity;
 
-  // Capturados na transição para done (estágio de solda)
   @ManyToOne(() => FillerMaterialEntity, {
     nullable: true,
     deleteRule: "set null",
@@ -72,12 +70,6 @@ export class WeldEntity extends AggregateRoot {
   })
   statusEvents = new Collection<WeldStatusEventEntity>(this);
 
-  /**
-   * Conclui a solda: regista filler material + wps e move to_do → done.
-   *
-   * @throws ConflictException Se o item não estiver em to_do
-   * @throws BadRequestException Se faltar filler material ou wps (novo ou existente)
-   */
   complete(
     filler: FillerMaterialEntity | undefined,
     wps: WpsEntity | undefined,

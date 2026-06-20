@@ -7,10 +7,6 @@ import { columnsAssemblyList } from "@components/features/WorkTable/WorkTable.co
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useRowStates, useWorkTableBase } from "@/hooks";
 
-/**
- * Tabela de assembly-lists da aba "All": estado-base (progresso/claim) + os
- * event handlers de montagem.
- */
 export function useAssemblyListTable(
   assemblyLists: AssemblyListDto[],
   search: string,

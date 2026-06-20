@@ -28,7 +28,6 @@ import { queryKeys } from "@/lib/query/keys";
 import { useWorkStage } from "@/features/work-stage/useWorkStage";
 import type { WorkStageConfig } from "@/features/work-stage/types";
 
-/** Configuração da etapa de corte para o núcleo genérico useWorkStage. */
 const cutStageConfig: WorkStageConfig<CutListDto> = {
   context: "cut",
   queryKey: queryKeys.cutLists(),
@@ -48,15 +47,6 @@ export interface UseCutWorkflowProps {
   fetchError?: string;
 }
 
-/**
- * Hook principal da etapa de corte: compõe o núcleo genérico useWorkStage com
- * as tabelas, o modal de heat number, as operações de corte (status-events) e
- * as configurações de UI.
- *
- * @param initialItems Lista prefetchada pelo RSC (seed do cache).
- * @param currentUser Utilizador autenticado (controle de claim/acesso).
- * @param fetchError Erro do prefetch RSC, exibido até a primeira interação.
- */
 export const useCutWorkflow = ({
   initialItems,
   currentUser,
@@ -78,7 +68,6 @@ export const useCutWorkflow = ({
     claim,
   } = useWorkStage<CutListDto>({ ...cutStageConfig, initialItems, fetchError });
 
-  // Os pipe-lengths derivam do detalhe completo (selectedCutList), não da lista leve.
   const workingPipeLengths = useMemo<PipeLengthWithContext[]>(() => {
     if (!selectedCutList) return [];
     return extractPipeLengthsFromCutList(selectedCutList);
@@ -98,23 +87,19 @@ export const useCutWorkflow = ({
     resetCompletionModal,
   } = modal;
 
-  /** Abre uma cut-list já reclamada na aba Working. */
   const openCutList = (cutList: CutListDto) => {
     setSelectedCutListId(cutList.id);
     setActiveTab(TAB_TYPES.WORKING);
   };
 
-  /** Reivindica (claim) a cut-list e abre a aba Working com os seus pipe-lengths. */
   const startCutList = async (id: number): Promise<boolean> => {
     const updated = await claim(id);
     if (updated) {
-      // O claim já chama setSelectedId internamente; só muda a aba.
       setActiveTab(TAB_TYPES.WORKING);
     }
     return Boolean(updated);
   };
 
-  // Após um status-event, revalida a lista (o servidor recomputa status/progresso).
   const refreshCutLists = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.cutLists() });
 

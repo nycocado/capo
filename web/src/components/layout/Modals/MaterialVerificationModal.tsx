@@ -9,7 +9,6 @@ import {
 import { PipeLengthDto } from "@/dtos/pipe-length.dto";
 import { FittingDto } from "@/dtos/fitting.dto";
 
-// Os dois passos de verificação partilham a mesma tabela; o item é de um dos tipos.
 type MaterialItem = (PipeLengthDto | FittingDto) & { id: number };
 
 export interface MaterialVerificationModalProps {
@@ -33,11 +32,6 @@ export interface MaterialVerificationModalProps {
   getFittingState: (fitting: FittingDto) => "initial" | "finished";
 }
 
-/**
- * Modal de verificação/consulta de materiais (pipe-lengths e fittings) em dois
- * passos. Em modo verificação o operador marca cada item; em modo consulta os
- * itens são só de leitura.
- */
 export function MaterialVerificationModal(
   props: MaterialVerificationModalProps,
 ) {
@@ -62,21 +56,16 @@ export function MaterialVerificationModal(
     getFittingState,
   } = props;
 
-  // Ref para controlar o scroll do modal body
   const modalBodyRef = useRef<HTMLDivElement>(null);
 
-  // Função para forçar scroll para o topo
   const scrollToTop = useCallback(() => {
     if (modalBodyRef.current) {
-      // Múltiplas tentativas para garantir que o scroll funcione
       modalBodyRef.current.scrollTop = 0;
 
-      // Usar requestAnimationFrame para garantir que a DOM foi atualizada
       requestAnimationFrame(() => {
         if (modalBodyRef.current) {
           modalBodyRef.current.scrollTop = 0;
 
-          // Segunda tentativa com pequeno delay
           setTimeout(() => {
             if (modalBodyRef.current) {
               modalBodyRef.current.scrollTop = 0;
@@ -87,23 +76,19 @@ export function MaterialVerificationModal(
     }
   }, []);
 
-  // Scroll para o topo quando mudar de step
   useEffect(() => {
     if (showModal) {
       scrollToTop();
     }
   }, [currentStep, showModal, scrollToTop]);
 
-  // Também scroll quando os dados mudarem
   useEffect(() => {
     if (showModal && currentStepData) {
-      // Delay maior para garantir que a tabela foi renderizada
       const timer = setTimeout(scrollToTop, 200);
       return () => clearTimeout(timer);
     }
   }, [currentStepData, showModal, scrollToTop]);
 
-  // Filtrar dados inválidos
   const validData =
     currentStepData?.filter((item) => item && (item.internalId || item.id)) ||
     [];
@@ -132,7 +117,6 @@ export function MaterialVerificationModal(
   const materialRowStateAccessor = (item: MaterialItem) => {
     if (!item?.internalId) return "initial";
 
-    // Em modo consulta todos os itens ficam "initial" (sem destaque verde).
     if (isConsultationMode) return "initial";
 
     return currentStep === "pipeLength"
@@ -203,7 +187,7 @@ export function MaterialVerificationModal(
         <div className="bg-dark rounded-3 m-3">
           <WorkTable
             items={validData}
-            handleRowClick={() => {}} // Handler vazio: a interação vem de rowStates.onClick.
+            handleRowClick={() => {}}
             columns={currentColumns}
             defaultSortColumn={currentStep === "pipeLength" ? "id" : "type"}
             defaultSortDirection={null}

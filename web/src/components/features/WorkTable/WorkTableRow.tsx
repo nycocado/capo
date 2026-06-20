@@ -41,7 +41,7 @@ export function WorkTableRow<T extends { id: number | string }>(
 
   return (
     <motion.tr
-      key={item?.id || "unknown"} // Proteção contra item undefined
+      key={item?.id || "unknown"}
       onClick={onClickRow}
       className={`cursor-pointer ${rowClass}`}
       style={{ cursor: "pointer" }}

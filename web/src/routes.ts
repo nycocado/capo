@@ -83,7 +83,6 @@ export const WS_EVENTS = {
     connect_error: "connect_error",
     error: "error",
   },
-  // Os três namespaces (cut-list/assembly-list/weld-list) emitem os mesmos eventos.
   stage: {
     claimChanged: "claimChanged",
     statusChanged: "statusChanged",

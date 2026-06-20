@@ -10,6 +10,5 @@ export interface WeldListDto {
   claimedAt: string | null;
   progress?: ListProgress;
   available?: boolean;
-  /** Nº total de welds (apenas na resposta da lista leve). */
   weldCount?: number;
 }

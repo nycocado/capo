@@ -8,13 +8,6 @@ export interface UseWeldDataVerificationProps {
   onError?: (error: string) => void;
 }
 
-/**
- * Controla o fluxo de dados antes de concluir um weld: abre um modal com WPS e
- * filler material, conclui o weld (`POST status-events` com os ids) e notifica.
- *
- * @param onWeldProcessed Chamado com o weld atualizado após a conclusão.
- * @param onError Chamado com a mensagem de erro caso a operação falhe.
- */
 export function useWeldDataVerification({
   onWeldProcessed,
   onError,

@@ -34,7 +34,6 @@ export class CreateJointStatusEventHandler implements ICommandHandler<CreateJoin
     const em = this.joints.getEntityManager();
     const joint = await this.joints.findByIdOrFail(data.id);
 
-    // Lock: só o claimer da assembly_list (ou admin) avança os itens.
     const assemblyList = await this.assemblyLists.findByJointIdOrFail(data.id);
     await this.claimControl.assertControls(assemblyList, data.userId);
 

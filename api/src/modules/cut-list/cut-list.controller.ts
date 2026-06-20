@@ -41,7 +41,6 @@ export class CutListController {
     );
   }
 
-  // Declarado antes de ":id" para não ser capturado como parâmetro.
   @Get("pending-count")
   @Roles("cutting-operator", "administrator")
   async getPendingCount(): Promise<{ count: number }> {

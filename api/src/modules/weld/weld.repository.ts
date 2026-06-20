@@ -3,7 +3,6 @@ import { QueryOrder } from "@mikro-orm/core";
 import { WeldEntity } from "@modules/weld/entities/weld.entity";
 import { WeldStatusEventEntity } from "@modules/weld/entities/weld-status-event.entity";
 
-/** Acesso a dados das welds (registrado na entidade via `repository`). */
 export class WeldRepository extends EntityRepository<WeldEntity> {
   private static readonly FULL_POPULATE = [
     "joint",
@@ -15,7 +14,6 @@ export class WeldRepository extends EntityRepository<WeldEntity> {
     return this.findOneOrFail({ id });
   }
 
-  /** Detalhe com joint/filler/wps (para resposta HTTP e payload do socket). */
   async loadDetail(id: number): Promise<WeldEntity> {
     return this.findOneOrFail(
       { id },

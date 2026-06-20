@@ -26,10 +26,6 @@ export interface CutClientProps {
   fetchError?: string;
 }
 
-/**
- * Client Component da tela de corte: consome useCutWorkflow e renderiza
- * a tabela (cut-lists/pipe-lengths), painel de detalhes, controles e modais.
- */
 const CutClient = memo(function CutClient(props: CutClientProps) {
   const { initialItems, currentUser, fetchError } = props;
 

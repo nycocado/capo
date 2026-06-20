@@ -42,7 +42,6 @@ export class CreatePipeLengthStatusEventHandler implements ICommandHandler<Creat
     const em = this.pipeLengths.getEntityManager();
     const pipeLength = await this.pipeLengths.findByIdOrFail(data.id);
 
-    // Lock: só o claimer da cut_list (ou admin) avança os itens.
     const cutList = await this.cutLists.findByPipeLengthIdOrFail(data.id);
     await this.claimControl.assertControls(cutList, data.userId);
 

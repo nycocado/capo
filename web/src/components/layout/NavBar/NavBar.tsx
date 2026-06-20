@@ -15,10 +15,6 @@ function NavBar({ title, fixed }: { title?: string; fixed?: boolean }) {
 
   const confirmLogout = () => {
     setShowConfirm(false);
-    // O cookie de sessão é httpOnly e não pode ser removido por JS; o logout é
-    // feito no servidor (route handler /logout), que expira o cookie e
-    // redireciona. Navegação real (não router.push) para a resposta com o
-    // Set-Cookie ser aplicada e a app recarregar sem estado de sessão.
     window.location.href = ROUTES.logout;
   };
   const cancelLogout = () => setShowConfirm(false);

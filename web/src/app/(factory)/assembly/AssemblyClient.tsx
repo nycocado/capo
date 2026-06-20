@@ -25,10 +25,6 @@ export interface AssemblyClientProps {
   fetchError?: string;
 }
 
-/**
- * Client Component da tela de montagem: consome useAssemblyWorkflow e renderiza
- * o PDF viewer, tabela (assembly-lists/grid de joints), controles e modais.
- */
 const AssemblyClient = memo(function AssemblyClient(
   props: AssemblyClientProps,
 ) {
@@ -118,7 +114,6 @@ const AssemblyClient = memo(function AssemblyClient(
         </Container>
       </div>
 
-      {/* Modais de verificação para workflow normal */}
       <MaterialVerificationModal
         showModal={materialVerification.showModal}
         currentStep={materialVerification.currentStep}

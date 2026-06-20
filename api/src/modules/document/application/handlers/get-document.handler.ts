@@ -8,19 +8,12 @@ import { GetDocumentQuery } from "@modules/document/application/queries";
 export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
   private readonly storagePath = resolve(process.env.STORAGE_PATH ?? "storage");
 
-  // Secções servíveis (subpastas de storage); tudo o resto é rejeitado.
   private static readonly ALLOWED_SECTIONS = ["isometric", "wps"];
 
   execute({ data }: GetDocumentQuery): Promise<StreamableFile> {
     return Promise.resolve().then(() => this.load(data.section, data.filename));
   }
 
-  /**
-   * Serve um documento de uma secção permitida, protegendo contra path traversal.
-   *
-   * @throws NotFoundException Se a secção não for permitida, o caminho escapar
-   *   da secção, ou o ficheiro não existir
-   */
   private load(section: string, filename: string): StreamableFile {
     if (!GetDocumentHandler.ALLOWED_SECTIONS.includes(section)) {
       throw new NotFoundException("File not found");
@@ -29,7 +22,6 @@ export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
     const sectionRoot = resolve(this.storagePath, section);
     const filePath = resolve(sectionRoot, filename);
 
-    // O caminho resolvido tem de ficar contido na secção (bloqueia `../`).
     if (filePath !== sectionRoot && !filePath.startsWith(sectionRoot + sep)) {
       throw new NotFoundException("File not found");
     }

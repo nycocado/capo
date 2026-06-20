@@ -9,7 +9,6 @@ import { wrap } from "@mikro-orm/core";
 import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
 import { createWsAuthMiddleware } from "@common/ws";
 
-/** Difunde os eventos do estágio de corte no namespace `cut-list`. */
 @WebSocketGateway({
   namespace: "cut-list",
   cors: { origin: process.env.CORS_ORIGIN ?? false, credentials: true },

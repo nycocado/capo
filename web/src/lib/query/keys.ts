@@ -1,7 +1,3 @@
-/**
- * Factory central de query keys do TanStack Query. Mantém as chaves do cache
- * consistentes entre os fetchers, as mutations e a sincronização via WebSocket.
- */
 export const queryKeys = {
   currentUser: () => ["current-user"] as const,
   myRoles: () => ["roles", "me"] as const,

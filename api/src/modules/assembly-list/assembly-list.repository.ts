@@ -9,9 +9,7 @@ import { ListProgress } from "@shared/types";
 
 const ZERO: StatusCounts = { total: 0, done: 0, inProgress: 0 };
 
-/** Acesso a dados das assembly_lists (registrado na entidade via `repository`). */
 export class AssemblyListRepository extends EntityRepository<AssemblyListEntity> {
-  // Árvore do isométrico para a grelha de montagem (detalhe sob demanda).
   private static readonly FULL_POPULATE = [
     "claimedBy",
     "isometric.spools.joints.part1.pipeLength.material",
@@ -29,7 +27,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
 
   private static readonly LIGHT_POPULATE = ["claimedBy", "isometric"] as const;
 
-  /** Lista leve das assembly_lists com gating na consulta (corte concluído). */
   async loadAllLight(): Promise<AssemblyListEntity[]> {
     const isoIds = await this.getCutCompleteIsometricIds();
     if (isoIds.length === 0) return [];
@@ -55,7 +52,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return lists;
   }
 
-  /** Detalhe (árvore completa) com progresso e contagens derivados. */
   async loadDetail(id: number): Promise<AssemblyListEntity> {
     const list = await this.findOneOrFail(
       { id },
@@ -87,7 +83,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
   }
 
-  /** Localiza a assembly_list cujo isométrico contém a junta dada. */
   async findByJointIdOrFail(jointId: number): Promise<AssemblyListEntity> {
     return this.findOneOrFail(
       { isometric: { spools: { joints: jointId } } },
@@ -95,7 +90,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     );
   }
 
-  /** Progresso derivado de um único isométrico (gating do claim). */
   async deriveProgressByIsometric(
     isometricId: number,
   ): Promise<{ progress: ListProgress; available: boolean }> {
@@ -109,7 +103,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return { progress, available };
   }
 
-  /** Conta as assembly_lists pendentes: corte concluído mas montagem por terminar. */
   async countPending(): Promise<number> {
     const rows = await this.getEntityManager().execute<
       Array<{ pending: number }>
@@ -136,10 +129,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return Number(rows[0]?.pending ?? 0);
   }
 
-  /**
-   * Isométricos com o corte concluído (todos os pipe_lengths done) — o gating
-   * da montagem, resolvido numa única query no DB.
-   */
   private async getCutCompleteIsometricIds(): Promise<number[]> {
     const rows = await this.getEntityManager().execute<Array<{ iso: number }>>(
       `SELECT s.isometric_id AS iso
@@ -153,7 +142,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return rows.map((r) => Number(r.iso));
   }
 
-  /** Contagem dos joints por isométrico (uma query agregada para todos). */
   async getJointCountsByIsometric(): Promise<Map<number, StatusCounts>> {
     const rows = await this.getEntityManager().execute<
       Array<{ iso: number; total: number; done: number }>
@@ -173,7 +161,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     );
   }
 
-  /** Contagem dos pipe_lengths por isométrico (para o gating, em batch). */
   private async getPipeLengthCountsByIsometric(): Promise<
     Map<number, StatusCounts>
   > {
@@ -196,7 +183,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     );
   }
 
-  /** Total de spools por isométrico (uma query agregada para todos). */
   private async getSpoolCountsByIsometric(): Promise<Map<number, number>> {
     const rows = await this.getEntityManager().execute<
       Array<{ iso: number; total: number }>
@@ -206,7 +192,6 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
     return new Map(rows.map((r) => [Number(r.iso), Number(r.total)]));
   }
 
-  /** Total de welds por isométrico (uma query agregada para todos). */
   private async getWeldCountsByIsometric(): Promise<Map<number, number>> {
     const rows = await this.getEntityManager().execute<
       Array<{ iso: number; total: number }>

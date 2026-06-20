@@ -3,14 +3,6 @@ import { downloadDocument } from "@/lib/api";
 
 const EMPTY_DOCUMENT = "Received empty PDF";
 
-/**
- * Carrega um documento PDF a partir do nome de ficheiro e devolve uma object
- * URL temporária para o iframe/embed.
- *
- * @param document Nome do ficheiro no storage (ou `null` para limpar o viewer).
- * @param section Secção/pasta do storage (por omissão `isometric`).
- * @returns Estado de carregamento, erro e a object URL do PDF.
- */
 export function usePDFViewer(
   document: string | null,
   section: string = "isometric",
@@ -20,7 +12,6 @@ export function usePDFViewer(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // A object URL é local ao efeito: a cleanup revoga exatamente a que criou.
     let objectUrl: string | null = null;
     let cancelled = false;
 

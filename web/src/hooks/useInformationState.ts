@@ -1,10 +1,5 @@
 import { useState, useCallback } from "react";
 
-/**
- * Gerencia o conjunto de ids em estado "information" (seleção local pré-working):
- * no máximo um item pode estar em information por vez — ao adicionar um novo,
- * os demais são removidos.
- */
 export const useInformationState = () => {
   const [informationIds, setInformationIds] = useState<Set<number>>(new Set());
 

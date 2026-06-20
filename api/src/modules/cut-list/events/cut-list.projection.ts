@@ -3,7 +3,6 @@ import { CutListGateway } from "@modules/cut-list/cut-list.gateway";
 import { CutListClaimChangedEvent } from "@modules/cut-list/events/cut-list-claim-changed.event";
 import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events/pipe-length-status-changed.event";
 
-/** Projeta a mudança de claim da cut_list no socket do estágio de corte. */
 @EventsHandler(CutListClaimChangedEvent)
 export class CutListClaimChangedProjection implements IEventHandler<CutListClaimChangedEvent> {
   constructor(private readonly gateway: CutListGateway) {}
@@ -13,7 +12,6 @@ export class CutListClaimChangedProjection implements IEventHandler<CutListClaim
   }
 }
 
-/** Projeta a mudança de status de um pipe_length no socket do estágio de corte. */
 @EventsHandler(PipeLengthStatusChangedEvent)
 export class CutListPipeLengthStatusProjection implements IEventHandler<PipeLengthStatusChangedEvent> {
   constructor(private readonly gateway: CutListGateway) {}

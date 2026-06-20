@@ -7,13 +7,6 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { UserEntity } from "@modules/user/entities/user.entity";
 
-/**
- * Base das trilhas de auditoria de status (append-only).
- *
- * Cada estágio tem a sua tabela concreta (`pipe_length_status_event`,
- * `joint_status_event`, `weld_status_event`); a coluna `status` e a FK do item
- * rastreado ficam na entidade concreta, pois variam por estágio.
- */
 @Entity({ abstract: true })
 export abstract class AbstractStatusEventEntity {
   @PrimaryKey()

@@ -7,10 +7,6 @@ export interface UseCutOperationsProps {
   onError?: (error: string) => void;
 }
 
-/**
- * Operações de corte sobre um pipe-length, via `POST status-events`:
- * iniciar (to_do→in_progress, com heat number) e concluir (in_progress→done).
- */
 export function useCutOperations({
   onSuccess,
   onError,
@@ -38,7 +34,6 @@ export function useCutOperations({
     }
   };
 
-  /** Inicia o corte: to_do → in_progress, registando o heat number. */
   const startWork = (
     item: { id: number },
     heatNumber: string,
@@ -52,7 +47,6 @@ export function useCutOperations({
       "starting work",
     );
 
-  /** Conclui o corte: in_progress → done. */
   const finishWork = (item: { id: number }): Promise<boolean> =>
     performOperation(
       () => createPipeLengthStatusEvent(item.id, { status: "done" }),

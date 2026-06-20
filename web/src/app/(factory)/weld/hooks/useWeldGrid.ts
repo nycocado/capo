@@ -12,10 +12,6 @@ export interface UseWeldGridProps {
   handleWeldClick: (weld: WeldWithContext) => void;
 }
 
-/**
- * Grid de welds da solda: clicar num weld por concluir abre o modal de dados
- * (WPS + filler); "Next" abre o modal para o próximo weld por fazer.
- */
 export function useWeldGrid({
   weldList,
   search,
