@@ -5,11 +5,11 @@ import {
 } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
-import { OnEvent } from "@nestjs/event-emitter";
 import { wrap } from "@mikro-orm/core";
 import { PipeLengthEntity } from "@modules/pipe-length/entities";
 import { createWsAuthMiddleware } from "@common/ws";
 
+/** Difunde os eventos do estágio de corte no namespace `cut-list`. */
 @WebSocketGateway({
   namespace: "cut-list",
   cors: { origin: process.env.CORS_ORIGIN ?? false, credentials: true },
@@ -23,13 +23,11 @@ export class CutListGateway implements OnGatewayInit {
     server.use(createWsAuthMiddleware(this.jwtService));
   }
 
-  @OnEvent("cut-list.claimChanged")
-  handleClaimChanged(id: number): void {
+  emitClaimChanged(id: number): void {
     this.server.emit("claimChanged", { id });
   }
 
-  @OnEvent("pipe-length.statusChanged")
-  handleStatusChanged(pipeLength: PipeLengthEntity): void {
+  emitStatusChanged(pipeLength: PipeLengthEntity): void {
     this.server.emit("statusChanged", wrap(pipeLength).toObject());
   }
 }

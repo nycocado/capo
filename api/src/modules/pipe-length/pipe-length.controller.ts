@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from "@nestjs/common";
-import { PipeLengthService } from "@modules/pipe-length/pipe-length.service";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
 import { CreatePipeLengthStatusEventDto } from "@modules/pipe-length/dto";
@@ -15,35 +15,57 @@ import {
   PipeLengthEntity,
   PipeLengthStatusEventEntity,
 } from "@modules/pipe-length/entities";
+import { CreatePipeLengthStatusEventCommand } from "@modules/pipe-length/application/commands";
+import {
+  GetPipeLengthQuery,
+  GetPipeLengthStatusEventsQuery,
+} from "@modules/pipe-length/application/queries";
 
 @Controller("pipe-lengths")
 @UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class PipeLengthController {
-  constructor(private readonly pipeLengthService: PipeLengthService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get(":id")
   @Roles("cutting-operator", "pipe-fitter", "administrator")
-  async getById(
-    @Param("id", ParseIntPipe) id: number,
-  ): Promise<PipeLengthEntity> {
-    return this.pipeLengthService.getById(id);
+  getById(@Param("id", ParseIntPipe) id: number): Promise<PipeLengthEntity> {
+    return this.queryBus.execute<GetPipeLengthQuery, PipeLengthEntity>(
+      new GetPipeLengthQuery({ id }),
+    );
   }
 
   @Get(":id/status-events")
   @Roles("cutting-operator", "pipe-fitter", "administrator")
-  async getStatusEvents(
+  getStatusEvents(
     @Param("id", ParseIntPipe) id: number,
   ): Promise<PipeLengthStatusEventEntity[]> {
-    return this.pipeLengthService.getStatusEvents(id);
+    return this.queryBus.execute<
+      GetPipeLengthStatusEventsQuery,
+      PipeLengthStatusEventEntity[]
+    >(new GetPipeLengthStatusEventsQuery({ id }));
   }
 
   @Post(":id/status-events")
   @Roles("cutting-operator", "administrator")
-  async createStatusEvent(
+  createStatusEvent(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: CreatePipeLengthStatusEventDto,
     @User("id") userId: number,
   ): Promise<PipeLengthEntity> {
-    return this.pipeLengthService.createStatusEvent(id, dto, userId);
+    return this.commandBus.execute<
+      CreatePipeLengthStatusEventCommand,
+      PipeLengthEntity
+    >(
+      new CreatePipeLengthStatusEventCommand({
+        id,
+        status: dto.status,
+        heatNumber: dto.heatNumber,
+        notes: dto.notes,
+        userId,
+      }),
+    );
   }
 }

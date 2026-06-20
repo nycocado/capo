@@ -38,8 +38,7 @@ export class AssemblyListGateway implements OnGatewayInit {
    * reemite como sinal de invalidação para os clientes desta etapa refazerem a
    * lista. O payload é irrelevante — o cliente apenas invalida a query.
    */
-  @OnEvent("pipe-length.statusChanged")
-  handleUpstreamStatusChanged(): void {
+  emitUpstream(): void {
     this.server.emit("statusChanged", { upstream: true });
   }
 }

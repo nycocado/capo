@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
+import { MariaDbDriver } from "@mikro-orm/mariadb";
 import { createMikroOrmConfig } from "@config/mikroorm.config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
@@ -26,6 +27,7 @@ import { AppService } from "./app.service";
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
     MikroOrmModule.forRootAsync({
+      driver: MariaDbDriver,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => createMikroOrmConfig(config),

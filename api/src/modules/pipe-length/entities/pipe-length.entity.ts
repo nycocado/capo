@@ -10,8 +10,13 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import { DiameterEntity, MaterialEntity, PartEntity } from "@database/entities";
+import { UserEntity } from "@modules/user/entities";
+import { AggregateRoot } from "@common/domain";
 import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities";
+import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events";
+import { PipeLengthRepository } from "@modules/pipe-length/pipe-length.repository";
 
 export enum PipeLengthStatus {
   TO_DO = "to_do",
@@ -19,8 +24,15 @@ export enum PipeLengthStatus {
   DONE = "done",
 }
 
-@Entity({ tableName: "pipe_length" })
-export class PipeLengthEntity {
+/** Máquina de estados do corte: to_do → in_progress (exige heat) → done. */
+const TRANSITIONS: Record<PipeLengthStatus, PipeLengthStatus[]> = {
+  [PipeLengthStatus.TO_DO]: [PipeLengthStatus.IN_PROGRESS],
+  [PipeLengthStatus.IN_PROGRESS]: [PipeLengthStatus.DONE],
+  [PipeLengthStatus.DONE]: [],
+};
+
+@Entity({ tableName: "pipe_length", repository: () => PipeLengthRepository })
+export class PipeLengthEntity extends AggregateRoot {
   @OneToOne(() => PartEntity, {
     owner: true,
     primary: true,
@@ -71,6 +83,61 @@ export class PipeLengthEntity {
   })
   updatedAt!: Date;
 
-  @OneToMany(() => PipeLengthStatusEventEntity, (event) => event.pipeLength)
+  @OneToMany(() => PipeLengthStatusEventEntity, (event) => event.pipeLength, {
+    cascade: [Cascade.PERSIST],
+  })
   statusEvents = new Collection<PipeLengthStatusEventEntity>(this);
+
+  /**
+   * Inicia o corte: regista o heat_number e move to_do → in_progress.
+   *
+   * @throws ConflictException Se o item não estiver em to_do
+   * @throws BadRequestException Se não houver heat_number (novo ou já existente)
+   */
+  startCutting(
+    heatNumber: string | undefined,
+    by: UserEntity,
+    notes?: string,
+  ): void {
+    this.assertTransition(PipeLengthStatus.IN_PROGRESS);
+    const heat = heatNumber ?? this.heatNumber;
+    if (!heat) {
+      throw new BadRequestException("heatNumber is required to start cutting");
+    }
+    this.heatNumber = heat;
+    this.applyStatus(PipeLengthStatus.IN_PROGRESS, by, notes);
+  }
+
+  /**
+   * Conclui o corte: move in_progress → done.
+   *
+   * @throws ConflictException Se o item não estiver em in_progress
+   */
+  finishCutting(by: UserEntity, notes?: string): void {
+    this.assertTransition(PipeLengthStatus.DONE);
+    this.applyStatus(PipeLengthStatus.DONE, by, notes);
+  }
+
+  private applyStatus(
+    status: PipeLengthStatus,
+    by: UserEntity,
+    notes?: string,
+  ): void {
+    this.status = status;
+    const event = new PipeLengthStatusEventEntity();
+    event.status = status;
+    event.pipeLength = this;
+    event.notes = notes;
+    event.createdBy = by;
+    this.statusEvents.add(event);
+    this.raise(new PipeLengthStatusChangedEvent(this, by.id));
+  }
+
+  private assertTransition(next: PipeLengthStatus): void {
+    if (!TRANSITIONS[this.status].includes(next)) {
+      throw new ConflictException(
+        `Invalid status transition: ${this.status} -> ${next}`,
+      );
+    }
+  }
 }
