@@ -27,5 +27,8 @@
   },
   "devDependencies": {
     "prettier": "^3.8.4"
-  }
+  },
+  "trustedDependencies": [
+    "@swc/core"
+  ]
 }
