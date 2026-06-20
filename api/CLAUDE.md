@@ -16,20 +16,23 @@ Path aliases (`tsconfig.json`): `@common/*`, `@config/*`, `@modules/*`, `@shared
 
 ## Architecture
 
-> Changes in F8 (CQRS + rich domain: controller → use-case/handler + custom EntityRepository + EventBus). Current shape below.
+CQRS + rich domain. Each feature in `src/modules/<name>/` (barrel `index.ts` = `@modules/<name>`):
 
-Each feature in `src/modules/<name>/` is a barrel (`index.ts` = `@modules/<name>`):
+- **`*.controller.ts`** — thin: `@UseGuards(JwtCookieAuthGuard, RolesGuard)` + `@Roles(...)`, dispatches on the `CommandBus`/`QueryBus`, returns the entity.
+- **`entities/*.entity.ts`** — **rich domain**: state-machine verbs (`pipeLength.startCutting`, `joint.complete`, `weld.complete`) and the claim invariants (`list.claimBy`/`release`/`reassignTo`) live here; aggregates extend `AggregateRoot` and `raise()` domain events. A custom `EntityRepository` (raw-SQL gating/counts, `FULL_POPULATE` constants) is registered via `@Entity({ repository })` **only when it adds queries** beyond the base — otherwise inject the default `EntityRepository`.
+- **`application/{commands,queries}.ts`** — message classes (`constructor(readonly data: {...})`).
+- **`application/handlers/*.handler.ts`** — one use-case per file (`@CommandHandler`/`@QueryHandler`); the write is `@Transactional`, then the handler publishes the aggregate's domain events **post-commit** on the `EventBus`.
+- **`events/*.event.ts` + `*.projection.ts`** — a domain event and the `@EventsHandler` that projects it onto the stage socket.
+- **`*.gateway.ts`** *(list modules only)* — socket.io holder (`@WebSocketServer` + JWT-handshake middleware) whose `emit*` methods the projections call.
+- **`*.module.ts`** — local `const imports`/`controllers`/`providers`; handlers and projections listed individually.
 
-- **`*.controller.ts`** — HTTP routes; `@UseGuards(JwtCookieAuthGuard, RolesGuard)` + `@Roles(...)`; returns the entity directly.
-- **`*.service.ts`** — business logic: per-item state machine, claim/lock, derived progress/gating; emits `EventEmitter2` events.
-- **`*.repository.ts`** — all MikroORM access; `FULL_POPULATE_FIELDS` constants, aggregate queries (gating/counts) in raw SQL, `@Transactional()` writes.
-- **`*.gateway.ts`** *(list modules only)* — socket.io `@WebSocketGateway({ namespace })`; `@OnEvent` → broadcast.
+Shared domain in `@common/domain` (`AggregateRoot`; `ClaimControlPolicy` = the claimer-or-admin lock, provided by `DomainModule`) and `@common/utils` (`deriveListProgress`). DI: a module using `RolesGuard` imports `UserRoleModule`; one using the claim policy imports `DomainModule`; an item module `forFeature`s its list entity (for the lock).
 
 Cross-cutting:
 
-- **Auth:** JWT in the `token` cookie (`AuthService` signs; `JwtCookieAuthGuard` + passport-jwt validate). `RolesGuard` accepts **any** of the `@Roles(...)`. Inject the user via `@User()`. `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`.
+- **Auth:** JWT in the `token` cookie. `POST /auth/login` (`LoginCommand` verifies the password + signs the JWT; the controller sets the cookie), `POST /auth/logout` (clears the cookie), `GET /auth/me` (`GetMeQuery`). `JwtCookieAuthGuard` + passport-jwt validate; `RolesGuard` accepts **any** of the `@Roles(...)`; inject the user via `@User()`.
 - **Serialization:** native MikroORM — controllers return the entity; `toJSON()`/`wrap().toObject()` honor `@Property({ hidden })` (secrets) and `@Property({ persist: false })` (derived fields). No interceptor, no class-transformer on responses (request DTOs still use class-validator).
-- **Security baseline:** helmet, `@nestjs/throttler` (stricter on login), global `ValidationPipe` (whitelist/forbidNonWhitelisted/transform), CORS via `config.getOrThrow("CORS_ORIGIN")`, global `AllExceptionsFilter`, Swagger only outside production. `DocumentService` guards path traversal (section allowlist + contained path).
+- **Security baseline:** helmet, `@nestjs/throttler` (stricter on login), global `ValidationPipe` (whitelist/forbidNonWhitelisted/transform), CORS via `config.getOrThrow("CORS_ORIGIN")`, global `AllExceptionsFilter`, Swagger only outside production. The document handler guards path traversal (section allowlist + contained path).
 - **Layout:** env/ORM (factory `createMikroOrmConfig` + `forRootAsync`)/Swagger in `src/config/`; cross-module DTOs/types in `src/shared/`; decorators/guards/filters/utils in `src/common/`; shared entities in `@database/entities`. Health: `GET /health`.
 
 ### Work progression (HTTP)
@@ -39,4 +42,4 @@ Cross-cutting:
 
 ### Real-time
 
-Service write → `eventEmitter.emit("<item>.statusChanged" | "<list>.claimChanged", …)` → the stage gateway's `@OnEvent` re-broadcasts on its namespace. The **downstream** gateway also re-emits a signal on upstream changes (cross-stage gating: finishing cut surfaces the now-available assembly order without refresh). Handshake is JWT-authenticated (`createWsAuthMiddleware`). The web client invalidates its query on any event.
+A handler publishes the aggregate's domain events **post-commit** → an `@EventsHandler` projection broadcasts on the stage's socket namespace. The **downstream** stage subscribes to the upstream item event (`assembly` ← `PipeLengthStatusChangedEvent`, `weld` ← `JointStatusChangedEvent`) and re-emits an invalidation signal, so a now-available order surfaces without refresh. Handshake is JWT-authenticated (`createWsAuthMiddleware`); the web client invalidates its query on any event. Single `EventBus` — no `EventEmitter2`.
