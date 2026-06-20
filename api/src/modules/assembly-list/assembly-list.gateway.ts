@@ -5,11 +5,11 @@ import {
 } from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
-import { OnEvent } from "@nestjs/event-emitter";
 import { wrap } from "@mikro-orm/core";
 import { JointEntity } from "@modules/joint/entities";
 import { createWsAuthMiddleware } from "@common/ws";
 
+/** Difunde os eventos do estágio de montagem no namespace `assembly-list`. */
 @WebSocketGateway({
   namespace: "assembly-list",
   cors: { origin: process.env.CORS_ORIGIN ?? false, credentials: true },
@@ -23,13 +23,11 @@ export class AssemblyListGateway implements OnGatewayInit {
     server.use(createWsAuthMiddleware(this.jwtService));
   }
 
-  @OnEvent("assembly-list.claimChanged")
-  handleClaimChanged(id: number): void {
+  emitClaimChanged(id: number): void {
     this.server.emit("claimChanged", { id });
   }
 
-  @OnEvent("joint.statusChanged")
-  handleStatusChanged(joint: JointEntity): void {
+  emitStatusChanged(joint: JointEntity): void {
     this.server.emit("statusChanged", wrap(joint).toObject());
   }
 

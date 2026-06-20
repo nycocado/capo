@@ -8,18 +8,29 @@ import {
   Property,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import { JointEntity } from "@modules/joint/entities";
 import { FillerMaterialEntity } from "@modules/filler-material/entities";
 import { WpsEntity } from "@modules/wps/entities";
+import { UserEntity } from "@modules/user/entities";
+import { AggregateRoot } from "@common/domain";
 import { WeldStatusEventEntity } from "@modules/weld/entities";
+import { WeldStatusChangedEvent } from "@modules/weld/events";
+import { WeldRepository } from "@modules/weld/weld.repository";
 
 export enum WeldStatus {
   TO_DO = "to_do",
   DONE = "done",
 }
 
-@Entity({ tableName: "weld" })
-export class WeldEntity {
+/** Máquina de estados da solda: to_do → done (exige filler + wps). */
+const TRANSITIONS: Record<WeldStatus, WeldStatus[]> = {
+  [WeldStatus.TO_DO]: [WeldStatus.DONE],
+  [WeldStatus.DONE]: [],
+};
+
+@Entity({ tableName: "weld", repository: () => WeldRepository })
+export class WeldEntity extends AggregateRoot {
   @PrimaryKey()
   id!: number;
 
@@ -56,6 +67,48 @@ export class WeldEntity {
   })
   updatedAt!: Date;
 
-  @OneToMany(() => WeldStatusEventEntity, (event) => event.weld)
+  @OneToMany(() => WeldStatusEventEntity, (event) => event.weld, {
+    cascade: [Cascade.PERSIST],
+  })
   statusEvents = new Collection<WeldStatusEventEntity>(this);
+
+  /**
+   * Conclui a solda: regista filler material + wps e move to_do → done.
+   *
+   * @throws ConflictException Se o item não estiver em to_do
+   * @throws BadRequestException Se faltar filler material ou wps (novo ou existente)
+   */
+  complete(
+    filler: FillerMaterialEntity | undefined,
+    wps: WpsEntity | undefined,
+    by: UserEntity,
+    notes?: string,
+  ): void {
+    this.assertTransition(WeldStatus.DONE);
+    const resolvedFiller = filler ?? this.fillerMaterial;
+    const resolvedWps = wps ?? this.wps;
+    if (!resolvedFiller || !resolvedWps) {
+      throw new BadRequestException(
+        "fillerMaterial and wps are required to finish a weld",
+      );
+    }
+    this.fillerMaterial = resolvedFiller;
+    this.wps = resolvedWps;
+    this.status = WeldStatus.DONE;
+    const event = new WeldStatusEventEntity();
+    event.status = WeldStatus.DONE;
+    event.weld = this;
+    event.notes = notes;
+    event.createdBy = by;
+    this.statusEvents.add(event);
+    this.raise(new WeldStatusChangedEvent(this, by.id));
+  }
+
+  private assertTransition(next: WeldStatus): void {
+    if (!TRANSITIONS[this.status].includes(next)) {
+      throw new ConflictException(
+        `Invalid status transition: ${this.status} -> ${next}`,
+      );
+    }
+  }
 }

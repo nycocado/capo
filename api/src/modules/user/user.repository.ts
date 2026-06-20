@@ -1,28 +1,18 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@mikro-orm/nestjs";
-import { UserEntity } from "@modules/user/entities";
 import { EntityRepository } from "@mikro-orm/mariadb";
+import { UserEntity } from "@modules/user/entities";
 
-@Injectable()
-export class UserRepository {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: EntityRepository<UserEntity>,
-  ) {}
-
-  private readonly FULL_POPULATE_FIELDS = ["roles"] as const;
-
-  async findByIdOrFail(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail(id);
-  }
+/** Acesso a dados dos users (registrado na entidade via `repository`). */
+export class UserRepository extends EntityRepository<UserEntity> {
+  private static readonly FULL_POPULATE = ["roles"] as const;
 
   async findByInternalIdOrFail(internalId: string): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail({ internalId });
+    return this.findOneOrFail({ internalId });
   }
 
   async findWithRolesByIdOrFail(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail(id, {
-      populate: this.FULL_POPULATE_FIELDS,
-    });
+    return this.findOneOrFail(
+      { id },
+      { populate: UserRepository.FULL_POPULATE },
+    );
   }
 }

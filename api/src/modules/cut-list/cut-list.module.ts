@@ -14,7 +14,7 @@ import {
   GetPendingCutCountHandler,
   ReassignCutListHandler,
   ReleaseCutListHandler,
-} from "@modules/cut-list/application/use-cases";
+} from "@modules/cut-list/application/handlers";
 import {
   CutListClaimChangedProjection,
   CutListPipeLengthStatusProjection,

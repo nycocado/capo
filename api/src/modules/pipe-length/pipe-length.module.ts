@@ -10,7 +10,7 @@ import {
   CreatePipeLengthStatusEventHandler,
   GetPipeLengthHandler,
   GetPipeLengthStatusEventsHandler,
-} from "@modules/pipe-length/application/use-cases";
+} from "@modules/pipe-length/application/handlers";
 
 const imports = [
   MikroOrmModule.forFeature([PipeLengthEntity, CutListEntity]),

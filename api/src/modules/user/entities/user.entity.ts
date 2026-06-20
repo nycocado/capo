@@ -10,6 +10,7 @@ import {
 import { Collection } from "@mikro-orm/core";
 import { RoleEntity } from "@database/entities";
 import { UserRoleEntity } from "@modules/user-role/entities";
+import { UserRepository } from "@modules/user/user.repository";
 
 export enum Gender {
   M = "M",
@@ -17,7 +18,7 @@ export enum Gender {
   O = "O",
 }
 
-@Entity({ tableName: "user" })
+@Entity({ tableName: "user", repository: () => UserRepository })
 export class UserEntity {
   @PrimaryKey()
   id!: number;

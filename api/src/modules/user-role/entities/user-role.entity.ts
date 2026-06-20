@@ -9,8 +9,9 @@ import {
 import { Cascade } from "@mikro-orm/core";
 import { UserEntity } from "@modules/user/entities";
 import { RoleEntity } from "@database/entities";
+import { UserRoleRepository } from "@modules/user-role/user-role.repository";
 
-@Entity({ tableName: "user_role" })
+@Entity({ tableName: "user_role", repository: () => UserRoleRepository })
 @Unique({ properties: ["user", "role"] })
 export class UserRoleEntity {
   @PrimaryKey({ hidden: true })

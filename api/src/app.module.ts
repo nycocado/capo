@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { MariaDbDriver } from "@mikro-orm/mariadb";
 import { createMikroOrmConfig } from "@config/mikroorm.config";
-import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { AuthModule } from "@modules/auth";
 import { UserModule } from "@modules/user";
@@ -32,7 +31,6 @@ import { AppService } from "./app.service";
       inject: [ConfigService],
       useFactory: (config: ConfigService) => createMikroOrmConfig(config),
     }),
-    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     AuthModule,
     UserModule,

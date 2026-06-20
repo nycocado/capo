@@ -1,19 +1,31 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
+import { CqrsModule } from "@nestjs/cqrs";
 import { WeldEntity } from "@modules/weld/entities";
+import { WeldListEntity } from "@modules/weld-list/entities";
+import { DomainModule } from "@common/domain";
 import { UserRoleModule } from "@modules/user-role";
-import { WeldListModule } from "@modules/weld-list";
 import { WeldController } from "@modules/weld/weld.controller";
-import { WeldService } from "@modules/weld/weld.service";
-import { WeldRepository } from "@modules/weld/weld.repository";
+import {
+  CreateWeldStatusEventHandler,
+  GetWeldHandler,
+  GetWeldStatusEventsHandler,
+} from "@modules/weld/application/handlers";
 
-@Module({
-  imports: [
-    MikroOrmModule.forFeature([WeldEntity]),
-    UserRoleModule,
-    WeldListModule,
-  ],
-  controllers: [WeldController],
-  providers: [WeldService, WeldRepository],
-})
+const imports = [
+  MikroOrmModule.forFeature([WeldEntity, WeldListEntity]),
+  CqrsModule,
+  DomainModule,
+  UserRoleModule,
+];
+
+const controllers = [WeldController];
+
+const providers = [
+  CreateWeldStatusEventHandler,
+  GetWeldHandler,
+  GetWeldStatusEventsHandler,
+];
+
+@Module({ imports, controllers, providers })
 export class WeldModule {}

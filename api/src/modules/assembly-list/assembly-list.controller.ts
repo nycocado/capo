@@ -9,62 +9,92 @@ import {
   Put,
   UseGuards,
 } from "@nestjs/common";
-import { AssemblyListService } from "@modules/assembly-list/assembly-list.service";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
 import { AssemblyListEntity } from "@modules/assembly-list/entities";
 import { ReassignClaimDto } from "@shared/dto";
+import {
+  ClaimAssemblyListCommand,
+  ReassignAssemblyListCommand,
+  ReleaseAssemblyListCommand,
+} from "@modules/assembly-list/application/commands";
+import {
+  GetAssemblyListQuery,
+  GetAssemblyListsQuery,
+  GetPendingAssemblyCountQuery,
+} from "@modules/assembly-list/application/queries";
 
 @Controller("assembly-lists")
 @UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class AssemblyListController {
-  constructor(private readonly assemblyListService: AssemblyListService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get()
   @Roles("pipe-fitter", "administrator")
-  async getAll(): Promise<AssemblyListEntity[]> {
-    return this.assemblyListService.getAll();
+  getAll(): Promise<AssemblyListEntity[]> {
+    return this.queryBus.execute<GetAssemblyListsQuery, AssemblyListEntity[]>(
+      new GetAssemblyListsQuery(),
+    );
   }
 
   // Declarado antes de ":id" para não ser capturado como parâmetro.
   @Get("pending-count")
   @Roles("pipe-fitter", "administrator")
   async getPendingCount(): Promise<{ count: number }> {
-    return { count: await this.assemblyListService.getPendingCount() };
+    const count = await this.queryBus.execute<
+      GetPendingAssemblyCountQuery,
+      number
+    >(new GetPendingAssemblyCountQuery());
+    return { count };
   }
 
   @Get(":id")
   @Roles("pipe-fitter", "administrator")
-  async getById(
-    @Param("id", ParseIntPipe) id: number,
-  ): Promise<AssemblyListEntity> {
-    return this.assemblyListService.getById(id);
+  getById(@Param("id", ParseIntPipe) id: number): Promise<AssemblyListEntity> {
+    return this.queryBus.execute<GetAssemblyListQuery, AssemblyListEntity>(
+      new GetAssemblyListQuery({ id }),
+    );
   }
 
   @Post(":id/claim")
   @Roles("pipe-fitter", "administrator")
-  async claim(
+  claim(
     @Param("id", ParseIntPipe) id: number,
     @User("id") userId: number,
   ): Promise<AssemblyListEntity> {
-    return this.assemblyListService.claim(id, userId);
+    return this.commandBus.execute<
+      ClaimAssemblyListCommand,
+      AssemblyListEntity
+    >(new ClaimAssemblyListCommand({ listId: id, userId }));
   }
 
   @Delete(":id/claim")
   @Roles("pipe-fitter", "administrator")
-  async release(
+  release(
     @Param("id", ParseIntPipe) id: number,
     @User("id") userId: number,
   ): Promise<AssemblyListEntity> {
-    return this.assemblyListService.release(id, userId);
+    return this.commandBus.execute<
+      ReleaseAssemblyListCommand,
+      AssemblyListEntity
+    >(new ReleaseAssemblyListCommand({ listId: id, userId }));
   }
 
   @Put(":id/claim")
   @Roles("administrator")
-  async reassign(
+  reassign(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: ReassignClaimDto,
   ): Promise<AssemblyListEntity> {
-    return this.assemblyListService.reassign(id, dto.userId);
+    return this.commandBus.execute<
+      ReassignAssemblyListCommand,
+      AssemblyListEntity
+    >(
+      new ReassignAssemblyListCommand({ listId: id, targetUserId: dto.userId }),
+    );
   }
 }

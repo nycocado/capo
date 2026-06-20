@@ -1,44 +1,29 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { Transactional } from "@mikro-orm/decorators/legacy";
-import {
-  WeldEntity,
-  WeldStatus,
-  WeldStatusEventEntity,
-} from "@modules/weld/entities";
-import { UserEntity } from "@modules/user/entities";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
-import { WpsEntity } from "@modules/wps/entities";
+import { WeldEntity, WeldStatusEventEntity } from "@modules/weld/entities";
 
-@Injectable()
-export class WeldRepository {
-  constructor(
-    @InjectRepository(WeldEntity)
-    private readonly repository: EntityRepository<WeldEntity>,
-  ) {}
-
-  private readonly FULL_POPULATE_FIELDS = [
+/** Acesso a dados das welds (registrado na entidade via `repository`). */
+export class WeldRepository extends EntityRepository<WeldEntity> {
+  private static readonly FULL_POPULATE = [
     "joint",
     "fillerMaterial",
     "wps",
   ] as const;
 
   async findByIdOrFail(id: number): Promise<WeldEntity> {
-    return this.repository.findOneOrFail({ id });
+    return this.findOneOrFail({ id });
   }
 
-  async findFullByIdOrFail(id: number): Promise<WeldEntity> {
-    return this.repository.findOneOrFail(
+  /** Detalhe com joint/filler/wps (para resposta HTTP e payload do socket). */
+  async loadDetail(id: number): Promise<WeldEntity> {
+    return this.findOneOrFail(
       { id },
-      { populate: this.FULL_POPULATE_FIELDS },
+      { populate: WeldRepository.FULL_POPULATE },
     );
   }
 
   async findStatusEvents(id: number): Promise<WeldStatusEventEntity[]> {
-    const em = this.repository.getEntityManager();
-    return em.find(
+    return this.getEntityManager().find(
       WeldStatusEventEntity,
       { weld: id },
       {
@@ -46,39 +31,5 @@ export class WeldRepository {
         orderBy: { createdAt: QueryOrder.ASC, id: QueryOrder.ASC },
       },
     );
-  }
-
-  /** Aplica a transição de status e regista o evento na trilha, na mesma transação. */
-  @Transactional()
-  async applyStatusEvent(
-    weld: WeldEntity,
-    status: WeldStatus,
-    userId: number,
-    fillerMaterialId?: number,
-    wpsId?: number,
-    notes?: string,
-  ): Promise<WeldEntity> {
-    const em = this.repository.getEntityManager();
-
-    weld.status = status;
-    if (fillerMaterialId !== undefined) {
-      weld.fillerMaterial = em.getReference(
-        FillerMaterialEntity,
-        fillerMaterialId,
-      );
-    }
-    if (wpsId !== undefined) {
-      weld.wps = em.getReference(WpsEntity, wpsId);
-    }
-
-    const event = new WeldStatusEventEntity();
-    event.status = status;
-    event.weld = weld;
-    event.notes = notes;
-    event.createdBy = em.getReference(UserEntity, userId);
-    em.persist(event);
-
-    await em.flush();
-    return em.populate(weld, this.FULL_POPULATE_FIELDS);
   }
 }

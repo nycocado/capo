@@ -1,22 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@mikro-orm/nestjs";
-import { UserRoleEntity } from "@modules/user-role/entities";
 import { EntityRepository } from "@mikro-orm/mariadb";
+import { UserRoleEntity } from "@modules/user-role/entities";
 
-@Injectable()
-export class UserRoleRepository {
-  constructor(
-    @InjectRepository(UserRoleEntity)
-    private readonly userRoleRepository: EntityRepository<UserRoleEntity>,
-  ) {}
-
+/** Acesso a dados dos user_roles (registrado na entidade via `repository`). */
+export class UserRoleRepository extends EntityRepository<UserRoleEntity> {
   async findByUserIdAndRoleName(
     userId: number,
     roleName: string,
   ): Promise<UserRoleEntity | null> {
-    return this.userRoleRepository.findOne({
-      user: { id: userId },
-      role: { name: roleName },
-    });
+    return this.findOne({ user: { id: userId }, role: { name: roleName } });
   }
 }

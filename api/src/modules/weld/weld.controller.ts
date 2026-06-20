@@ -7,38 +7,60 @@ import {
   Post,
   UseGuards,
 } from "@nestjs/common";
-import { WeldService } from "@modules/weld/weld.service";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
 import { CreateWeldStatusEventDto } from "@modules/weld/dto";
 import { WeldEntity, WeldStatusEventEntity } from "@modules/weld/entities";
+import { CreateWeldStatusEventCommand } from "@modules/weld/application/commands";
+import {
+  GetWeldQuery,
+  GetWeldStatusEventsQuery,
+} from "@modules/weld/application/queries";
 
 @Controller("welds")
 @UseGuards(JwtCookieAuthGuard, RolesGuard)
 export class WeldController {
-  constructor(private readonly weldService: WeldService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get(":id")
   @Roles("welder", "administrator")
-  async getById(@Param("id", ParseIntPipe) id: number): Promise<WeldEntity> {
-    return this.weldService.getById(id);
+  getById(@Param("id", ParseIntPipe) id: number): Promise<WeldEntity> {
+    return this.queryBus.execute<GetWeldQuery, WeldEntity>(
+      new GetWeldQuery({ id }),
+    );
   }
 
   @Get(":id/status-events")
   @Roles("welder", "administrator")
-  async getStatusEvents(
+  getStatusEvents(
     @Param("id", ParseIntPipe) id: number,
   ): Promise<WeldStatusEventEntity[]> {
-    return this.weldService.getStatusEvents(id);
+    return this.queryBus.execute<
+      GetWeldStatusEventsQuery,
+      WeldStatusEventEntity[]
+    >(new GetWeldStatusEventsQuery({ id }));
   }
 
   @Post(":id/status-events")
   @Roles("welder", "administrator")
-  async createStatusEvent(
+  createStatusEvent(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: CreateWeldStatusEventDto,
     @User("id") userId: number,
   ): Promise<WeldEntity> {
-    return this.weldService.createStatusEvent(id, dto, userId);
+    return this.commandBus.execute<CreateWeldStatusEventCommand, WeldEntity>(
+      new CreateWeldStatusEventCommand({
+        id,
+        status: dto.status,
+        fillerMaterialId: dto.fillerMaterialId,
+        wpsId: dto.wpsId,
+        notes: dto.notes,
+        userId,
+      }),
+    );
   }
 }

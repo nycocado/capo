@@ -1,14 +1,23 @@
 import { Module } from "@nestjs/common";
-import { WpsController } from "@modules/wps/wps.controller";
-import { WpsService } from "@modules/wps/wps.service";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
+import { CqrsModule } from "@nestjs/cqrs";
 import { WpsEntity } from "@modules/wps/entities";
 import { UserRoleModule } from "@modules/user-role";
-import { WpsRepository } from "@modules/wps/wps.repository";
+import { WpsController } from "@modules/wps/wps.controller";
+import {
+  GetWpsHandler,
+  GetWpsListHandler,
+} from "@modules/wps/application/handlers";
 
-@Module({
-  imports: [MikroOrmModule.forFeature([WpsEntity]), UserRoleModule],
-  controllers: [WpsController],
-  providers: [WpsService, WpsRepository],
-})
+const imports = [
+  MikroOrmModule.forFeature([WpsEntity]),
+  CqrsModule,
+  UserRoleModule,
+];
+
+const controllers = [WpsController];
+
+const providers = [GetWpsListHandler, GetWpsHandler];
+
+@Module({ imports, controllers, providers })
 export class WpsModule {}
