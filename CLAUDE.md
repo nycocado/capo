@@ -65,6 +65,15 @@ Reference points in the repo: the **API modules** are the model (clean, self-doc
 
 ## Git / commits
 
-- **Do NOT add a `Co-Authored-By` trailer** (no `Co-Authored-By: Claude …`) to commits in this repo — keep authorship clean.
-- Commit messages are in **Portuguese**, with **no conventional-commits prefixes** (`feat:`/`fix:`/`chore:` are wrong). Use sentence-case starting with an action noun — `Adição de…`, `Correção no…`, `Atualização de…`, `Refatoração completa de…`, `Remoção de…`, `Setup do…` — optionally composed with `, além de…` / `, e …` and a parenthetical reason. Capitalize tech names (NextJS, Docker, NGINX).
-- **Single line, and keep it concise.** One focused subject line summarizing the change — roughly the length of the existing history (~one screen line, **≤ ~450 chars**), not an exhaustive paragraph. **Summarize, don't enumerate**: name the essence + a couple of key specifics in parentheses; the per-file/per-decision detail belongs in the diff, not the message. Avoid long `;`-chained clause pile-ups.
+- **No `Co-Authored-By` trailer** — keep authorship clean.
+- **Format: `[escopo:tipo] assunto`.** Subject in **Portuguese**, lowercase, descriptive, **no action-noun** (the type carries the verb). The type lives **inside the brackets** — never a loose `tipo:` prefix.
+  - **escopo** (monorepo area): `api` `web` `db` `nginx` `infra` `docs` `root`; join with `/` when it spans two (`api/web`).
+  - **tipo** (EN jargon): `feat` `fix` `refactor` `docs` `chore` `perf` `test` `build`. Drop `:tipo` when the scope *is* the type (e.g. `[docs]`). Capitalize tech names in the body (NextJS, Docker, NGINX).
+- **Subject ≤ ~72 chars, one line.** Detail goes in an **optional body**: blank line, then bullets (`- …`) — explain the *why*, not the file-by-file *what*.
+
+```
+[api:refactor] CQRS, rich domain e use-cases
+[web:fix] real-time cross-stage e fitting verification
+[db:feat] coluna document no isometric
+[docs] CLAUDE.md mais conciso
+```
