@@ -1,5 +1,5 @@
 import { IEvent } from "@nestjs/cqrs";
-import type { JointEntity } from "@modules/joint/entities";
+import type { JointEntity } from "@modules/joint/entities/joint.entity";
 
 /** Disparado quando um joint muda de status (montagem concluída). */
 export class JointStatusChangedEvent implements IEvent {

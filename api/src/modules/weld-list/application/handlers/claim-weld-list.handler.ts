@@ -1,9 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Transactional } from "@mikro-orm/decorators/legacy";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { ClaimWeldListCommand } from "@modules/weld-list/application/commands";
 
 @CommandHandler(ClaimWeldListCommand)

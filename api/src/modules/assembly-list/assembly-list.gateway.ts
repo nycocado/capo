@@ -6,7 +6,7 @@ import {
 import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { wrap } from "@mikro-orm/core";
-import { JointEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
 import { createWsAuthMiddleware } from "@common/ws";
 
 /** Difunde os eventos do estágio de montagem no namespace `assembly-list`. */

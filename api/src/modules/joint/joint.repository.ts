@@ -1,6 +1,7 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { JointEntity, JointStatusEventEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
+import { JointStatusEventEntity } from "@modules/joint/entities/joint-status-event.entity";
 
 /** Acesso a dados dos joints (registrado na entidade via `repository`). */
 export class JointRepository extends EntityRepository<JointEntity> {

@@ -1,4 +1,4 @@
-import { WeldStatus } from "@modules/weld/entities";
+import { WeldStatus } from "@modules/weld/entities/weld.entity";
 
 export interface CreateWeldStatusEventInput {
   id: number;

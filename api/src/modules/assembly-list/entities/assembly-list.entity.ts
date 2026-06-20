@@ -9,10 +9,10 @@ import {
 import { Cascade } from "@mikro-orm/core";
 import { ConflictException } from "@nestjs/common";
 import { IsometricEntity } from "@database/entities";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { ListProgress } from "@shared/types";
 import { AggregateRoot } from "@common/domain";
-import { AssemblyListClaimChangedEvent } from "@modules/assembly-list/events";
+import { AssemblyListClaimChangedEvent } from "@modules/assembly-list/events/assembly-list-claim-changed.event";
 import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.repository";
 
 /** Contexto de gating/progresso usado para validar um claim. */

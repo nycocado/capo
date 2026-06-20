@@ -1,6 +1,7 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { WeldEntity, WeldStatusEventEntity } from "@modules/weld/entities";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
+import { WeldStatusEventEntity } from "@modules/weld/entities/weld-status-event.entity";
 
 /** Acesso a dados das welds (registrado na entidade via `repository`). */
 export class WeldRepository extends EntityRepository<WeldEntity> {

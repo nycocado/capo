@@ -11,11 +11,11 @@ import {
 import { Cascade, Collection } from "@mikro-orm/core";
 import { ConflictException } from "@nestjs/common";
 import { PartEntity, SpoolEntity } from "@database/entities";
-import { WeldEntity } from "@modules/weld/entities";
-import { UserEntity } from "@modules/user/entities";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { AggregateRoot } from "@common/domain";
-import { JointStatusEventEntity } from "@modules/joint/entities";
-import { JointStatusChangedEvent } from "@modules/joint/events";
+import { JointStatusEventEntity } from "@modules/joint/entities/joint-status-event.entity";
+import { JointStatusChangedEvent } from "@modules/joint/events/joint-status-changed.event";
 import { JointRepository } from "@modules/joint/joint.repository";
 
 export enum JointStatus {

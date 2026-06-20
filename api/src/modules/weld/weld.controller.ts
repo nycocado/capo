@@ -10,8 +10,9 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { CreateWeldStatusEventDto } from "@modules/weld/dto";
-import { WeldEntity, WeldStatusEventEntity } from "@modules/weld/entities";
+import { CreateWeldStatusEventDto } from "@modules/weld/dto/create-weld-status-event.dto";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
+import { WeldStatusEventEntity } from "@modules/weld/entities/weld-status-event.entity";
 import { CreateWeldStatusEventCommand } from "@modules/weld/application/commands";
 import {
   GetWeldQuery,

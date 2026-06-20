@@ -1,6 +1,6 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import {
   deriveListProgress,
   StatusCounts,

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { UserRepository } from "@modules/user/user.repository";
 
 @Injectable()

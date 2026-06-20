@@ -1,7 +1,7 @@
 import { Entity, Enum, Index, ManyToOne } from "@mikro-orm/decorators/legacy";
 import { Cascade } from "@mikro-orm/core";
 import { AbstractStatusEventEntity } from "@database/entities";
-import { WeldEntity, WeldStatus } from "@modules/weld/entities";
+import { WeldEntity, WeldStatus } from "@modules/weld/entities/weld.entity";
 
 @Entity({ tableName: "weld_status_event" })
 @Index({ properties: ["weld", "createdAt"] })

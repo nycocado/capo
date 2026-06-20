@@ -12,7 +12,7 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import { ReassignClaimDto } from "@shared/dto";
 import {
   ClaimAssemblyListCommand,

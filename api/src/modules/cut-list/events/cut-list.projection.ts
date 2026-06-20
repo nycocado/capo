@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { CutListGateway } from "@modules/cut-list/cut-list.gateway";
-import { CutListClaimChangedEvent } from "@modules/cut-list/events";
-import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events";
+import { CutListClaimChangedEvent } from "@modules/cut-list/events/cut-list-claim-changed.event";
+import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events/pipe-length-status-changed.event";
 
 /** Projeta a mudança de claim da cut_list no socket do estágio de corte. */
 @EventsHandler(CutListClaimChangedEvent)

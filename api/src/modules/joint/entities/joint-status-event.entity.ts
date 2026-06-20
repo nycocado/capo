@@ -1,7 +1,7 @@
 import { Entity, Enum, Index, ManyToOne } from "@mikro-orm/decorators/legacy";
 import { Cascade } from "@mikro-orm/core";
 import { AbstractStatusEventEntity } from "@database/entities";
-import { JointEntity, JointStatus } from "@modules/joint/entities";
+import { JointEntity, JointStatus } from "@modules/joint/entities/joint.entity";
 
 @Entity({ tableName: "joint_status_event" })
 @Index({ properties: ["joint", "createdAt"] })

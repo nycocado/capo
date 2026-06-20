@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/mariadb";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
+import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
 import { GetFillerMaterialQuery } from "@modules/filler-material/application/queries";
 
 @QueryHandler(GetFillerMaterialQuery)

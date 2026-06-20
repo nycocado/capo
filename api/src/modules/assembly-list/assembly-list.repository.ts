@@ -1,6 +1,6 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import {
   deriveListProgress,
   StatusCounts,

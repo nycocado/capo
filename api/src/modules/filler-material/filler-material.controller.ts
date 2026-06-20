@@ -8,7 +8,7 @@ import {
 import { QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles } from "@common/decorators";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
+import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
 import {
   GetFillerMaterialQuery,
   GetFillerMaterialsQuery,

@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { CqrsModule } from "@nestjs/cqrs";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { DomainModule } from "@common/domain";
-import { UserRoleModule } from "@modules/user-role";
+import { UserRoleModule } from "@modules/user-role/user-role.module";
 import { WsAuthModule } from "@common/ws";
 import { CutListController } from "@modules/cut-list/cut-list.controller";
 import { CutListGateway } from "@modules/cut-list/cut-list.gateway";

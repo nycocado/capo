@@ -9,10 +9,10 @@ import {
 import { Cascade } from "@mikro-orm/core";
 import { ConflictException } from "@nestjs/common";
 import { SpoolEntity } from "@database/entities";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { ListProgress } from "@shared/types";
 import { AggregateRoot } from "@common/domain";
-import { WeldListClaimChangedEvent } from "@modules/weld-list/events";
+import { WeldListClaimChangedEvent } from "@modules/weld-list/events/weld-list-claim-changed.event";
 import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
 
 /** Contexto de gating/progresso usado para validar um claim. */

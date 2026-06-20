@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { UserService } from "@modules/user";
-import { UserEntity } from "@modules/user/entities";
+import { UserService } from "@modules/user/user.service";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { GetMeQuery } from "@modules/auth/application/queries";
 
 @QueryHandler(GetMeQuery)

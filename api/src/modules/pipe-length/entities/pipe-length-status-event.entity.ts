@@ -4,7 +4,7 @@ import { AbstractStatusEventEntity } from "@database/entities";
 import {
   PipeLengthEntity,
   PipeLengthStatus,
-} from "@modules/pipe-length/entities";
+} from "@modules/pipe-length/entities/pipe-length.entity";
 
 @Entity({ tableName: "pipe_length_status_event" })
 @Index({ properties: ["pipeLength", "createdAt"] })

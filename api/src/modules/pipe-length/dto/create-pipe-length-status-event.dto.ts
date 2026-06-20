@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
-import { PipeLengthStatus } from "@modules/pipe-length/entities";
+import { PipeLengthStatus } from "@modules/pipe-length/entities/pipe-length.entity";
 
 export class CreatePipeLengthStatusEventDto {
   @IsEnum(PipeLengthStatus)

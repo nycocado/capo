@@ -1,6 +1,6 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import {
   deriveListProgress,
   StatusCounts,

@@ -13,13 +13,13 @@ import { ConfigService } from "@nestjs/config";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { Throttle } from "@nestjs/throttler";
 import { ApiLogin, ApiLogout, ApiMe } from "@modules/auth/auth.swagger";
-import { LoginRequestDto } from "@modules/auth/dto";
+import { LoginRequestDto } from "@modules/auth/dto/login-request.dto";
 import { LoginCommand } from "@modules/auth/application/commands";
 import { LoginResult } from "@modules/auth/application/handlers/login.handler";
 import { GetMeQuery } from "@modules/auth/application/queries";
 import { JwtCookieAuthGuard } from "@common/guards";
 import { User } from "@common/decorators";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { durationToMs } from "@common/utils/parse-duration";
 
 @Controller("auth")

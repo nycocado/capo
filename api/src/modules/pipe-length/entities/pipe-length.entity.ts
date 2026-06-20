@@ -12,10 +12,10 @@ import {
 import { Cascade, Collection } from "@mikro-orm/core";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { DiameterEntity, MaterialEntity, PartEntity } from "@database/entities";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { AggregateRoot } from "@common/domain";
-import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities";
-import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events";
+import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities/pipe-length-status-event.entity";
+import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events/pipe-length-status-changed.event";
 import { PipeLengthRepository } from "@modules/pipe-length/pipe-length.repository";
 
 export enum PipeLengthStatus {

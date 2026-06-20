@@ -1,4 +1,4 @@
-import { JointStatus } from "@modules/joint/entities";
+import { JointStatus } from "@modules/joint/entities/joint.entity";
 
 export interface CreateJointStatusEventInput {
   id: number;

@@ -9,7 +9,7 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
 import { IsometricEntity } from "@database/entities";
-import { JointEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
 
 @Entity({ tableName: "spool" })
 export class SpoolEntity {

@@ -8,7 +8,7 @@ import {
 import { QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles } from "@common/decorators";
-import { WpsEntity } from "@modules/wps/entities";
+import { WpsEntity } from "@modules/wps/entities/wps.entity";
 import { GetWpsListQuery, GetWpsQuery } from "@modules/wps/application/queries";
 
 @Controller("wps")

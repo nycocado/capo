@@ -8,9 +8,9 @@ import {
   Property,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
 import { FittingEntity } from "@database/entities";
-import { JointEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
 
 export enum PartType {
   PIPE_LENGTH = "pipe_length",

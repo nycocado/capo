@@ -1,11 +1,11 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Transactional } from "@mikro-orm/decorators/legacy";
-import { JointEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
 import { JointRepository } from "@modules/joint/joint.repository";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.repository";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { ClaimControlPolicy } from "@common/domain";
 import {
   CreateJointStatusEventCommand,

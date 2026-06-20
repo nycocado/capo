@@ -1,9 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Transactional } from "@mikro-orm/decorators/legacy";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { CutListRepository } from "@modules/cut-list/cut-list.repository";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { deriveListProgress } from "@common/utils/list-progress.util";
 import { ClaimCutListCommand } from "@modules/cut-list/application/commands";
 

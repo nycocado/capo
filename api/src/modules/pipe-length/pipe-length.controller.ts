@@ -10,11 +10,9 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { CreatePipeLengthStatusEventDto } from "@modules/pipe-length/dto";
-import {
-  PipeLengthEntity,
-  PipeLengthStatusEventEntity,
-} from "@modules/pipe-length/entities";
+import { CreatePipeLengthStatusEventDto } from "@modules/pipe-length/dto/create-pipe-length-status-event.dto";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
+import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities/pipe-length-status-event.entity";
 import { CreatePipeLengthStatusEventCommand } from "@modules/pipe-length/application/commands";
 import {
   GetPipeLengthQuery,

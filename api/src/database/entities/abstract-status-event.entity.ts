@@ -5,7 +5,7 @@ import {
   PrimaryKey,
   Property,
 } from "@mikro-orm/decorators/legacy";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 
 /**
  * Base das trilhas de auditoria de status (append-only).

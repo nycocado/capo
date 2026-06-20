@@ -6,7 +6,7 @@ import {
 import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { wrap } from "@mikro-orm/core";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
 import { createWsAuthMiddleware } from "@common/ws";
 
 /** Difunde os eventos do estágio de corte no namespace `cut-list`. */

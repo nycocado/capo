@@ -7,7 +7,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Cascade } from "@mikro-orm/core";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { RoleEntity } from "@database/entities";
 import { UserRoleRepository } from "@modules/user-role/user-role.repository";
 

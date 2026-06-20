@@ -1,9 +1,7 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
 import { QueryOrder } from "@mikro-orm/core";
-import {
-  PipeLengthEntity,
-  PipeLengthStatusEventEntity,
-} from "@modules/pipe-length/entities";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
+import { PipeLengthStatusEventEntity } from "@modules/pipe-length/entities/pipe-length-status-event.entity";
 
 /** Acesso a dados dos pipe_lengths (registrado na entidade via `repository`). */
 export class PipeLengthRepository extends EntityRepository<PipeLengthEntity> {

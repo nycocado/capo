@@ -2,13 +2,13 @@ import { ConflictException } from "@nestjs/common";
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Transactional } from "@mikro-orm/decorators/legacy";
-import { WeldEntity, WeldStatus } from "@modules/weld/entities";
+import { WeldEntity, WeldStatus } from "@modules/weld/entities/weld.entity";
 import { WeldRepository } from "@modules/weld/weld.repository";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import { WeldListRepository } from "@modules/weld-list/weld-list.repository";
-import { UserEntity } from "@modules/user/entities";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
-import { WpsEntity } from "@modules/wps/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
+import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
+import { WpsEntity } from "@modules/wps/entities/wps.entity";
 import { ClaimControlPolicy } from "@common/domain";
 import {
   CreateWeldStatusEventCommand,

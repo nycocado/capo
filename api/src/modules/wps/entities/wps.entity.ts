@@ -7,7 +7,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
-import { WeldEntity } from "@modules/weld/entities";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
 
 @Entity({ tableName: "wps" })
 export class WpsEntity {

@@ -10,8 +10,9 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { CreateJointStatusEventDto } from "@modules/joint/dto";
-import { JointEntity, JointStatusEventEntity } from "@modules/joint/entities";
+import { CreateJointStatusEventDto } from "@modules/joint/dto/create-joint-status-event.dto";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
+import { JointStatusEventEntity } from "@modules/joint/entities/joint-status-event.entity";
 import { CreateJointStatusEventCommand } from "@modules/joint/application/commands";
 import {
   GetJointQuery,

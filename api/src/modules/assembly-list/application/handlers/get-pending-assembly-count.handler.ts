@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.repository";
 import { GetPendingAssemblyCountQuery } from "@modules/assembly-list/application/queries";
 

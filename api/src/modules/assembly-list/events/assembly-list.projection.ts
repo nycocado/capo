@@ -1,8 +1,8 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { AssemblyListGateway } from "@modules/assembly-list/assembly-list.gateway";
-import { AssemblyListClaimChangedEvent } from "@modules/assembly-list/events";
-import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events";
-import { JointStatusChangedEvent } from "@modules/joint/events";
+import { AssemblyListClaimChangedEvent } from "@modules/assembly-list/events/assembly-list-claim-changed.event";
+import { PipeLengthStatusChangedEvent } from "@modules/pipe-length/events/pipe-length-status-changed.event";
+import { JointStatusChangedEvent } from "@modules/joint/events/joint-status-changed.event";
 
 /** Projeta a mudança de claim da assembly_list no socket do estágio de montagem. */
 @EventsHandler(AssemblyListClaimChangedEvent)

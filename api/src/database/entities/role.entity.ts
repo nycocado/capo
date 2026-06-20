@@ -7,8 +7,8 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
-import { UserEntity } from "@modules/user/entities";
-import { UserRoleEntity } from "@modules/user-role/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
+import { UserRoleEntity } from "@modules/user-role/entities/user-role.entity";
 
 @Entity({ tableName: "role" })
 export class RoleEntity {

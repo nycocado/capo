@@ -1,8 +1,8 @@
 import { EventsHandler, IEventHandler } from "@nestjs/cqrs";
 import { WeldListGateway } from "@modules/weld-list/weld-list.gateway";
-import { WeldListClaimChangedEvent } from "@modules/weld-list/events";
-import { WeldStatusChangedEvent } from "@modules/weld/events";
-import { JointStatusChangedEvent } from "@modules/joint/events";
+import { WeldListClaimChangedEvent } from "@modules/weld-list/events/weld-list-claim-changed.event";
+import { WeldStatusChangedEvent } from "@modules/weld/events/weld-status-changed.event";
+import { JointStatusChangedEvent } from "@modules/joint/events/joint-status-changed.event";
 
 /** Projeta a mudança de claim da weld_list no socket do estágio de solda. */
 @EventsHandler(WeldListClaimChangedEvent)

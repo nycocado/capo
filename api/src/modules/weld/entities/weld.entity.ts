@@ -9,13 +9,13 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { Cascade, Collection } from "@mikro-orm/core";
 import { BadRequestException, ConflictException } from "@nestjs/common";
-import { JointEntity } from "@modules/joint/entities";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
-import { WpsEntity } from "@modules/wps/entities";
-import { UserEntity } from "@modules/user/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
+import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
+import { WpsEntity } from "@modules/wps/entities/wps.entity";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { AggregateRoot } from "@common/domain";
-import { WeldStatusEventEntity } from "@modules/weld/entities";
-import { WeldStatusChangedEvent } from "@modules/weld/events";
+import { WeldStatusEventEntity } from "@modules/weld/entities/weld-status-event.entity";
+import { WeldStatusChangedEvent } from "@modules/weld/events/weld-status-changed.event";
 import { WeldRepository } from "@modules/weld/weld.repository";
 
 export enum WeldStatus {

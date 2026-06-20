@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { JointEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
 import { JointRepository } from "@modules/joint/joint.repository";
 import { GetJointQuery } from "@modules/joint/application/queries";
 

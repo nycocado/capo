@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { JointEntity, JointStatusEventEntity } from "@modules/joint/entities";
+import { JointEntity } from "@modules/joint/entities/joint.entity";
+import { JointStatusEventEntity } from "@modules/joint/entities/joint-status-event.entity";
 import { JointRepository } from "@modules/joint/joint.repository";
 import { GetJointStatusEventsQuery } from "@modules/joint/application/queries";
 

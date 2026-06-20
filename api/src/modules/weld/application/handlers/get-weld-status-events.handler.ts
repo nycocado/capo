@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { WeldEntity, WeldStatusEventEntity } from "@modules/weld/entities";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
+import { WeldStatusEventEntity } from "@modules/weld/entities/weld-status-event.entity";
 import { WeldRepository } from "@modules/weld/weld.repository";
 import { GetWeldStatusEventsQuery } from "@modules/weld/application/queries";
 

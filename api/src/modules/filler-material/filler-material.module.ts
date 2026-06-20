@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { CqrsModule } from "@nestjs/cqrs";
-import { FillerMaterialEntity } from "@modules/filler-material/entities";
-import { UserRoleModule } from "@modules/user-role";
+import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
+import { UserRoleModule } from "@modules/user-role/user-role.module";
 import { FillerMaterialController } from "@modules/filler-material/filler-material.controller";
 import {
   GetFillerMaterialHandler,

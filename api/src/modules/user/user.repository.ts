@@ -1,5 +1,5 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 
 /** Acesso a dados dos users (registrado na entidade via `repository`). */
 export class UserRepository extends EntityRepository<UserEntity> {

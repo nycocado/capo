@@ -1,4 +1,4 @@
-import { PipeLengthStatus } from "@modules/pipe-length/entities";
+import { PipeLengthStatus } from "@modules/pipe-length/entities/pipe-length.entity";
 
 export interface CreatePipeLengthStatusEventInput {
   id: number;

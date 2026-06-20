@@ -6,7 +6,7 @@ import {
   Unique,
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
 import { FittingEntity } from "@database/entities";
 
 @Entity({ tableName: "material" })

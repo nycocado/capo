@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString } from "class-validator";
-import { JointStatus } from "@modules/joint/entities";
+import { JointStatus } from "@modules/joint/entities/joint.entity";
 
 export class CreateJointStatusEventDto {
   @IsEnum(JointStatus)

@@ -12,7 +12,7 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { ReassignClaimDto } from "@shared/dto";
 import {
   ClaimCutListCommand,

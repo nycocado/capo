@@ -2,8 +2,8 @@ import { UnauthorizedException } from "@nestjs/common";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { UserService } from "@modules/user";
-import { UserEntity } from "@modules/user/entities";
+import { UserService } from "@modules/user/user.service";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { LoginCommand } from "@modules/auth/application/commands";
 
 export interface LoginResult {

@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { CqrsModule } from "@nestjs/cqrs";
-import { AssemblyListEntity } from "@modules/assembly-list/entities";
+import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import { DomainModule } from "@common/domain";
-import { UserRoleModule } from "@modules/user-role";
+import { UserRoleModule } from "@modules/user-role/user-role.module";
 import { WsAuthModule } from "@common/ws";
 import { AssemblyListController } from "@modules/assembly-list/assembly-list.controller";
 import { AssemblyListGateway } from "@modules/assembly-list/assembly-list.gateway";

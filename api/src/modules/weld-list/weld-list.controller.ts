@@ -12,7 +12,7 @@ import {
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles, User } from "@common/decorators";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import { ReassignClaimDto } from "@shared/dto";
 import {
   ClaimWeldListCommand,

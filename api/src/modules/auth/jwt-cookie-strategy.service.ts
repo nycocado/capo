@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserService } from "@modules/user";
+import { UserService } from "@modules/user/user.service";
 import { ConfigService } from "@nestjs/config";
 import { Request } from "express";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 
 @Injectable()
 export class JwtCookieStrategy extends PassportStrategy(

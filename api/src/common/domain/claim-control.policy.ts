@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { UserRoleService } from "@modules/user-role";
+import { UserRoleService } from "@modules/user-role/user-role.service";
 import { Role } from "@shared/types";
 import { Claimable } from "@common/domain/claimable";
 

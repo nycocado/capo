@@ -5,11 +5,11 @@ import { Transactional } from "@mikro-orm/decorators/legacy";
 import {
   PipeLengthEntity,
   PipeLengthStatus,
-} from "@modules/pipe-length/entities";
+} from "@modules/pipe-length/entities/pipe-length.entity";
 import { PipeLengthRepository } from "@modules/pipe-length/pipe-length.repository";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { CutListRepository } from "@modules/cut-list/cut-list.repository";
-import { UserEntity } from "@modules/user/entities";
+import { UserEntity } from "@modules/user/entities/user.entity";
 import { ClaimControlPolicy } from "@common/domain";
 import {
   CreatePipeLengthStatusEventCommand,

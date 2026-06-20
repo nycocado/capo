@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { CqrsModule } from "@nestjs/cqrs";
-import { PipeLengthEntity } from "@modules/pipe-length/entities";
-import { CutListEntity } from "@modules/cut-list/entities";
+import { PipeLengthEntity } from "@modules/pipe-length/entities/pipe-length.entity";
+import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { DomainModule } from "@common/domain";
-import { UserRoleModule } from "@modules/user-role";
+import { UserRoleModule } from "@modules/user-role/user-role.module";
 import { PipeLengthController } from "@modules/pipe-length/pipe-length.controller";
 import {
   CreatePipeLengthStatusEventHandler,

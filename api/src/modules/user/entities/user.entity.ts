@@ -9,7 +9,7 @@ import {
 } from "@mikro-orm/decorators/legacy";
 import { Collection } from "@mikro-orm/core";
 import { RoleEntity } from "@database/entities";
-import { UserRoleEntity } from "@modules/user-role/entities";
+import { UserRoleEntity } from "@modules/user-role/entities/user-role.entity";
 import { UserRepository } from "@modules/user/user.repository";
 
 export enum Gender {

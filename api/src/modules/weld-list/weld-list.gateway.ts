@@ -6,7 +6,7 @@ import {
 import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { wrap } from "@mikro-orm/core";
-import { WeldEntity } from "@modules/weld/entities";
+import { WeldEntity } from "@modules/weld/entities/weld.entity";
 import { createWsAuthMiddleware } from "@common/ws";
 
 /** Difunde os eventos do estágio de solda no namespace `weld-list`. */

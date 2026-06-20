@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { CqrsModule } from "@nestjs/cqrs";
-import { WeldListEntity } from "@modules/weld-list/entities";
+import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import { DomainModule } from "@common/domain";
-import { UserRoleModule } from "@modules/user-role";
+import { UserRoleModule } from "@modules/user-role/user-role.module";
 import { WsAuthModule } from "@common/ws";
 import { WeldListController } from "@modules/weld-list/weld-list.controller";
 import { WeldListGateway } from "@modules/weld-list/weld-list.gateway";

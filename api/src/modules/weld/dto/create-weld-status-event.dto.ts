@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional, IsString } from "class-validator";
-import { WeldStatus } from "@modules/weld/entities";
+import { WeldStatus } from "@modules/weld/entities/weld.entity";
 
 export class CreateWeldStatusEventDto {
   @IsEnum(WeldStatus)
