@@ -35,6 +35,13 @@ export function getCutListsPendingCount(
     .json<{ count: number }>();
 }
 
+/** Busca o número de cut-lists pendentes (uso no browser, para o /roles ao vivo). */
+export function fetchCutListsPendingCount(): Promise<{ count: number }> {
+  return browserApi
+    .get(API_ROUTES.cutLists.pendingCount)
+    .json<{ count: number }>();
+}
+
 /** Reivindica (claim) uma cut-list para o utilizador atual. */
 export function claimCutList(id: number): Promise<CutListDto> {
   return browserApi.post(API_ROUTES.cutLists.claim(id)).json<CutListDto>();

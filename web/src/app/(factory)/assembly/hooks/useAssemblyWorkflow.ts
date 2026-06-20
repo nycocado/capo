@@ -98,13 +98,15 @@ export const useAssemblyWorkflow = ({
     currentUser?.id,
     {
       onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
-        // Passa sempre pela verificação de material antes de abrir a ordem.
+        // A lista da tabela é leve (sem a árvore); busca o detalhe completo para
+        // a verificação extrair pipe-lengths e fittings dos joints.
         try {
-          await materialVerification.startVerification(assemblyList, () => {
-            if (assemblyList.progress === "done") {
-              openWorkingView(assemblyList);
+          const detail = await getAssemblyListById(assemblyList.id);
+          await materialVerification.startVerification(detail, () => {
+            if (detail.progress === "done") {
+              openWorkingView(detail);
             } else {
-              void startAssemblyList(assemblyList.id);
+              void startAssemblyList(detail.id);
             }
           });
         } catch {

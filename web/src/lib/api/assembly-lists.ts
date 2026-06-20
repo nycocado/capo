@@ -40,6 +40,13 @@ export function getAssemblyListsPendingCount(
     .json<{ count: number }>();
 }
 
+/** Busca o número de assembly-lists pendentes (uso no browser, para o /roles ao vivo). */
+export function fetchAssemblyListsPendingCount(): Promise<{ count: number }> {
+  return browserApi
+    .get(API_ROUTES.assemblyLists.pendingCount)
+    .json<{ count: number }>();
+}
+
 /** Reivindica (claim) uma assembly-list para o utilizador atual. */
 export function claimAssemblyList(id: number): Promise<AssemblyListDto> {
   return browserApi

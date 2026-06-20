@@ -32,4 +32,14 @@ export class WeldListGateway implements OnGatewayInit {
   handleStatusChanged(weld: WeldEntity): void {
     this.server.emit("statusChanged", wrap(weld).toObject());
   }
+
+  /**
+   * Concluir a montagem muda o gating da solda (novas ordens ficam disponíveis):
+   * reemite como sinal de invalidação para os clientes desta etapa refazerem a
+   * lista. O payload é irrelevante — o cliente apenas invalida a query.
+   */
+  @OnEvent("joint.statusChanged")
+  handleUpstreamStatusChanged(): void {
+    this.server.emit("statusChanged", { upstream: true });
+  }
 }

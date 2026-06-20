@@ -1,7 +1,64 @@
 "use client";
 
 import { LockClosedIcon } from "@heroicons/react/16/solid";
+import { useQuery } from "@tanstack/react-query";
+import { useStageSocket } from "@/lib/ws/useStageSocket";
+import { WS_EVENTS, WS_ROUTES } from "@/routes";
+import {
+  fetchAssemblyListsPendingCount,
+  fetchCutListsPendingCount,
+  fetchWeldListsPendingCount,
+} from "@/lib/api";
 import type { Station } from "./page";
+
+// Por estação: namespace de WebSocket + fetcher da contagem pendente no browser.
+// Cada namespace reemite um sinal quando o gating da etapa muda (estágio anterior
+// concluído), então invalidar a contagem em qualquer evento mantém o /roles vivo.
+const STAGE_LIVE: Record<
+  Station["id"],
+  { route: string; fetch: () => Promise<{ count: number }> }
+> = {
+  "cutting-operator": {
+    route: WS_ROUTES.cutList,
+    fetch: fetchCutListsPendingCount,
+  },
+  "pipe-fitter": {
+    route: WS_ROUTES.assemblyList,
+    fetch: fetchAssemblyListsPendingCount,
+  },
+  welder: { route: WS_ROUTES.weldList, fetch: fetchWeldListsPendingCount },
+};
+
+/**
+ * Mantém a contagem pendente de uma estação sincronizada em tempo real: semeada
+ * pela contagem do prefetch RSC e invalidada pelos eventos do namespace da etapa.
+ * Estações não certificadas não consultam o endpoint (devolvem o valor do prefetch).
+ *
+ * @param station Estação cujo número de ordens pendentes se acompanha.
+ * @returns Contagem pendente atual, ou `null` quando bloqueada/indisponível.
+ */
+function useLivePendingCount(station: Station): number | null {
+  const live = STAGE_LIVE[station.id];
+  const queryKey = ["pending-count", station.id];
+  const { data } = useQuery({
+    queryKey,
+    queryFn: async () => (await live.fetch()).count,
+    enabled: station.accessible,
+    initialData: station.accessible
+      ? (station.pendingCount ?? undefined)
+      : undefined,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+  useStageSocket({
+    route: live.route,
+    queryKey,
+    eventNames: [WS_EVENTS.stage.claimChanged, WS_EVENTS.stage.statusChanged],
+    enabled: station.accessible,
+  });
+  return station.accessible ? (data ?? null) : station.pendingCount;
+}
 
 interface StationCardProps {
   station: Station;
@@ -48,6 +105,8 @@ const STATION_GLYPHS: Record<Station["id"], React.ReactNode> = {
 
 /** Medidor do rodapé: contagem ao vivo de listas pendentes ou estado bloqueado. */
 function StationGauge({ station }: { station: Station }) {
+  const pendingCount = useLivePendingCount(station);
+
   if (!station.accessible) {
     return (
       <span className="station__locked-tag">
@@ -57,19 +116,19 @@ function StationGauge({ station }: { station: Station }) {
     );
   }
 
-  if (station.pendingCount === null) {
+  if (pendingCount === null) {
     return <span className="station__clear">—</span>;
   }
 
-  if (station.pendingCount === 0) {
+  if (pendingCount === 0) {
     return <span className="station__clear">All clear</span>;
   }
 
   return (
     <>
-      <span className="station__count">{station.pendingCount}</span>
+      <span className="station__count">{pendingCount}</span>
       <span className="station__count-label">
-        {station.pendingCount === 1 ? "list waiting" : "lists waiting"}
+        {pendingCount === 1 ? "list waiting" : "lists waiting"}
       </span>
     </>
   );

@@ -35,6 +35,13 @@ export function getWeldListsPendingCount(
     .json<{ count: number }>();
 }
 
+/** Busca o número de weld-lists pendentes (uso no browser, para o /roles ao vivo). */
+export function fetchWeldListsPendingCount(): Promise<{ count: number }> {
+  return browserApi
+    .get(API_ROUTES.weldLists.pendingCount)
+    .json<{ count: number }>();
+}
+
 /** Reivindica (claim) uma weld-list para o utilizador atual. */
 export function claimWeldList(id: number): Promise<WeldListDto> {
   return browserApi.post(API_ROUTES.weldLists.claim(id)).json<WeldListDto>();

@@ -32,4 +32,14 @@ export class AssemblyListGateway implements OnGatewayInit {
   handleStatusChanged(joint: JointEntity): void {
     this.server.emit("statusChanged", wrap(joint).toObject());
   }
+
+  /**
+   * Concluir o corte muda o gating da montagem (novas ordens ficam disponíveis):
+   * reemite como sinal de invalidação para os clientes desta etapa refazerem a
+   * lista. O payload é irrelevante — o cliente apenas invalida a query.
+   */
+  @OnEvent("pipe-length.statusChanged")
+  handleUpstreamStatusChanged(): void {
+    this.server.emit("statusChanged", { upstream: true });
+  }
 }
