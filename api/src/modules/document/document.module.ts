@@ -1,11 +1,14 @@
 import { Module } from "@nestjs/common";
-import { DocumentService } from "./document.service";
-import { DocumentController } from "./document.controller";
+import { CqrsModule } from "@nestjs/cqrs";
 import { UserRoleModule } from "@modules/user-role";
+import { DocumentController } from "@modules/document/document.controller";
+import { GetDocumentHandler } from "@modules/document/application/handlers";
 
-@Module({
-  imports: [UserRoleModule],
-  controllers: [DocumentController],
-  providers: [DocumentService],
-})
+const imports = [CqrsModule, UserRoleModule];
+
+const controllers = [DocumentController];
+
+const providers = [GetDocumentHandler];
+
+@Module({ imports, controllers, providers })
 export class DocumentModule {}

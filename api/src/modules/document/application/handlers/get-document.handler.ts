@@ -1,30 +1,28 @@
-import { Injectable, NotFoundException, StreamableFile } from "@nestjs/common";
+import { NotFoundException, StreamableFile } from "@nestjs/common";
+import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { createReadStream, existsSync } from "fs";
-import { resolve, extname, sep } from "path";
+import { extname, resolve, sep } from "path";
+import { GetDocumentQuery } from "@modules/document/application/queries";
 
-@Injectable()
-export class DocumentService {
-  private readonly storagePath: string;
+@QueryHandler(GetDocumentQuery)
+export class GetDocumentHandler implements IQueryHandler<GetDocumentQuery> {
+  private readonly storagePath = resolve(process.env.STORAGE_PATH ?? "storage");
 
   // Secções servíveis (subpastas de storage); tudo o resto é rejeitado.
   private static readonly ALLOWED_SECTIONS = ["isometric", "wps"];
 
-  constructor() {
-    const envPath = process.env.STORAGE_PATH ?? "storage";
-    this.storagePath = resolve(envPath);
+  execute({ data }: GetDocumentQuery): Promise<StreamableFile> {
+    return Promise.resolve().then(() => this.load(data.section, data.filename));
   }
 
   /**
    * Serve um documento de uma secção permitida, protegendo contra path traversal.
    *
-   * @param section Subpasta de storage (tem de constar da allowlist)
-   * @param filename Nome do ficheiro pedido
-   * @returns O ficheiro como stream com o MIME type adequado
    * @throws NotFoundException Se a secção não for permitida, o caminho escapar
    *   da secção, ou o ficheiro não existir
    */
-  getDocument(section: string, filename: string): StreamableFile {
-    if (!DocumentService.ALLOWED_SECTIONS.includes(section)) {
+  private load(section: string, filename: string): StreamableFile {
+    if (!GetDocumentHandler.ALLOWED_SECTIONS.includes(section)) {
       throw new NotFoundException("File not found");
     }
 
@@ -40,9 +38,9 @@ export class DocumentService {
       throw new NotFoundException("File not found");
     }
 
-    const fileStream = createReadStream(filePath);
-    const type = this.getMimeType(filename);
-    return new StreamableFile(fileStream, { type });
+    return new StreamableFile(createReadStream(filePath), {
+      type: this.getMimeType(filename),
+    });
   }
 
   private getMimeType(filename: string): string {

@@ -1,11 +1,18 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
-import { DocumentService } from "./document.service";
+import {
+  Controller,
+  Get,
+  Param,
+  StreamableFile,
+  UseGuards,
+} from "@nestjs/common";
+import { QueryBus } from "@nestjs/cqrs";
 import { JwtCookieAuthGuard, RolesGuard } from "@common/guards";
 import { Roles } from "@common/decorators";
+import { GetDocumentQuery } from "@modules/document/application/queries";
 
 @Controller("documents")
 export class DocumentController {
-  constructor(private readonly documentService: DocumentService) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   @UseGuards(JwtCookieAuthGuard, RolesGuard)
   @Roles("welder", "pipe-fitter", "administrator")
@@ -13,7 +20,9 @@ export class DocumentController {
   getDocument(
     @Param("section") section: string,
     @Param("filename") filename: string,
-  ) {
-    return this.documentService.getDocument(section, filename);
+  ): Promise<StreamableFile> {
+    return this.queryBus.execute<GetDocumentQuery, StreamableFile>(
+      new GetDocumentQuery({ section, filename }),
+    );
   }
 }

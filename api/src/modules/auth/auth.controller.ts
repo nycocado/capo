@@ -10,11 +10,13 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { Throttle } from "@nestjs/throttler";
-import { AuthService } from "@modules/auth/auth.service";
-import { UserService } from "@modules/user";
 import { ApiLogin, ApiLogout, ApiMe } from "@modules/auth/auth.swagger";
 import { LoginRequestDto } from "@modules/auth/dto";
+import { LoginCommand } from "@modules/auth/application/commands";
+import { LoginResult } from "@modules/auth/application/handlers/login.handler";
+import { GetMeQuery } from "@modules/auth/application/queries";
 import { JwtCookieAuthGuard } from "@common/guards";
 import { User } from "@common/decorators";
 import { UserEntity } from "@modules/user/entities";
@@ -23,8 +25,8 @@ import { durationToMs } from "@common/utils/parse-duration";
 @Controller("auth")
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly configService: ConfigService,
   ) {}
 
@@ -35,10 +37,14 @@ export class AuthController {
     @Body() loginDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<UserEntity> {
-    const { internalId, password } = loginDto;
-    const { accessToken, user } = await this.authService.login(
-      internalId,
-      password,
+    const { accessToken, user } = await this.commandBus.execute<
+      LoginCommand,
+      LoginResult
+    >(
+      new LoginCommand({
+        internalId: loginDto.internalId,
+        password: loginDto.password,
+      }),
     );
 
     res.cookie("token", accessToken, {
@@ -62,8 +68,10 @@ export class AuthController {
   @UseGuards(JwtCookieAuthGuard)
   @Get("me")
   @ApiMe()
-  async getMe(@User("id") userId: number): Promise<UserEntity> {
-    return this.userService.findOneWithRolesById(userId);
+  getMe(@User("id") userId: number): Promise<UserEntity> {
+    return this.queryBus.execute<GetMeQuery, UserEntity>(
+      new GetMeQuery({ userId }),
+    );
   }
 
   /** Atributos do cookie de sessão partilhados entre set (login) e clear (logout). */
