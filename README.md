@@ -1,6 +1,6 @@
 # CAPO - Computer Aided Process Overview
 
-![Logo CAPO](/documents/logo/logo.png)
+![Logo CAPO](media/logo/logo.png)
 
 ## Desenvolvedores
 
