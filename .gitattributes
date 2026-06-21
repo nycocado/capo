@@ -1,12 +1,6 @@
 * text=auto eol=lf
 
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.ico binary
 *.ai binary
-*.pdf binary
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text
 *.pdf filter=lfs diff=lfs merge=lfs -text
