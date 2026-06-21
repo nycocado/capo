@@ -22,6 +22,8 @@ import { User } from "@common/decorators";
 import { UserEntity } from "@modules/user/entities/user.entity";
 import { durationToMs } from "@common/utils/parse-duration";
 
+const LOGIN_RATE_LIMIT = { ttl: 60_000, limit: 5 };
+
 @Controller("auth")
 export class AuthController {
   constructor(
@@ -31,7 +33,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({ default: LOGIN_RATE_LIMIT })
   @ApiLogin()
   async login(
     @Body() loginDto: LoginRequestDto,

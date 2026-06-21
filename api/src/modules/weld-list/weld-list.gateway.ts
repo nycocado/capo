@@ -7,11 +7,11 @@ import { Server } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { wrap } from "@mikro-orm/core";
 import { WeldEntity } from "@modules/weld/entities/weld.entity";
-import { createWsAuthMiddleware } from "@common/ws";
+import { createWsAuthMiddleware, stageGatewayCors } from "@common/ws";
 
 @WebSocketGateway({
   namespace: "weld-list",
-  cors: { origin: process.env.CORS_ORIGIN ?? false, credentials: true },
+  cors: stageGatewayCors,
 })
 export class WeldListGateway implements OnGatewayInit {
   @WebSocketServer() server!: Server;

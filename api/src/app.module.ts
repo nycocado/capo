@@ -22,6 +22,8 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
+const GLOBAL_RATE_LIMIT = { ttl: 60_000, limit: 100 };
+
 const imports = [
   ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
   MikroOrmModule.forRootAsync({
@@ -30,7 +32,7 @@ const imports = [
     inject: [ConfigService],
     useFactory: (config: ConfigService) => createMikroOrmConfig(config),
   }),
-  ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+  ThrottlerModule.forRoot([GLOBAL_RATE_LIMIT]),
   AuthModule,
   UserModule,
   UserRoleModule,
