@@ -38,6 +38,8 @@ module.exports = {
     "src/modules/assembly-list/entities/assembly-list.entity.ts",
     "src/modules/weld-list/entities/weld-list.entity.ts",
     "src/common/domain/*.policy.ts",
+    "src/common/utils/*.ts",
+    "src/modules/document/application/handlers/get-document.handler.ts",
   ],
   coverageDirectory: "<rootDir>/coverage",
 };
