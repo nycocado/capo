@@ -1,17 +1,12 @@
 <div align="center">
 
+# Computer Aided Process Overview
 
-# CAPO
-
-<img src="media/logo/logo.png" alt="CAPO"/>
-
-**Computer Aided Process Overview** — sistema de gestão de produção de _pipelines_ metalúrgicos que rastreia peças pelos três estágios de chão de fábrica — **corte**, **montagem** e **soldagem** — com interfaces por função e atualizações em tempo real.
+![CAPO](media/logo/logo.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3da639.svg)](LICENSE)
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-f5a623)
 ![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
-
-<br />
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![NestJS](https://img.shields.io/badge/NestJS%2011-E0234E?logo=nestjs&logoColor=white)
@@ -24,9 +19,9 @@
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?logo=socketdotio&logoColor=white)
 ![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)
 
-</div>
+Sistema de gestão de produção de _pipelines_ metalúrgicos que rastreia peças pelos três estágios de chão de fábrica — **corte**, **montagem** e **soldagem** — com interfaces por função e atualizações em tempo real.
 
----
+</div>
 
 ## Sobre
 

@@ -1,5 +1,5 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
-import { QueryOrder } from "@mikro-orm/core";
+import { LockMode, QueryOrder } from "@mikro-orm/core";
 import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import {
   deriveListProgress,
@@ -80,7 +80,10 @@ export class AssemblyListRepository extends EntityRepository<AssemblyListEntity>
   }
 
   async findByIdOrFail(id: number): Promise<AssemblyListEntity> {
-    return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
+    return this.findOneOrFail(
+      { id },
+      { populate: ["claimedBy"], lockMode: LockMode.PESSIMISTIC_WRITE },
+    );
   }
 
   async findByJointIdOrFail(jointId: number): Promise<AssemblyListEntity> {

@@ -1,5 +1,5 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
-import { QueryOrder } from "@mikro-orm/core";
+import { LockMode, QueryOrder } from "@mikro-orm/core";
 import { WeldListEntity } from "@modules/weld-list/entities/weld-list.entity";
 import {
   deriveListProgress,
@@ -72,7 +72,10 @@ export class WeldListRepository extends EntityRepository<WeldListEntity> {
   }
 
   async findByIdOrFail(id: number): Promise<WeldListEntity> {
-    return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
+    return this.findOneOrFail(
+      { id },
+      { populate: ["claimedBy"], lockMode: LockMode.PESSIMISTIC_WRITE },
+    );
   }
 
   async findByWeldIdOrFail(weldId: number): Promise<WeldListEntity> {

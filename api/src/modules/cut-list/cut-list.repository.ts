@@ -1,5 +1,5 @@
 import { EntityRepository } from "@mikro-orm/mariadb";
-import { QueryOrder } from "@mikro-orm/core";
+import { LockMode, QueryOrder } from "@mikro-orm/core";
 import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import {
   deriveListProgress,
@@ -53,7 +53,10 @@ export class CutListRepository extends EntityRepository<CutListEntity> {
   }
 
   async findByIdOrFail(id: number): Promise<CutListEntity> {
-    return this.findOneOrFail({ id }, { populate: ["claimedBy"] });
+    return this.findOneOrFail(
+      { id },
+      { populate: ["claimedBy"], lockMode: LockMode.PESSIMISTIC_WRITE },
+    );
   }
 
   async findByPipeLengthIdOrFail(pipeLengthId: number): Promise<CutListEntity> {

@@ -39,6 +39,7 @@ function useLivePendingCount(station: Station): number | null {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchOnMount: "always",
   });
   useStageSocket({
     route: live.route,
