@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { MariaDbDriver } from "@mikro-orm/mariadb";
 import { createMikroOrmConfig } from "@config/mikroorm.config";
+import { globalRateLimit } from "@config/throttle.config";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { AuthModule } from "@modules/auth/auth.module";
 import { UserModule } from "@modules/user/user.module";
@@ -22,8 +23,6 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
-const GLOBAL_RATE_LIMIT = { ttl: 60_000, limit: 100 };
-
 const imports = [
   ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
   MikroOrmModule.forRootAsync({
@@ -32,7 +31,7 @@ const imports = [
     inject: [ConfigService],
     useFactory: (config: ConfigService) => createMikroOrmConfig(config),
   }),
-  ThrottlerModule.forRoot([GLOBAL_RATE_LIMIT]),
+  ThrottlerModule.forRoot([globalRateLimit]),
   AuthModule,
   UserModule,
   UserRoleModule,

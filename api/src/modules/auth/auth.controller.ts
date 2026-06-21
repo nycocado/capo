@@ -21,8 +21,7 @@ import { JwtCookieAuthGuard } from "@common/guards";
 import { User } from "@common/decorators";
 import { UserEntity } from "@modules/user/entities/user.entity";
 import { durationToMs } from "@common/utils/parse-duration";
-
-const LOGIN_RATE_LIMIT = { ttl: 60_000, limit: 5 };
+import { loginRateLimit } from "@config/throttle.config";
 
 @Controller("auth")
 export class AuthController {
@@ -33,7 +32,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
-  @Throttle({ default: LOGIN_RATE_LIMIT })
+  @Throttle({ default: loginRateLimit })
   @ApiLogin()
   async login(
     @Body() loginDto: LoginRequestDto,
