@@ -19,6 +19,7 @@ export const createMikroOrmConfig = (config: ConfigService): Options => {
     dbName: config.getOrThrow("DATABASE_NAME"),
     entities: ["dist/**/*.entity.js"],
     entitiesTs: ["src/**/*.entity.ts"],
+    preferTs: !isProduction,
     namingStrategy: UnderscoreNamingStrategy,
     metadataProvider: ReflectMetadataProvider,
     debug: !isProduction,

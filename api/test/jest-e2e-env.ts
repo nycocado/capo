@@ -1,0 +1,9 @@
+process.env.NODE_ENV = "test";
+process.env.DATABASE_HOST ??= "127.0.0.1";
+process.env.DATABASE_PORT ??= "3306";
+process.env.DATABASE_USER ??= "capo";
+process.env.DATABASE_PASSWORD ??= "troque-esta-senha";
+process.env.DATABASE_NAME ??= "capo_test";
+process.env.JWT_SECRET ??= "test-secret-not-for-production";
+process.env.JWT_EXPIRATION ??= "8h";
+process.env.CORS_ORIGIN ??= "http://localhost:3000";

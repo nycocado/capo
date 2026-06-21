@@ -1,0 +1,25 @@
+{
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/test"],
+  "testRegex": ".e2e-spec\\.ts$",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", { "tsconfig": "test/tsconfig.json" }],
+    "^.+\\.js$": [
+      "@swc/jest",
+      { "jsc": { "target": "es2023" }, "module": { "type": "commonjs" } }
+    ]
+  },
+  "transformIgnorePatterns": ["/node_modules/(?!.*(@mikro-orm|kysely)/)"],
+  "moduleNameMapper": {
+    "^@common/(.*)$": "<rootDir>/src/common/$1",
+    "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+    "^@shared/(.*)$": "<rootDir>/src/shared/$1",
+    "^@database/(.*)$": "<rootDir>/src/database/$1"
+  },
+  "globalSetup": "<rootDir>/test/global-setup-e2e.ts",
+  "setupFiles": ["<rootDir>/test/jest-e2e-env.ts"],
+  "testTimeout": 30000
+}

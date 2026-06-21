@@ -27,7 +27,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "js", "json"],
   setupFiles: ["<rootDir>/test/jest-unit-setup.ts"],
   transform: { "^.+\\.(t|j)s$": swcTransform },
-  transformIgnorePatterns: ["/node_modules/(?!(@mikro-orm|kysely)/)"],
+  transformIgnorePatterns: ["/node_modules/(?!.*(@mikro-orm|kysely)/)"],
   moduleNameMapper,
   clearMocks: true,
   collectCoverageFrom: [
