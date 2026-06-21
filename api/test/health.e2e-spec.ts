@@ -18,7 +18,8 @@ describe("Boot (e2e)", () => {
     await app.close();
   });
 
-  it("GET /health responde 200", async () => {
-    await request(app.getHttpServer()).get("/health").expect(200);
+  it("GET /health responde 200 com o estado do banco", async () => {
+    const res = await request(app.getHttpServer()).get("/health").expect(200);
+    expect(res.body).toEqual({ status: "ok", database: "up" });
   });
 });
