@@ -20,6 +20,7 @@
     "^@database/(.*)$": "<rootDir>/src/database/$1"
   },
   "globalSetup": "<rootDir>/test/global-setup-e2e.ts",
+  "globalTeardown": "<rootDir>/test/global-teardown-e2e.ts",
   "setupFiles": ["<rootDir>/test/jest-e2e-env.ts"],
-  "testTimeout": 30000
+  "testTimeout": 60000
 }

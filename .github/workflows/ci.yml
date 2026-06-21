@@ -8,28 +8,7 @@ on:
 jobs:
   api:
     runs-on: ubuntu-latest
-    services:
-      mariadb:
-        image: mariadb:lts
-        env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: capo_test
-          MARIADB_USER: capo
-          MARIADB_PASSWORD: capo
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=12
     env:
-      NODE_ENV: test
-      DATABASE_HOST: 127.0.0.1
-      DATABASE_PORT: "3306"
-      DATABASE_USER: capo
-      DATABASE_PASSWORD: capo
-      DATABASE_NAME: capo_test
       JWT_SECRET: ci-secret-not-for-production
       JWT_EXPIRATION: 8h
       CORS_ORIGIN: http://localhost:3000
