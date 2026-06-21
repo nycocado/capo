@@ -22,54 +22,56 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
-    MikroOrmModule.forRootAsync({
-      driver: MariaDbDriver,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => createMikroOrmConfig(config),
-    }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
-    AuthModule,
-    UserModule,
-    UserRoleModule,
-    PipeLengthModule,
-    CutListModule,
-    JointModule,
-    WeldModule,
-    AssemblyListModule,
-    WeldListModule,
-    FillerMaterialModule,
-    WpsModule,
-    DocumentModule,
-  ],
-  controllers: [AppController],
-  providers: [
-    {
-      provide: APP_PIPE,
-      useFactory: () =>
-        new ValidationPipe({
-          transform: true,
-          whitelist: true,
-          forbidNonWhitelisted: true,
-          transformOptions: { enableImplicitConversion: false },
-        }),
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: MikroOrmNotFoundInterceptor,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
-    AppService,
-  ],
-})
+const imports = [
+  ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env"] }),
+  MikroOrmModule.forRootAsync({
+    driver: MariaDbDriver,
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (config: ConfigService) => createMikroOrmConfig(config),
+  }),
+  ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+  AuthModule,
+  UserModule,
+  UserRoleModule,
+  PipeLengthModule,
+  CutListModule,
+  JointModule,
+  WeldModule,
+  AssemblyListModule,
+  WeldListModule,
+  FillerMaterialModule,
+  WpsModule,
+  DocumentModule,
+];
+
+const controllers = [AppController];
+
+const providers = [
+  {
+    provide: APP_PIPE,
+    useFactory: () =>
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transformOptions: { enableImplicitConversion: false },
+      }),
+  },
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: MikroOrmNotFoundInterceptor,
+  },
+  {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard,
+  },
+  {
+    provide: APP_FILTER,
+    useClass: AllExceptionsFilter,
+  },
+  AppService,
+];
+
+@Module({ imports, controllers, providers })
 export class AppModule {}
