@@ -32,7 +32,7 @@ CQRS + rich domain. Each feature in `src/modules/<name>/` (barrel `index.ts` = `
 - **`application/{commands,queries}.ts`** — message classes (`constructor(readonly data: {...})`).
 - **`application/handlers/*.handler.ts`** — one use-case per file (`@CommandHandler`/`@QueryHandler`); the write is `@Transactional`, then the handler publishes the aggregate's domain events **post-commit** on the `EventBus`.
 - **`events/*.event.ts` + `*.projection.ts`** — a domain event and the `@EventsHandler` that projects it onto the stage socket.
-- **`*.gateway.ts`** *(list modules only)* — socket.io holder (`@WebSocketServer` + JWT-handshake middleware) whose `emit*` methods the projections call.
+- **`*.gateway.ts`** _(list modules only)_ — socket.io holder (`@WebSocketServer` + JWT-handshake middleware) whose `emit*` methods the projections call.
 - **`*.module.ts`** — local `const imports`/`controllers`/`providers`; handlers and projections listed individually.
 
 Shared domain in `@common/domain` (`AggregateRoot`; `ClaimControlPolicy` = the claimer-or-admin lock, provided by `DomainModule`) and `@common/utils` (`deriveListProgress`). DI: a module using `RolesGuard` imports `UserRoleModule`; one using the claim policy imports `DomainModule`; an item module `forFeature`s its list entity (for the lock).

@@ -4,7 +4,7 @@ services:
     container_name: capo-nginx
     restart: unless-stopped
     ports:
-      - '${NGINX_PORT}:80'
+      - "${NGINX_PORT}:80"
     depends_on:
       api:
         condition: service_healthy
@@ -20,7 +20,7 @@ services:
     container_name: capo-db
     restart: unless-stopped
     ports:
-      - '${MARIADB_PORT}:3306'
+      - "${MARIADB_PORT}:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MARIADB_DATABASE}
@@ -31,7 +31,7 @@ services:
       - ./db/01-create.sql:/docker-entrypoint-initdb.d/01-create.sql:ro,Z
       - ./db/02-insert.sql:/docker-entrypoint-initdb.d/02-insert.sql:ro,Z
     healthcheck:
-      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -63,7 +63,11 @@ services:
     volumes:
       - api_storage:/app/storage
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:${API_INTERNAL_PORT}/health || exit 1']
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:${API_INTERNAL_PORT}/health || exit 1",
+        ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -85,7 +89,7 @@ services:
     env_file:
       - ./web/.env.local
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:3000 || exit 1']
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5

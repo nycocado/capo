@@ -3,6 +3,7 @@
 `nginx.conf`: reverse proxy in front of the stack (container `capo-nginx`, publishes `${NGINX_PORT}:80`).
 
 Routing:
+
 - `/api/` → `capo-api:3002` (prefix stripped: `proxy_pass http://api/`)
 - `/socket.io/` → `capo-api:3002` (WebSocket upgrade headers set)
 - `/` → `capo-web:3000`

@@ -3,6 +3,7 @@
 CAPO (Computer Aided Process Overview) — a metallurgical pipeline-production management system. It tracks parts through three shop-floor stages — **cut**, **assembly**, **weld** — with role-specific operator interfaces and real-time updates.
 
 Bun-workspaces monorepo (package manager **Bun**, `bun.lock`) behind an nginx reverse proxy, via Docker/Podman Compose:
+
 - `api/` — `@capo/api`, NestJS 11 + MikroORM + MariaDB. See `api/CLAUDE.md`.
 - `web/` — `@capo/web`, Next.js 16 (App Router, React 19). See `web/CLAUDE.md`.
 - `db/` — schema + seed in raw SQL (the DB is **not** managed by ORM migrations). See `db/CLAUDE.md`.
@@ -17,9 +18,11 @@ Project → Isometric → Spool → Joint → (part1, part2 : Part)   and   Join
 Part = PipeLength | Fitting   (joined-table inheritance, shared PK)
 Fitting → Port
 ```
+
 `isometric.document` holds the drawing PDF (no sheet/rev — those concepts were dropped).
 
 Three stages, each a work order tracking one item type:
+
 - **cut** → `cut_list` (1:1 isometric), tracks **pipe_lengths** (`to_do→in_progress→done`; `in_progress` captures `heat_number`).
 - **assembly** → `assembly_list` (1:1 isometric), tracks **joints** (`to_do→done`).
 - **weld** → `weld_list` (1:1 spool), tracks **welds** (`to_do→done`; captures `filler_material`+`wps`).
@@ -41,6 +44,7 @@ Rebuild gotcha (Podman): `compose up --build` **caches** and may run a stale ima
 ## Environment / config
 
 Three `.env` files (gitignored; templates `.env.example` in each location): root (consumed by `docker-compose.yml`), `api/.env.local`, `web/.env.local`. Per-variable detail: see the `.env.example` files. Non-obvious gotchas:
+
 - `NEXT_PUBLIC_*` are **build args** baked into the web bundle (fixed at build time, not runtime).
 - `MARIADB_PORT` only publishes the host port; the API connects to the internal `3306` (compose hardcodes `DATABASE_PORT: 3306`).
 - `JWT_EXPIRATION` (e.g. `8h`) drives both the JWT `expiresIn` and the cookie `maxAge` (via `durationToMs`).
@@ -48,7 +52,8 @@ Three `.env` files (gitignored; templates `.env.example` in each location): root
 
 ## Comments & docs
 
-**No documentation in code** — zero JSDoc, zero narrative comments, in both apps. This is deliberate: a doc-comment isn't compiled or tested, so it drifts and ends up lying — and a stale comment is worse than none. A strictly-typed symbol with a good name already says *what*; the *why* belongs in a **test that locks the behavior** (executable, never rots) or in a clearer structure — not in prose next to the code. Architecture and structure live in the `CLAUDE.md` files. By file type:
+**No documentation in code** — zero JSDoc, zero narrative comments, in both apps. This is deliberate: a doc-comment isn't compiled or tested, so it drifts and ends up lying — and a stale comment is worse than none. A strictly-typed symbol with a good name already says _what_; the _why_ belongs in a **test that locks the behavior** (executable, never rots) or in a clearer structure — not in prose next to the code. Architecture and structure live in the `CLAUDE.md` files. By file type:
+
 - **`.ts`/`.tsx`** — no JSDoc, no inline `//`/`/* */`. The only survivors are **tool directives** (`// eslint-disable`, `// @ts-*`), which aren't documentation. Identifiers and error/log messages stay in **English**.
 - **`.env`** — boxed header (`# ===`), variables grouped by UPPERCASE category in boot order; no per-variable comments.
 - **`.yml`/compose** — no narrative comments; a non-obvious decision goes in a `CLAUDE.md`.
@@ -59,8 +64,8 @@ Three `.env` files (gitignored; templates `.env.example` in each location): root
 - **No `Co-Authored-By` trailer** — keep authorship clean.
 - **Format: `[scope:type] subject`.** Subject in **Portuguese**, lowercase, descriptive, **no action-noun** (the type carries the verb). The type lives **inside the brackets** — never a loose `tipo:` prefix.
   - **scope** (monorepo area): `api` `web` `db` `nginx` `infra` `docs` `root`; join with `/` when it spans two (`api/web`).
-  - **type** (EN jargon): `feat` `fix` `refactor` `docs` `chore` `perf` `test` `build`. Drop `:type` when the scope *is* the type (e.g. `[docs]`). Capitalize tech names in the body (NextJS, Docker, NGINX).
-- **Subject ≤ ~72 chars, one line** — usually all it needs. Add a body **only** when the *why* genuinely requires it (the exception, not the rule), and keep it to a couple of short bullets — never a file-by-file list.
+  - **type** (EN jargon): `feat` `fix` `refactor` `docs` `chore` `perf` `test` `build`. Drop `:type` when the scope _is_ the type (e.g. `[docs]`). Capitalize tech names in the body (NextJS, Docker, NGINX).
+- **Subject ≤ ~72 chars, one line** — usually all it needs. Add a body **only** when the _why_ genuinely requires it (the exception, not the rule), and keep it to a couple of short bullets — never a file-by-file list.
 
 ```
 [api:refactor] CQRS, rich domain e use-cases
