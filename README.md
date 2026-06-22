@@ -42,9 +42,17 @@ _O operador conclui o corte de um isométrico e a ordem de montagem surge na est
 
 </div>
 
-|                        Corte                         |                           Montagem                           |                         Soldagem                         |
-| :--------------------------------------------------: | :----------------------------------------------------------: | :------------------------------------------------------: |
-| ![Workflow de corte](media/gifs/01-cut-workflow.gif) | ![Workflow de montagem](media/gifs/02-assembly-workflow.gif) | ![Workflow de soldagem](media/gifs/03-weld-workflow.gif) |
+**Corte** — operador marca tubos e regista heat numbers
+
+![Workflow de corte](media/gifs/01-cut-workflow.gif)
+
+**Montagem** — pipe-fitter verifica materiais e conclui juntas
+
+![Workflow de montagem](media/gifs/02-assembly-workflow.gif)
+
+**Soldagem** — soldador regista WPS e material de enchimento
+
+![Workflow de soldagem](media/gifs/03-weld-workflow.gif)
 
 ## Como funciona
 
