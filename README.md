@@ -36,15 +36,15 @@ O ganho central em ação — quando um estágio é concluído, o seguinte abre 
 
 <div align="center">
 
-![Liberação de estágio em tempo real](media/gating.gif)
+![Liberação de estágio em tempo real](media/gifs/04-gating.gif)
 
 _O operador conclui o corte de um isométrico e a ordem de montagem surge na estação seguinte — `ALL CLEAR` → `1 LIST WAITING` — propagada por WebSocket._
 
 </div>
 
-| Estação do operador                                               | Captura de dados do estágio                                            |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| ![Estação de corte](media/screenshots/04-cutting-pipe-detail.png) | ![Registro do heat number](media/screenshots/05-heat-number-modal.png) |
+|                        Corte                         |                           Montagem                           |                         Soldagem                         |
+| :--------------------------------------------------: | :----------------------------------------------------------: | :------------------------------------------------------: |
+| ![Workflow de corte](media/gifs/01-cut-workflow.gif) | ![Workflow de montagem](media/gifs/02-assembly-workflow.gif) | ![Workflow de soldagem](media/gifs/03-weld-workflow.gif) |
 
 ## Como funciona
 
@@ -152,6 +152,12 @@ capo/
 ├── documents/          documentação de projeto
 └── docker-compose.yml  orquestração da stack completa
 ```
+
+## Documentação
+
+Documentação técnica por subsistema, em [`documents/`](documents/):
+
+- [**Frontend — `@capo/web`**](documents/WEB.md) — arquitetura do Next.js: _work-stage engine_, camada de dados, tempo real e variações por estágio.
 
 ## Desenvolvedores
 
