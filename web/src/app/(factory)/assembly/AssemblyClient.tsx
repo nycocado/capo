@@ -1,5 +1,5 @@
 "use client";
-import { AssemblyListDto, UserDto } from "@/dtos";
+import { AssemblyListDto, UserDto } from "@dtos";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
 import { WorkTable } from "@components/features/WorkTable";
@@ -16,7 +16,7 @@ import {
 } from "@components/features/WorkTabs";
 import { WorkGrid } from "@components/features/WorkGrid";
 import PDFViewer from "@components/features/PDFViewer/PDFViewer";
-import { WeldWithContext } from "@/interfaces";
+import { WeldWithContext } from "@interfaces";
 import { ErrorToast } from "@/components/common/ErrorToast";
 
 export interface AssemblyClientProps {

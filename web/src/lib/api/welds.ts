@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { WeldDto, WeldStatus, StatusEventDto } from "@/dtos";
+import { WeldDto, WeldStatus, StatusEventDto } from "@dtos";
 import { browserApi } from "./client";
 
 export interface CreateWeldStatusEvent {

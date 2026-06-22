@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { CutListDto, UserDto } from "@/dtos";
+import { CutListDto, UserDto } from "@dtos";
 import { getCutLists, getMe } from "@/lib/api";
 import CutClient from "@/app/(factory)/cut/CutClient";
 

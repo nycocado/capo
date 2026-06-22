@@ -1,4 +1,4 @@
-import { WeldDto } from "@/dtos";
+import { WeldDto } from "@dtos";
 
 export interface WeldWithContext extends WeldDto {
   spoolInfo: {

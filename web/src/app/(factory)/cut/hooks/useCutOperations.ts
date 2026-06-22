@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PipeLengthDto } from "@/dtos";
+import { PipeLengthDto } from "@dtos";
 import { createPipeLengthStatusEvent } from "@/lib/api";
 
 export interface UseCutOperationsProps {

@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { JointDto, JointStatus, StatusEventDto } from "@/dtos";
+import { JointDto, JointStatus, StatusEventDto } from "@dtos";
 import { browserApi } from "./client";
 
 export interface CreateJointStatusEvent {

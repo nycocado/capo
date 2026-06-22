@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { AssemblyListDto } from "@/dtos";
+import { AssemblyListDto } from "@dtos";
 import { browserApi, serverApi } from "./client";
 
 export function getAssemblyLists(

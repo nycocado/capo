@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { PipeLengthDto, PipeLengthStatus, StatusEventDto } from "@/dtos";
+import { PipeLengthDto, PipeLengthStatus, StatusEventDto } from "@dtos";
 import { browserApi } from "./client";
 
 export interface CreatePipeLengthStatusEvent {

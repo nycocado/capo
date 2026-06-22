@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { WeldListDto } from "@/dtos";
+import { WeldListDto } from "@dtos";
 import { browserApi, serverApi } from "./client";
 
 export function getWeldLists(

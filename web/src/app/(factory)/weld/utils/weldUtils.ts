@@ -1,5 +1,5 @@
-import { WeldListDto } from "@/dtos";
-import { WeldWithContext } from "@/interfaces";
+import { WeldListDto } from "@dtos";
+import { WeldWithContext } from "@interfaces";
 
 export const extractWeldsFromWeldList = (
   weldList: WeldListDto,

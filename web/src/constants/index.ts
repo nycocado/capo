@@ -4,7 +4,3 @@ export const WORK_STATES = {
   WORKING: "working",
   FINISHED: "finished",
 } as const;
-
-export const VALIDATION = {
-  HEAT_NUMBER_MIN: 1,
-} as const;

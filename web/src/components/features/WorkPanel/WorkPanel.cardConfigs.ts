@@ -1,4 +1,4 @@
-import { PipeLengthWithContext, WeldWithContext } from "@/interfaces";
+import { PipeLengthWithContext, WeldWithContext } from "@interfaces";
 import { CardConfig } from "@components/features/WorkPanel/WorkPanel";
 
 const EMPTY = "\u00A0";

@@ -1,4 +1,4 @@
-import { PipeLengthDto } from "@/dtos";
+import { PipeLengthDto } from "@dtos";
 
 export interface PipeLengthWithContext extends PipeLengthDto {
   id: number;

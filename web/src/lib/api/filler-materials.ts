@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { FillerMaterialDto } from "@/dtos";
+import { FillerMaterialDto } from "@dtos";
 import { browserApi } from "./client";
 
 export function getAllFillerMaterials(): Promise<FillerMaterialDto[]> {

@@ -1,6 +1,6 @@
 import WeldClient from "./WeldClient";
 import { cookies } from "next/headers";
-import { UserDto, WeldListDto } from "@/dtos";
+import { UserDto, WeldListDto } from "@dtos";
 import { getMe, getWeldLists } from "@/lib/api";
 
 export default async function WeldPage() {

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { AssemblyListDto } from "@/dtos";
-import { filterBySearch } from "@/hooks";
+import { AssemblyListDto } from "@dtos";
+import { filterBySearch } from "@hooks";
 import { useJointOperations } from "./useJointOperations";
 import { extractWeldsFromAssemblyList } from "../utils/assemblyUtils";
 

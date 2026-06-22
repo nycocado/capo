@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useReducer } from "react";
-import { PipeLengthDto, FittingDto, AssemblyListDto } from "@/dtos";
+import { PipeLengthDto, FittingDto, AssemblyListDto } from "@dtos";
 
 export type VerificationStep = "pipeLength" | "fitting";
 export type MaterialState = "initial" | "finished";

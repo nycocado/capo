@@ -6,14 +6,14 @@ import {
   extractPipeLengthsFromCutList,
   validateHeatNumber,
 } from "../utils/cutUtils";
-import { CutListDto, UserDto } from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto, UserDto } from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 import {
   columnsCutList,
   columnsPipeLengthDto,
 } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { filterBySearch, useModalState, useUIConfigurations } from "@/hooks";
+import { filterBySearch, useModalState, useUIConfigurations } from "@hooks";
 import { cutButtonConfig } from "@components/features/ControlPanel";
 import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
 import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";

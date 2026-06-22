@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { AssemblyListDto, UserDto } from "@/dtos";
+import { AssemblyListDto, UserDto } from "@dtos";
 import { getAssemblyLists, getMe } from "@/lib/api";
 import AssemblyClient from "@/app/(factory)/assembly/AssemblyClient";
 

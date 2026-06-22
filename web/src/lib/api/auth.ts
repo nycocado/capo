@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { UserDto } from "@/dtos";
+import { UserDto } from "@dtos";
 import { browserApi, publicApi, serverApi } from "./client";
 
 export interface LoginCredentials {

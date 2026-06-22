@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { CutListDto } from "@/dtos";
+import { CutListDto } from "@dtos";
 import { browserApi, serverApi } from "./client";
 
 export function getCutLists(token: string | undefined): Promise<CutListDto[]> {

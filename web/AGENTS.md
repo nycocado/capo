@@ -12,7 +12,7 @@ bun run lint   # eslint
 bun run build  # next build (standalone output)
 ```
 
-Path aliases: `@/*`, `@components/*`, `@hooks/*`, `@dtos/*`, `@interfaces/*`, `@constants/*`, `@styles/*`.
+Path aliases: `@/*` (genérico), `@components/*`, `@dtos`/`@dtos/*`, `@interfaces`/`@interfaces/*`, `@hooks`, `@constants`.
 
 ## Architecture
 

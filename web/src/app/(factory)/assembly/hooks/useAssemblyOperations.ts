@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { JointDto } from "@/dtos";
+import { JointDto } from "@dtos";
 import { createJointStatusEvent } from "@/lib/api";
 
 const INVALID_JOINT_ID = "Invalid joint ID";

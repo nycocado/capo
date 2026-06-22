@@ -2,10 +2,10 @@ import { useCallback, useMemo } from "react";
 import { useAssemblyListTable } from "./useAssemblyListTable";
 import { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerification";
 import { usePDFViewer } from "./usePDFViewer";
-import { AssemblyListDto, UserDto } from "@/dtos";
+import { AssemblyListDto, UserDto } from "@dtos";
 import { TAB_TYPES } from "@components/features/WorkTabs";
 import { useJointGrid } from "./useJointGrid";
-import { useUIConfigurations } from "@/hooks";
+import { useUIConfigurations } from "@hooks";
 import { assemblyButtonConfig } from "@components/features/ControlPanel";
 import { WS_EVENTS, WS_ROUTES } from "@/routes";
 import {

@@ -22,12 +22,12 @@
     "paths": {
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
-      "@styles/*": ["./src/styles/*"],
+      "@interfaces": ["./src/interfaces"],
       "@interfaces/*": ["./src/interfaces/*"],
+      "@dtos": ["./src/dtos"],
       "@dtos/*": ["./src/dtos/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@constants/*": ["./src/constants/*"]
+      "@hooks": ["./src/hooks"],
+      "@constants": ["./src/constants"]
     }
   },
   "include": [

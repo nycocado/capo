@@ -1,5 +1,5 @@
-import { CutListDto } from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto } from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 
 export const extractPipeLengthsFromCutList = (
   cutList: CutListDto,

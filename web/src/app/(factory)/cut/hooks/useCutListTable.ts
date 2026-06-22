@@ -3,11 +3,11 @@ import {
   useCutEventHandlers,
   UseCutTableCallbacks,
 } from "./useCutEventHandlers";
-import { CutListDto } from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto } from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 import { columnsCutList } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { useRowStates, useWorkTableBase } from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@hooks";
 
 type Row = PipeLengthWithContext | CutListDto;
 

@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { isListAccessible } from "@/hooks";
+import { isListAccessible } from "@hooks";
 import { TAB_TYPES, type TabType } from "@components/features/WorkTabs";
-import { WeldListDto } from "@/dtos";
-import { WORK_STATES } from "@/constants";
+import { WeldListDto } from "@dtos";
+import { WORK_STATES } from "@constants";
 
 export interface UseWeldTableCallbacks {
   onWeldListSelected?: (weldList: WeldListDto) => void;

@@ -1,5 +1,5 @@
-import { CutListDto } from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto } from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 import { useCutEventHandlers } from "./useCutEventHandlers";
 import {
   useCallback,
@@ -17,7 +17,7 @@ import {
   useInformationState,
   useRowStates,
   useWorkStatusAccessor,
-} from "@/hooks";
+} from "@hooks";
 
 interface UsePipeLengthTableCallbacks {
   onWorkingTransition?: (item: PipeLengthWithContext) => void;

@@ -1,5 +1,5 @@
 "use client";
-import { CutListDto, UserDto } from "@/dtos";
+import { CutListDto, UserDto } from "@dtos";
 import NavBar from "@components/layout/NavBar/NavBar";
 import { Col, Container, Row } from "react-bootstrap";
 import { WorkTable } from "@components/features/WorkTable";

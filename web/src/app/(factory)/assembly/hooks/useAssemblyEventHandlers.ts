@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { isListAccessible } from "@/hooks";
+import { isListAccessible } from "@hooks";
 import { TAB_TYPES, type TabType } from "@components/features/WorkTabs";
-import { AssemblyListDto } from "@/dtos";
-import { WORK_STATES } from "@/constants";
+import { AssemblyListDto } from "@dtos";
+import { WORK_STATES } from "@constants";
 
 export interface UseAssemblyTableCallbacks {
   onAssemblyListSelected?: (assemblyList: AssemblyListDto) => void;

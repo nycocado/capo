@@ -1,7 +1,7 @@
 import { useState, useReducer, useCallback } from "react";
 import { useAssemblyOperations } from "./useAssemblyOperations";
-import { AssemblyListDto } from "@/dtos";
-import { WeldWithContext } from "@/interfaces";
+import { AssemblyListDto } from "@dtos";
+import { WeldWithContext } from "@interfaces";
 import { findJointIdForWeld } from "../utils/assemblyUtils";
 
 type JointState = "to-do" | "finished";

@@ -6,8 +6,8 @@ import {
   columnsPipeLengthVerification,
   columnsFittingVerification,
 } from "@components/features/WorkTable/WorkTable.columns";
-import { PipeLengthDto } from "@/dtos/pipe-length.dto";
-import { FittingDto } from "@/dtos/fitting.dto";
+import { PipeLengthDto } from "@dtos/pipe-length.dto";
+import { FittingDto } from "@dtos/fitting.dto";
 
 type MaterialItem = (PipeLengthDto | FittingDto) & { id: number };
 

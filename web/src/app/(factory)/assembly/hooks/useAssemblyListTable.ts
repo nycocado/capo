@@ -2,10 +2,10 @@ import {
   useAssemblyEventHandlers,
   UseAssemblyTableCallbacks,
 } from "./useAssemblyEventHandlers";
-import { AssemblyListDto } from "@/dtos";
+import { AssemblyListDto } from "@dtos";
 import { columnsAssemblyList } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { useRowStates, useWorkTableBase } from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@hooks";
 
 export function useAssemblyListTable(
   assemblyLists: AssemblyListDto[],

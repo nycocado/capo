@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FillerMaterialDto, WpsDto } from "@/dtos";
+import { FillerMaterialDto, WpsDto } from "@dtos";
 import { getAllFillerMaterials, getAllWps } from "@/lib/api";
 
 export interface UseWeldFormDataProps {

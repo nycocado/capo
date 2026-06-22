@@ -7,7 +7,7 @@ import { WorkTable } from "@components/features/WorkTable";
 import { columnsWeldList } from "@components/features/WorkTable/WorkTable.columns";
 import { ErrorToast } from "@components/common/ErrorToast";
 import { useWeldWorkflow } from "@/app/(factory)/weld/hooks";
-import { UserDto, WeldListDto } from "@/dtos";
+import { UserDto, WeldListDto } from "@dtos";
 import {
   TAB_TYPES,
   tabsAllWorking,

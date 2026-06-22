@@ -2,10 +2,10 @@ import {
   useWeldEventHandlers,
   UseWeldTableCallbacks,
 } from "./useWeldEventHandlers";
-import { WeldListDto } from "@/dtos";
+import { WeldListDto } from "@dtos";
 import { columnsWeldList } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { useRowStates, useWorkTableBase } from "@/hooks";
+import { useRowStates, useWorkTableBase } from "@hooks";
 
 export function useWeldListTable(
   weldLists: WeldListDto[],

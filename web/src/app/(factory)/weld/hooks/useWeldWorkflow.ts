@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useWeldListTable } from "./useWeldListTable";
-import { WeldListDto, UserDto } from "@/dtos";
+import { WeldListDto, UserDto } from "@dtos";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { useUIConfigurations } from "@/hooks";
+import { useUIConfigurations } from "@hooks";
 import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
 import { useWeldGrid } from "./useWeldGrid";
 import { useWeldDataVerification } from "./useWeldDataVerification";

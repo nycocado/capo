@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { WORK_STATES } from "@/constants";
+import { WORK_STATES } from "@constants";
 
 export const statusToUiState = (status?: string): string => {
   switch (status) {

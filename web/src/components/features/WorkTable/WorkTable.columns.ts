@@ -4,8 +4,8 @@ import {
   FittingDto,
   PipeLengthDto,
   WeldListDto,
-} from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+} from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 import { Column } from "@components/features/WorkTable/WorkTable";
 
 export const columnsCutList: Column<CutListDto>[] = [

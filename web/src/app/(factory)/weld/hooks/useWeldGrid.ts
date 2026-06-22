@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
-import { WeldListDto } from "@/dtos";
-import { filterBySearch } from "@/hooks";
+import { WeldListDto } from "@dtos";
+import { filterBySearch } from "@hooks";
 import { useWeldOperations } from "./useWeldOperations";
 import { extractWeldsFromWeldList } from "../utils/weldUtils";
-import { WeldWithContext } from "@/interfaces";
+import { WeldWithContext } from "@interfaces";
 
 export interface UseWeldGridProps {
   weldList: WeldListDto | null;

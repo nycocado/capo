@@ -1,9 +1,9 @@
 import { useCallback, type Dispatch, type SetStateAction } from "react";
-import { CutListDto } from "@/dtos";
-import { PipeLengthWithContext } from "@/interfaces";
+import { CutListDto } from "@dtos";
+import { PipeLengthWithContext } from "@interfaces";
 import { TabType, TAB_TYPES } from "@components/features/WorkTabs";
-import { isListAccessible, statusToUiState } from "@/hooks";
-import { WORK_STATES } from "@/constants";
+import { isListAccessible, statusToUiState } from "@hooks";
+import { WORK_STATES } from "@constants";
 
 type CutRow = PipeLengthWithContext | CutListDto;
 
