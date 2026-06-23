@@ -1,6 +1,6 @@
 # web/ — CLAUDE.md
 
-`@capo/web`: Next.js 16 (App Router, React 19) frontend. See the root `CLAUDE.md` for the overview, domain model, and conventions; `api/CLAUDE.md` for the backend.
+`@capo/web`: Next.js 16 (App Router, React 19) front-end. See the root `CLAUDE.md` for the overview, domain model, and conventions; `api/CLAUDE.md` for the back-end.
 
 Contract: response shapes in `src/dtos/` mirror the API entities; the `WS_EVENTS` names (`src/routes.ts`) mirror the gateway events emitted server-side.
 

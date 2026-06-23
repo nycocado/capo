@@ -31,7 +31,7 @@ Each item has a denormalized `status` (native ENUM) **plus** an append-only `<it
 
 ## Working in this repo
 
-- **Filter in the query, not in JS:** always filter and aggregate in the DB query (repository `WHERE`/QueryBuilder, `count`/`getCount`) — never load rows and discard them with `.filter()`/`.length`. The DB does the work; the frontend renders what the API returns. If a row shouldn't appear, the query shouldn't return it.
+- **Filter in the query, not in JS:** always filter and aggregate in the DB query (repository `WHERE`/QueryBuilder, `count`/`getCount`) — never load rows and discard them with `.filter()`/`.length`. The DB does the work; the front-end renders what the API returns. If a row shouldn't appear, the query shouldn't return it.
 - **No documentation in code:** zero JSDoc, zero narrative comments (see "Comments & docs"). A well-named, strictly-typed symbol documents itself; a non-obvious rule becomes a **test**, not a comment; architecture lives in the `CLAUDE.md` files.
 - **Subagents and skills:** delegate parallel/repetitive or context-heavy work to subagents (Agent) (UI smoke, broad sweeps, per-file migrations); invoke skills (`/<name>`) when a task matches. Prefer a Sonnet subagent for mechanical/verbose work.
 

@@ -88,7 +88,7 @@ O sistema é um monorepo **Bun workspaces** com quatro peças, todas atrás de u
 | `db/`    | schema + seed em **SQL puro** (a base não é gerida por migrações de ORM)    |
 | `nginx/` | reverse proxy — roteia `/api/`→api, `/socket.io/`→api, `/`→web              |
 
-**No backend**, cada operação percorre o caminho do CQRS: o _controller_ é fino — só valida o papel do operador e despacha a mensagem — enquanto um _command_ ou _query handler_ executa o caso de uso dentro de uma transação. As regras de negócio (máquinas de estado, invariantes do _claim_) não ficam espalhadas em serviços: vivem nas próprias **entidades de domínio**, que são as únicas a decidir se uma transição é válida. Concluída a transação, a entidade emite os seus _domain events_, publicados **pós-commit** num `EventBus`; do outro lado, _projections_ escutam esses eventos e os retransmitem pelo socket do estágio correspondente. É esse desacoplamento que mantém a lógica de negócio sem nunca precisar saber o que é um WebSocket.
+**No back-end**, cada operação percorre o caminho do CQRS: o _controller_ é fino — só valida o papel do operador e despacha a mensagem — enquanto um _command_ ou _query handler_ executa o caso de uso dentro de uma transação. As regras de negócio (máquinas de estado, invariantes do _claim_) não ficam espalhadas em serviços: vivem nas próprias **entidades de domínio**, que são as únicas a decidir se uma transição é válida. Concluída a transação, a entidade emite os seus _domain events_, publicados **pós-commit** num `EventBus`; do outro lado, _projections_ escutam esses eventos e os retransmitem pelo socket do estágio correspondente. É esse desacoplamento que mantém a lógica de negócio sem nunca precisar saber o que é um WebSocket.
 
 **No front-end**, cada tela de estágio começa como um _React Server Component_ que já busca os dados iniciais com o cookie da sessão e os entrega hidratados ao cliente; a partir daí o TanStack Query cuida do cache e o socket apenas **invalida** a lista quando algo muda no servidor — que recalcula o estado derivado (progresso, _gating_) no próximo _refetch_. O estado nunca é duplicado entre cliente e servidor: o servidor é a fonte da verdade e o cliente só o reflete.
 
@@ -96,8 +96,8 @@ O sistema é um monorepo **Bun workspaces** com quatro peças, todas atrás de u
 
 | Camada       | Tecnologias                                                                                               |
 | ------------ | --------------------------------------------------------------------------------------------------------- |
-| **Frontend** | Next.js 16, React 19, TypeScript, React-Bootstrap + SCSS, Framer Motion, TanStack Query, socket.io-client |
-| **Backend**  | NestJS 11 (CQRS), MikroORM 7, MariaDB, Socket.IO, Passport/JWT                                            |
+| **Front-end** | Next.js 16, React 19, TypeScript, React-Bootstrap + SCSS, Framer Motion, TanStack Query, socket.io-client |
+| **Back-end**  | NestJS 11 (CQRS), MikroORM 7, MariaDB, Socket.IO, Passport/JWT                                            |
 | **Infra**    | Bun (workspaces + runtime), Docker/Podman Compose, NGINX                                                  |
 | **Testes**   | Jest, Supertest, Testcontainers, GitHub Actions                                                           |
 
@@ -165,7 +165,8 @@ capo/
 
 Documentação técnica por subsistema, em [`documents/`](documents/):
 
-- [**Frontend — `@capo/web`**](documents/WEB.md) — arquitetura do Next.js: _work-stage engine_, camada de dados, tempo real e variações por estágio.
+- [**Back-end — `@capo/api`**](documents/API.md) — CQRS, domínio rico, máquinas de estado, claim control e tempo real.
+- [**Front-end — `@capo/web`**](documents/WEB.md) — arquitetura do Next.js: _work-stage engine_, camada de dados, tempo real e variações por estágio.
 
 ## Desenvolvedores
 

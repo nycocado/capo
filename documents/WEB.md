@@ -1,6 +1,6 @@
 <div align="center">
 
-# Frontend — `@capo/web`
+# Front-end — `@capo/web`
 
 A camada de interface do CAPO — as estações de **corte**, **montagem** e **soldagem** dos operadores de chão de fábrica, com sincronização em tempo real entre elas.
 
@@ -84,12 +84,12 @@ Um módulo por recurso (`auth.ts`, `cut-lists.ts`, `joints.ts`, `welds.ts`, `wps
 
 ## DTOs e interfaces
 
-- **`src/dtos/`** — 20 DTOs que espelham as entidades da API (cut-list, joint, weld, isometric, spool, fitting, part, user, role, status-event, wps, …). São o contrato de tipagem com o backend.
+- **`src/dtos/`** — 20 DTOs que espelham as entidades da API (cut-list, joint, weld, isometric, spool, fitting, part, user, role, status-event, wps, …). São o contrato de tipagem com o back-end.
 - **`src/interfaces/`** — tipos para dados de detalhe enriquecido: `pipe-length-with-context` e `weld-with-context`.
 
 ## Work-Stage Engine (`src/features/work-stage/`)
 
-O cerne do frontend. `useWorkStage<TList>` (`useWorkStage.ts`) é um hook genérico, parametrizado por `WorkStageConfig<TList>` (`types.ts`); os três estágios compartilham a mesma implementação.
+O cerne do front-end. `useWorkStage<TList>` (`useWorkStage.ts`) é um hook genérico, parametrizado por `WorkStageConfig<TList>` (`types.ts`); os três estágios compartilham a mesma implementação.
 
 ```typescript
 interface WorkStageConfig<TList extends StageListItem> {
