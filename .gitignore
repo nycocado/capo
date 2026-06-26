@@ -1,41 +1,59 @@
-# Node.js
+# Dependencies
 node_modules/
 
-# Next.js
-.next/
-out/
-
-# React build output
-build/
-
-# Nest.js output and coverage
+# Build outputs
 dist/
-coverage/
+build/
+out/
+.next/
+
+# TypeScript
+*.tsbuildinfo
 
 # Logs
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Environment
+.env*
+!.env.example
 
-# JetBrains IDE files
+# Tests
+coverage/
+.nyc_output/
+
+# Misc
+*.pem
+*.sql~
+
+# Deployment
+.vercel
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# JetBrains
 .idea/
 *.iml
 
 # VSCode
 .vscode/
 
-# Database dumps
-*.sql~
+# Other editors
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
+# Dev tools
+.claude
+.serena
