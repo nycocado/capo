@@ -59,6 +59,8 @@ Three `.env` files (gitignored; templates `.env.example` in each location): root
 - **`.yml`/compose** — no narrative comments; a non-obvious decision goes in a `CLAUDE.md`.
 - **`.md`** — concise prose, no redundancy.
 
+**Project docs (`documents/`):** the human-facing technical docs — one per subsystem (`API.md`, `WEB.md`, `DB.md`, `DESIGN.md`), linked from the `README` — distinct from the `CLAUDE.md` files (agent guidance). When a change makes one of them inaccurate (a renamed route, a new column, a changed token), update the affected doc as part of the same change; validate every claim against the code and keep it concise.
+
 ## Git / commits
 
 - **No `Co-Authored-By` trailer** — keep authorship clean.

@@ -167,6 +167,7 @@ Documentação técnica por subsistema, em [`documents/`](documents/):
 
 - [**Back-end — `@capo/api`**](documents/API.md) — CQRS, domínio rico, máquinas de estado, claim control e tempo real.
 - [**Front-end — `@capo/web`**](documents/WEB.md) — arquitetura do Next.js: _work-stage engine_, camada de dados, tempo real e variações por estágio.
+- [**Design system — `@capo/web`**](documents/DESIGN.md) — linguagem visual: tema dark industrial, tokens e cores, tipografia Geist Mono, layout, componentes e animação.
 - [**Base de dados — `db/`**](documents/DB.md) — schema em SQL puro: hierarquia e herança joined-table, eventos de status _append-only_, ordens _statusless_ e relações FK.
 
 ## Desenvolvedores
