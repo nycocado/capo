@@ -37,7 +37,7 @@ export function WorkPanel({
           <span className="opacity-75">{emptyMessage}</span>
         </CardBody>
       ) : (
-        <CardBody className="align-baseline justify-content-center text-center position-relative">
+        <CardBody className="d-flex flex-column justify-content-center text-center position-relative">
           <div
             style={{
               opacity: hasSelection ? 1 : 0,
