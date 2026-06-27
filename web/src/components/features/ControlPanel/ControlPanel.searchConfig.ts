@@ -16,7 +16,7 @@ export interface SearchFieldConfig {
 
 function extractSearchableFields<T>(columns: Column<T>[]): SearchFieldConfig[] {
   return columns
-    .filter((col) => col.searchable === true)
+    .filter((col) => col.searchable !== false)
     .map((col) => ({
       id: col.id,
       label: col.header,

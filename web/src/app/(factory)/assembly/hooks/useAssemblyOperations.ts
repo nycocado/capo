@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { JointDto } from "@dtos";
 import { createJointStatusEvent } from "@/lib/api";
 
@@ -14,6 +14,7 @@ export function useAssemblyOperations({
   onError,
 }: UseAssemblyOperationsProps = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const pendingRef = useRef(false);
 
   const processJoint = useCallback(
     async (jointId: number): Promise<boolean> => {
@@ -21,6 +22,8 @@ export function useAssemblyOperations({
         onError?.(INVALID_JOINT_ID);
         return false;
       }
+      if (pendingRef.current) return false;
+      pendingRef.current = true;
       setIsSubmitting(true);
       try {
         const updatedJoint = await createJointStatusEvent(jointId, {
@@ -36,6 +39,7 @@ export function useAssemblyOperations({
         onError?.(message);
         return false;
       } finally {
+        pendingRef.current = false;
         setIsSubmitting(false);
       }
     },

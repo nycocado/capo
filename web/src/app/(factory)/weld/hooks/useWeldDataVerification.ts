@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { useWeldFormData } from "./useWeldFormData";
 import { createWeldStatusEvent } from "@/lib/api";
@@ -16,6 +16,7 @@ export function useWeldDataVerification({
   const [currentWeld, setCurrentWeld] = useState<WeldWithContext | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const pendingRef = useRef(false);
 
   const { wpsOptions, fillerMaterialOptions, loading } = useWeldFormData({
     enabled: showModal,
@@ -41,6 +42,8 @@ export function useWeldDataVerification({
       return;
     }
 
+    if (pendingRef.current) return;
+    pendingRef.current = true;
     setIsSubmitting(true);
     try {
       const updated = await createWeldStatusEvent(currentWeld.id, {
@@ -57,6 +60,7 @@ export function useWeldDataVerification({
         error instanceof Error ? error.message : "Failed to process weld",
       );
     } finally {
+      pendingRef.current = false;
       setIsSubmitting(false);
     }
   }, [currentWeld, formValues, onWeldProcessed, onError]);

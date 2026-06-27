@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PipeLengthDto } from "@dtos";
 import { createPipeLengthStatusEvent } from "@/lib/api";
 
@@ -12,11 +12,14 @@ export function useCutOperations({
   onError,
 }: UseCutOperationsProps = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const pendingRef = useRef(false);
 
   const performOperation = async (
     operation: () => Promise<PipeLengthDto>,
     errorContext = "performing operation",
   ): Promise<boolean> => {
+    if (pendingRef.current) return false;
+    pendingRef.current = true;
     setIsSubmitting(true);
     try {
       const updatedItem = await operation();
@@ -30,6 +33,7 @@ export function useCutOperations({
       onError?.(message);
       return false;
     } finally {
+      pendingRef.current = false;
       setIsSubmitting(false);
     }
   };
