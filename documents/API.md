@@ -226,7 +226,7 @@ Configuração Jest: `@swc/jest` com `decoratorMetadata: false` (evita ciclo de 
 
 ### E2E (`test/*.e2e-spec.ts`)
 
-Sube a app completa via `@nestjs/testing` contra um MariaDB descartável (**testcontainers**). Aplica schema + seed no `globalSetup`, para o container no teardown.
+Sobe a app completa via `@nestjs/testing` contra um MariaDB. O `globalSetup` tem dois caminhos: em CI (`CI=true`) conecta direto ao service container do GitHub Actions em `127.0.0.1:3306`; localmente usa **testcontainers** (Podman/Docker) para subir um MariaDB descartável. Em ambos os casos aplica o schema + seed e escreve `test/.testcontainer.json` com a porta resolvida; o teardown para o container quando existe.
 
 | Arquivo              | O que cobre                                                                    |
 | -------------------- | ------------------------------------------------------------------------------ |

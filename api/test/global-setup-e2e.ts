@@ -34,7 +34,26 @@ async function connect(
   }
 }
 
-export default async function globalSetup(): Promise<void> {
+async function setupWithServiceContainer(): Promise<void> {
+  const config = {
+    host: "127.0.0.1",
+    port: 3306,
+    user: "capo",
+    password: "capo",
+    database: "capo_test",
+  };
+  const conn = await connect({ ...config, multipleStatements: true });
+  try {
+    for (const file of schema) {
+      await conn.query(readFileSync(join(dbDir, file), "utf8"));
+    }
+  } finally {
+    await conn.end();
+  }
+  writeFileSync(runtimeFile, JSON.stringify(config));
+}
+
+async function setupWithTestcontainers(): Promise<void> {
   usePodmanSocketIfPresent();
 
   const container = await new GenericContainer("mariadb:lts")
@@ -67,4 +86,12 @@ export default async function globalSetup(): Promise<void> {
 
   writeFileSync(runtimeFile, JSON.stringify(config));
   (globalThis as Record<string, unknown>).__MARIADB_CONTAINER__ = container;
+}
+
+export default async function globalSetup(): Promise<void> {
+  if (process.env.CI) {
+    await setupWithServiceContainer();
+  } else {
+    await setupWithTestcontainers();
+  }
 }
