@@ -16,6 +16,29 @@
   border: 2px solid var(--accent);
 }
 
+.op-scroll {
+  overflow-y: scroll;
+  scrollbar-color: var(--steel) transparent;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--steel);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--text);
+    }
+  }
+}
+
 // ---- Tabela de trabalho --------------------------------------------------
 
 .op-table {

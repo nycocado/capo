@@ -32,16 +32,14 @@ export function WorkTableRow<T extends { id: number | string }>(
     if (stateConfig?.onClick) {
       stateConfig.onClick(item);
     }
-    if (handleRowClick) {
-      handleRowClick(item);
-    }
+    handleRowClick(item);
   };
 
   const rowClass = stateConfig?.className ?? "bg-secondary";
 
   return (
     <motion.tr
-      key={item?.id || "unknown"}
+      key={item.id}
       onClick={onClickRow}
       className={`cursor-pointer ${rowClass}`}
       style={{ cursor: "pointer" }}
@@ -59,7 +57,7 @@ export function WorkTableRow<T extends { id: number | string }>(
 
         return (
           <td
-            key={`cell-${item?.id || "unknown"}-${col.id}`}
+            key={`cell-${item.id}-${col.id}`}
             className={`text-center py-3 bg-transparent ${col.className || ""}`}
           >
             {value}

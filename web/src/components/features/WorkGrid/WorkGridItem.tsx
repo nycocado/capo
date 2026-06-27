@@ -1,4 +1,4 @@
-import React from "react";
+import { type ReactNode } from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 
 export interface ItemStateConfig<T> {
@@ -8,7 +8,7 @@ export interface ItemStateConfig<T> {
 
 export interface WorkGridItemProps<T> extends HTMLMotionProps<"button"> {
   item: T;
-  accessor: keyof T | ((item: T) => React.ReactNode);
+  accessor: keyof T | ((item: T) => ReactNode);
   handleClick: (item: T) => void;
   itemStates?: Record<string, ItemStateConfig<T>>;
   itemStateAccessor?: (item: T) => string;
@@ -31,16 +31,15 @@ export function WorkGridItem<T extends { id: number | string }>(
   const onClick = () => {
     if (stateConfig?.onClick) {
       stateConfig.onClick(item);
-    } else {
-      handleClick(item);
     }
+    handleClick(item);
   };
 
-  const className = stateConfig?.className ?? "";
+  const className = stateConfig?.className ?? "bg-secondary";
   const raw =
     typeof accessor === "function"
       ? accessor(item)
-      : (item[accessor] as React.ReactNode);
+      : (item[accessor] as ReactNode);
   const value =
     typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw);
 

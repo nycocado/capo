@@ -15,7 +15,6 @@ export const columnsCutList: Column<CutListDto>[] = [
     accessor: (item) => item.internalId,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "isometric",
@@ -23,7 +22,6 @@ export const columnsCutList: Column<CutListDto>[] = [
     accessor: (item) => item.isometric.internalId,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "pipeCount",
@@ -42,7 +40,6 @@ export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
     accessor: (item) => item.internalId,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "description",
@@ -50,7 +47,6 @@ export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
     accessor: (item) => item.description,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "isometric",
@@ -58,25 +54,20 @@ export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
     accessor: (item) => item.isometricInfo?.internalId || "-",
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "length",
     header: "LENGTH",
-    subheader: "mm",
     accessor: (item) => item.length.toString(),
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "diameter",
     header: "Ø",
-    subheader: "DN",
     accessor: (item) => item.diameter.nominalMm.toString(),
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "material",
@@ -84,7 +75,6 @@ export const columnsPipeLengthDto: Column<PipeLengthWithContext>[] = [
     accessor: (item) => item.material.name,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
 ];
 
@@ -95,7 +85,6 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
     accessor: (item) => item.internalId,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "isometric",
@@ -103,7 +92,6 @@ export const columnsAssemblyList: Column<AssemblyListDto>[] = [
     accessor: (item) => item.isometric?.internalId || "-",
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "spoolCount",
@@ -130,7 +118,6 @@ export const columnsWeldList: Column<WeldListDto>[] = [
     accessor: (item) => item.internalId,
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "spool",
@@ -138,7 +125,6 @@ export const columnsWeldList: Column<WeldListDto>[] = [
     accessor: (item) => item.spool?.internalId || "-",
     className: "text-center",
     sortable: true,
-    searchable: true,
   },
   {
     id: "weldCount",

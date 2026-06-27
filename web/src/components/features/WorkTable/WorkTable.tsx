@@ -1,22 +1,19 @@
 import { Table } from "react-bootstrap";
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { BarsArrowDownIcon } from "@heroicons/react/16/solid";
 import { BarsArrowUpIcon } from "@heroicons/react/16/solid";
 import { RowStateConfig, WorkTableRow } from "./WorkTableRow";
-import * as React from "react";
 
 export type SortDirection = "asc" | "desc" | null;
 
 export interface Column<T> {
   id: string;
   header: string;
-  subheader?: string;
-  accessor: keyof T | ((item: T) => React.ReactNode);
+  accessor: keyof T | ((item: T) => ReactNode);
   className?: string;
   sortable?: boolean;
   searchable?: boolean;
-  iterable?: boolean;
 }
 
 export interface PaginationProps {
@@ -128,10 +125,10 @@ export function WorkTable<T extends { id: number | string }>(
   return (
     <div className="d-flex flex-column h-100">
       <div
-        className="flex-grow-1 d-flex flex-column overflow-auto op-panel op-table"
+        className="flex-grow-1 d-flex flex-column op-panel op-table op-scroll"
         style={{ height: "400px" }}
       >
-        <Table responsive variant="dark" hover={hover} className="mb-0">
+        <Table variant="dark" hover={hover} className="mb-0 w-100">
           <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
             <tr>
               {columns.map((col) => (

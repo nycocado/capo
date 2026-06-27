@@ -42,7 +42,7 @@ export function WorkGrid<T extends { id: number | string }>(
   return (
     <div className="d-flex flex-column h-100">
       <div
-        className="flex-grow-1 d-flex flex-column overflow-auto op-panel"
+        className="flex-grow-1 d-flex flex-column op-panel op-scroll"
         style={{ height: "400px" }}
       >
         {groups.map((groupItems, gi) => (
