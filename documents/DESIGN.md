@@ -256,13 +256,29 @@ Cabeçalhos (`thead th`): `background: var(--panel)`, `color: var(--steel)`, `up
 
 Separador de grupos no grid: `<hr className="op-divider my-2">` — linha hairline horizontal.
 
+### Scroll estilizado (`.op-scroll`)
+
+`overflow-y: scroll` sempre visível (evita flicker de layout em animações Framer Motion), scrollbar slim com cor `--steel`:
+
+```scss
+.op-scroll {
+  overflow-y: scroll;
+  scrollbar-color: var(--steel) transparent;
+  scrollbar-width: thin;
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: var(--steel); border-radius: 3px; }
+}
+```
+
+Usada por WorkTable e WorkGrid.
+
 ## Componentes de operador
 
 Todos os containers de conteúdo compartilham `.op-panel`; cada estágio compõe os mesmos blocos, parametrizados por estágio (colunas, cards, botões). Ver [`WEB.md`](WEB.md) para a engine que os alimenta.
 
-- **WorkTable** — tabela ordenável dark (`op-panel op-table`, `height: 400px`, scroll). `<motion.tbody>`/`<motion.tr>` com `layout` animam a inserção de rows e a reordenação "concluídos por último". Ordenação numérica ou `localeCompare`; ícones `BarsArrowDown`/`BarsArrowUp` (20px). Colunas sempre `text-center`, definidas por estágio em `WorkTable.columns.ts`.
-- **WorkGrid** — grid de cards (`op-panel`, `height: 400px`, `d-grid gap-4`, `repeat(n, 1fr)` default 3) com agrupamento opcional (`op-divider` entre grupos). **WorkGridItem** é um `<motion.button>` de `height: 70px`, `border-tertiary border-3`.
-- **WorkPanel** — painel de detalhes do item selecionado, com a borda laranja de `op-panel--accent`. Cada card é `<Card bg="secondary" rounded-3 border-tertiary>` e exibe valores em três formas: `NormalValue`, `TaggedValue` (valor + tag) e `DoubleValue` (dois valores lado a lado). Vazio: "Select a row to view its details".
+- **WorkTable** — tabela ordenável dark (`op-panel op-table op-scroll`, `height: 400px`). `<motion.tbody>`/`<motion.tr>` com `layout` animam a inserção de rows e a reordenação "concluídos por último". Ordenação numérica ou `localeCompare`; ícones `BarsArrowDown`/`BarsArrowUp` (20px). Colunas sempre `text-center`, definidas por estágio em `WorkTable.columns.ts`.
+- **WorkGrid** — grid de cards (`op-panel op-scroll`, `height: 400px`, `d-grid gap-4`, `repeat(n, 1fr)` default 3) com agrupamento opcional (`op-divider` entre grupos). **WorkGridItem** é um `<motion.button>` de `height: 70px`, `border-tertiary border-3`.
+- **WorkPanel** — painel de detalhes do item selecionado, com a borda laranja de `op-panel--accent`. Cada card é `<Card bg="secondary" rounded-3 border-tertiary>` e exibe valores em três formas: `NormalValue`, `TaggedValue` (valor + tag) e `DoubleValue` (dois valores lado a lado). Cards centrados verticalmente (`d-flex flex-column justify-content-center`). Sem seleção: placeholder invisível mantém a altura estável; overlay "Select a row to view its details" aparece sobre os cards.
 - **WorkTabs** — toggle `all` / `working` (`d-flex gap-1 p-1 bg-secondary rounded-3`, `role="tablist"`): aba ativa `bg-light text-dark`, inativa `bg-transparent text-light`.
 - **ControlPanel** — `Card.op-panel` com busca (`InputGroup` + `DropdownButton` de campo + `MagnifyingGlassIcon` 23px) e botões de ação (`minHeight: 50px`, `border-3`) que variam por estágio: ações em `outline-light`, o "Next" em `primary`. Os campos buscáveis saem das colunas marcadas `searchable`.
 - **PDFViewer** — visor inline do isométrico (`op-panel overflow-hidden`, `height: 440px`), com estados de loading (`Spinner`), erro (`text-danger`), carregado (`<iframe>`) e vazio ("No isometric selected.").
