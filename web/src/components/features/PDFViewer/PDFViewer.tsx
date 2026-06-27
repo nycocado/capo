@@ -1,23 +1,25 @@
-import React from "react";
+import { type FC } from "react";
 import { Card, Spinner } from "react-bootstrap";
 
 interface PDFViewerProps {
   pdfFile?: string | null;
   height?: string | number;
+  className?: string;
   loading?: boolean;
   error?: string | null;
 }
 
-const PDFViewer: React.FC<PDFViewerProps> = ({
+const PDFViewer: FC<PDFViewerProps> = ({
   pdfFile,
   height = "440px",
+  className,
   loading = false,
   error,
 }) => {
   return (
     <Card
-      className="op-panel overflow-hidden d-flex align-items-center justify-content-center"
-      style={{ height: height }}
+      className={`op-panel overflow-hidden d-flex align-items-center justify-content-center${className ? ` ${className}` : ""}`}
+      style={className ? undefined : { height }}
     >
       {loading ? (
         <Spinner
