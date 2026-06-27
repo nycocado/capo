@@ -34,6 +34,7 @@ const WeldClient = memo(function WeldClient(props: WeldClientProps) {
     weldGrid,
     weldItems,
     cards,
+    selectedWeld,
     controlButtons,
     setActiveTab,
     searchField,
@@ -53,7 +54,7 @@ const WeldClient = memo(function WeldClient(props: WeldClientProps) {
         <Container fluid className="mx-4">
           <Row className="g-4">
             <Col md={5} className="d-flex flex-column gap-3">
-              <WorkPanel cards={cards} />
+              <WorkPanel cards={cards} hasSelection={!!selectedWeld} />
               <ControlPanel
                 search={search}
                 setSearch={setSearch}

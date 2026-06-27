@@ -44,6 +44,7 @@ const CutClient = memo(function CutClient(props: CutClientProps) {
     pipeLengthTable,
     isSubmitting,
     cards,
+    selectedPipeLength,
     controlButtons,
     modalData,
     handleInputConfirm,
@@ -65,7 +66,7 @@ const CutClient = memo(function CutClient(props: CutClientProps) {
         <Container fluid className="mx-4">
           <Row className="g-4">
             <Col md={5} className="d-flex flex-column gap-3">
-              <WorkPanel cards={cards} />
+              <WorkPanel cards={cards} hasSelection={!!selectedPipeLength} />
               <ControlPanel
                 search={search}
                 setSearch={setSearch}

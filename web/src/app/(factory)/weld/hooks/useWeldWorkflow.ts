@@ -165,6 +165,7 @@ export const useWeldWorkflow = ({
     weldListTable,
     weldGrid,
     weldItems: weldGrid.weldItems,
+    selectedWeld,
     cards,
     controlButtons,
     setActiveTab,

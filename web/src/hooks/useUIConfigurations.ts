@@ -42,7 +42,6 @@ export const useUIConfigurations = <
 
   const cards = useMemo(() => {
     if (!cardConfigs) return undefined;
-    if (!selectedItem) return undefined;
 
     const cardOptions =
       options?.canEdit && options?.onEditClick
