@@ -28,8 +28,8 @@ export interface MaterialVerificationModalProps {
   handleNext: () => void;
   handlePrevious: () => void;
   handleCancel: () => void;
-  getPipeLengthState: (pipeLength: PipeLengthDto) => "initial" | "finished";
-  getFittingState: (fitting: FittingDto) => "initial" | "finished";
+  getPipeLengthState: (pipeLength: PipeLengthDto) => "to-do" | "finished";
+  getFittingState: (fitting: FittingDto) => "to-do" | "finished";
 }
 
 export function MaterialVerificationModal(
@@ -104,8 +104,8 @@ export function MaterialVerificationModal(
   };
 
   const materialRowStates = {
-    initial: {
-      className: "bg-dark text-light",
+    "to-do": {
+      className: "bg-secondary text-light",
       onClick: isConsultationMode ? undefined : handleMaterialClick,
     },
     finished: {
@@ -115,9 +115,9 @@ export function MaterialVerificationModal(
   };
 
   const materialRowStateAccessor = (item: MaterialItem) => {
-    if (!item?.internalId) return "initial";
+    if (!item?.internalId) return "to-do";
 
-    if (isConsultationMode) return "initial";
+    if (isConsultationMode) return "to-do";
 
     return currentStep === "pipeLength"
       ? getPipeLengthState(item as PipeLengthDto)
@@ -164,9 +164,9 @@ export function MaterialVerificationModal(
         </BaseModal.Body>
         <BaseModal.Footer className="border-0 justify-content-center">
           <Button
-            variant="secondary"
+            variant="outline-light"
             onClick={handleCancel}
-            className="btn-lg px-4 text-white border-4"
+            className="btn-lg px-4 border-4"
           >
             Close
           </Button>
@@ -181,10 +181,9 @@ export function MaterialVerificationModal(
       onHide={handleCancel}
       title={currentStepTitle}
       size="xl"
-      contentClassName="bg-tertiary text-light rounded-3"
     >
       <BaseModal.Body className="p-0" ref={modalBodyRef}>
-        <div className="bg-dark rounded-3 m-3">
+        <div className="bg-secondary rounded-3 m-3">
           <WorkTable
             items={validData}
             handleRowClick={() => {}}
@@ -200,9 +199,9 @@ export function MaterialVerificationModal(
 
       <BaseModal.Footer className="border-0 justify-content-between">
         <Button
-          variant="secondary"
+          variant="outline-light"
           onClick={canGoToPrevious ? handlePrevious : handleCancel}
-          className="btn-lg px-4 text-white border-4"
+          className="btn-lg px-4 border-4"
         >
           {canGoToPrevious
             ? "Previous"
@@ -216,7 +215,7 @@ export function MaterialVerificationModal(
             <Button
               variant="primary"
               onClick={handleNext}
-              className="btn-lg px-4 text-black border-4"
+              className="btn-lg px-4 border-4"
             >
               View Fittings
             </Button>

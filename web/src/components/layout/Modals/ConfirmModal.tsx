@@ -22,7 +22,7 @@ export function ConfirmModal(props: ConfirmModalProps) {
     title,
     body,
     confirmVariant = "primary",
-    cancelVariant = "secondary",
+    cancelVariant = "outline-light",
     confirmText = "Confirm",
     cancelText = "Cancel",
   } = props;
@@ -40,14 +40,14 @@ export function ConfirmModal(props: ConfirmModalProps) {
         <Button
           variant={cancelVariant}
           onClick={onHide}
-          className="btn-lg px-4 text-white border-4"
+          className="btn-lg px-4 border-4"
         >
           {cancelText}
         </Button>
         <Button
           variant={confirmVariant}
           onClick={onConfirm}
-          className="btn-lg px-4 text-black border-4"
+          className="btn-lg px-4 border-4"
         >
           {confirmText}
         </Button>

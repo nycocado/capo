@@ -54,12 +54,8 @@ export const useRowStates = <T>(
 ) => {
   return useMemo(() => {
     return {
-      initial: {
-        className: "bg-secondary text-white",
-        onClick: handleRowClick,
-      },
       "to-do": {
-        className: "bg-dark text-white",
+        className: "bg-secondary text-white",
         onClick: handleRowClick,
       },
       information: {

@@ -7,7 +7,7 @@ export interface WorkTabsProps {
 export function WorkTabs({ tabs, activeTab, setActiveTab }: WorkTabsProps) {
   return (
     <div
-      className="d-flex gap-1 p-1 bg-dark rounded-3"
+      className="d-flex gap-1 p-1 bg-secondary rounded-3"
       role="tablist"
       aria-label="View"
     >

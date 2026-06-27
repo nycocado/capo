@@ -130,10 +130,10 @@ export function InputModal(props: InputModalProps) {
       </BaseModal.Body>
       <BaseModal.Footer className="border-0 justify-content-between">
         <Button
-          variant="secondary"
+          variant="outline-light"
           onClick={handleClose}
           disabled={isLoading}
-          className="btn-lg px-4 text-white border-4"
+          className="btn-lg px-4 border-4"
         >
           {cancelText}
         </Button>
@@ -141,7 +141,7 @@ export function InputModal(props: InputModalProps) {
           variant="primary"
           onClick={handleConfirm}
           disabled={isConfirmDisabled}
-          className="btn-lg px-4 text-white border-4"
+          className="btn-lg px-4 border-4"
         >
           {isLoading ? (
             <>

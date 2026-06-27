@@ -105,16 +105,16 @@ export function ComponentLabelModal(props: ComponentLabelModalProps) {
 
       <BaseModal.Footer className="border-0 justify-content-between">
         <Button
-          variant="secondary"
+          variant="outline-light"
           onClick={onHide}
-          className="btn-lg px-4 text-white border-4"
+          className="btn-lg px-4 border-4"
         >
           Cancel
         </Button>
         <Button
           variant="primary"
           onClick={() => onConfirm()}
-          className="btn-lg px-4 text-black border-4"
+          className="btn-lg px-4 border-4"
         >
           Confirm
         </Button>

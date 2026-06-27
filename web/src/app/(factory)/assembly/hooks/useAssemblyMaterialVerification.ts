@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useReducer } from "react";
 import { PipeLengthDto, FittingDto, AssemblyListDto } from "@dtos";
 
 export type VerificationStep = "pipeLength" | "fitting";
-export type MaterialState = "initial" | "finished";
+export type MaterialState = "to-do" | "finished";
 
 export interface VerificationState {
   pipeLengthStates: Record<string, MaterialState>;
@@ -25,22 +25,22 @@ const verificationReducer = (
 ): VerificationState => {
   switch (action.type) {
     case "togglePipeLength": {
-      const currentState = state.pipeLengthStates[action.id] || "initial";
+      const currentState = state.pipeLengthStates[action.id] || "to-do";
       return {
         ...state,
         pipeLengthStates: {
           ...state.pipeLengthStates,
-          [action.id]: currentState === "initial" ? "finished" : "initial",
+          [action.id]: currentState === "to-do" ? "finished" : "to-do",
         },
       };
     }
     case "toggleFitting": {
-      const currentState = state.fittingStates[action.id] || "initial";
+      const currentState = state.fittingStates[action.id] || "to-do";
       return {
         ...state,
         fittingStates: {
           ...state.fittingStates,
-          [action.id]: currentState === "initial" ? "finished" : "initial",
+          [action.id]: currentState === "to-do" ? "finished" : "to-do",
         },
       };
     }
@@ -244,20 +244,20 @@ export function useAssemblyMaterialVerification() {
 
   const getPipeLengthState = useCallback(
     (pipeLength: PipeLengthDto): MaterialState => {
-      if (isConsultationMode) return "initial";
+      if (isConsultationMode) return "to-do";
       return pipeLength?.internalId
-        ? state.pipeLengthStates[pipeLength.internalId] || "initial"
-        : "initial";
+        ? state.pipeLengthStates[pipeLength.internalId] || "to-do"
+        : "to-do";
     },
     [state.pipeLengthStates, isConsultationMode],
   );
 
   const getFittingState = useCallback(
     (fitting: FittingDto): MaterialState => {
-      if (isConsultationMode) return "initial";
+      if (isConsultationMode) return "to-do";
       return fitting?.internalId
-        ? state.fittingStates[fitting.internalId] || "initial"
-        : "initial";
+        ? state.fittingStates[fitting.internalId] || "to-do"
+        : "to-do";
     },
     [state.fittingStates, isConsultationMode],
   );

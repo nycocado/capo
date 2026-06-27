@@ -14,7 +14,7 @@
   --panel-edge: #2c2929; // borda hairline
   --steel: #6f6f6f; // texto/ícone secundário (aço)
   --text: #ededed; // texto principal
-  --accent: #ff6600; // laranja: estado + ação primária + marca
+  --accent: #{$accent};
 }
 
 body {

@@ -37,7 +37,7 @@ export function WorkTableRow<T extends { id: number | string }>(
     }
   };
 
-  const rowClass = stateConfig?.className ?? "bg-dark";
+  const rowClass = stateConfig?.className ?? "bg-secondary";
 
   return (
     <motion.tr

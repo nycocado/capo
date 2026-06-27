@@ -18,7 +18,7 @@ export function useWeldOperations() {
   );
 
   const itemStates = {
-    "to-do": { className: "bg-dark text-light" },
+    "to-do": { className: "bg-secondary text-light" },
     finished: { className: "bg-success text-white" },
   };
 

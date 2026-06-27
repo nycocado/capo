@@ -49,7 +49,7 @@ export function FormModal(props: FormModalProps) {
     handleCancel,
     titleClassName = "fs-1 fw-bold text-center",
     confirmVariant = "primary",
-    cancelVariant = "secondary",
+    cancelVariant = "outline-light",
   } = props;
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -168,7 +168,7 @@ export function FormModal(props: FormModalProps) {
           <Button
             variant={cancelVariant}
             onClick={handleCancel}
-            className="btn-lg px-4 text-white border-4"
+            className="btn-lg px-4 border-4"
             disabled={loading}
           >
             {cancelText}
@@ -176,7 +176,7 @@ export function FormModal(props: FormModalProps) {
           <Button
             variant={confirmVariant}
             type="submit"
-            className="btn-lg px-4 text-black border-4"
+            className="btn-lg px-4 border-4"
             disabled={loading || !isFormValid}
           >
             {loading ? (

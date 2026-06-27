@@ -45,21 +45,20 @@ A página `/roles` reexpõe esses tokens como aliases locais (`--line-*`) dentro
 
 ## Bootstrap customizado (`bootstrap-custom.scss`)
 
-11 cores de tema customizadas fundidas sobre as defaults do Bootstrap via `map-merge`:
+`$accent: #ff6600` é declarado no topo do arquivo e alimenta tanto `primary` quanto `--accent` (via `#{$accent}` em `globals.scss`) e os `rgba()` em `operator.scss`/`roles.scss` — fonte única de verdade para o laranja.
 
-| Chave        | Valor             | Uso                                                                  |
-| ------------ | ----------------- | -------------------------------------------------------------------- |
-| `primary`    | `#ff6600`         | Botões confirm, ações primárias, links, badges. Igual a `--accent`.  |
-| `secondary`  | `#242222`         | Botões cancelar, estado `initial` de rows, campos de formulário.     |
-| `tertiary`   | `#616161`         | Bordas de WorkPanel cards (`border-tertiary`), estado `information`. |
-| `success`    | `#26a126`         | Estado `finished`, rows confirmadas em MaterialVerificationModal.    |
-| `danger`     | `#ff3838`         | Error toast, alertas, lista bloqueada (`danger` state).              |
-| `info`       | `#00bfff`         | Loading alerts no FormModal.                                         |
-| `note`       | `#7084fb`         | Disponível, não referenciado na UI atual.                            |
-| `complement` | `#fdce4f`         | Disponível, não referenciado na UI atual.                            |
-| `light`      | Bootstrap default | Superfície clara padrão (tabs ativos).                               |
-| `dark`       | `#242222`         | Mesma que `secondary`; rows `to-do` (`bg-dark`).                     |
-| `surface`    | `#dbdbdb`         | Superfície clara (cinza).                                            |
+8 cores de tema customizadas fundidas sobre as defaults do Bootstrap via `map-merge`:
+
+| Chave       | Valor             | Uso                                                                  |
+| ----------- | ----------------- | -------------------------------------------------------------------- |
+| `primary`   | `$accent`         | Botões confirm, ações primárias, links, badges.                      |
+| `secondary` | `#242222`         | Botões cancelar, estado `to-do` de rows, campos de formulário.       |
+| `tertiary`  | `#616161`         | Bordas de WorkPanel cards (`border-tertiary`), estado `information`. |
+| `success`   | `#26a126`         | Estado `finished`, rows confirmadas em MaterialVerificationModal.    |
+| `danger`    | `#ff3838`         | Error toast, alertas, lista bloqueada (`danger` state).              |
+| `info`      | `#00bfff`         | Loading alerts no FormModal.                                         |
+| `light`     | Bootstrap default | Superfície clara padrão (tabs ativos).                               |
+| `surface`   | `#dbdbdb`         | Superfície clara (cinza).                                            |
 
 **Componentes Bootstrap utilizados:** `Card`, `CardBody`, `Row`, `Col`, `Table`, `Form`, `Button`, `InputGroup`, `Dropdown`, `DropdownButton`, `Modal`, `Toast`, `Spinner`, `Alert`, `Navbar`, `Nav`, `FormControl`, `FormLabel`, `FormSelect`.
 
@@ -92,34 +91,31 @@ A escala usa as classes utilitárias do Bootstrap (`display-*`, `fs-*`) para tí
 
 ### Paleta semântica
 
-| Cor                | Hex       | Uso                                           |
-| ------------------ | --------- | --------------------------------------------- |
-| Near-black (fundo) | `#0d0c0c` | `--app-bg` — fundo de todas as telas          |
-| Painel escuro      | `#1c1a1a` | `--panel` — superfície de cards/painéis       |
-| Borda painel       | `#2c2929` | `--panel-edge` — borda hairline               |
-| Aço                | `#6f6f6f` | `--steel` — texto/ícone secundário            |
-| Texto claro        | `#ededed` | `--text` — texto primário                     |
-| Laranja (accent)   | `#ff6600` | `--accent` — ações, estados ativos, marca     |
-| Secundário escuro  | `#242222` | Bootstrap `secondary`/`dark` — cancelar, lock |
-| Terciário cinza    | `#616161` | Bootstrap `tertiary` — bordas, information    |
-| Sucesso verde      | `#26a126` | Bootstrap `success` — concluído               |
-| Perigo vermelho    | `#ff3838` | Bootstrap `danger` — erro, bloqueado          |
-| Info azul          | `#00bfff` | Bootstrap `info` — loading                    |
-| Note roxo          | `#7084fb` | Disponível mas não referenciado               |
-| Complement amarelo | `#fdce4f` | Disponível mas não referenciado               |
+| Cor                | Hex       | Uso                                        |
+| ------------------ | --------- | ------------------------------------------ |
+| Near-black (fundo) | `#0d0c0c` | `--app-bg` — fundo de todas as telas       |
+| Painel escuro      | `#1c1a1a` | `--panel` — superfície de cards/painéis    |
+| Borda painel       | `#2c2929` | `--panel-edge` — borda hairline            |
+| Aço                | `#6f6f6f` | `--steel` — texto/ícone secundário         |
+| Texto claro        | `#ededed` | `--text` — texto primário                  |
+| Laranja (accent)   | `#ff6600` | `$accent`/`--accent` — ações, estados, marca |
+| Secundário escuro  | `#242222` | Bootstrap `secondary` — cancelar, lock, to-do |
+| Terciário cinza    | `#616161` | Bootstrap `tertiary` — bordas, information |
+| Sucesso verde      | `#26a126` | Bootstrap `success` — concluído            |
+| Perigo vermelho    | `#ff3838` | Bootstrap `danger` — erro, bloqueado       |
+| Info azul          | `#00bfff` | Bootstrap `info` — loading                 |
 
 ### Metáfora de estado
 
 Cada item de trabalho tem um estado que define a cor da linha/card:
 
-| Estado UI     | Classe Bootstrap          | Fundo     | Texto  | Origem                                                 |
-| ------------- | ------------------------- | --------- | ------ | ------------------------------------------------------ |
-| `to-do`       | `bg-dark text-light`      | `#242222` | Claro  | `status: to_do`                                        |
-| `working`     | `bg-primary text-white`   | `#ff6600` | Branco | `status: in_progress`                                  |
-| `finished`    | `bg-success text-white`   | `#26a126` | Branco | `status: done`                                         |
-| `information` | `bg-tertiary text-white`  | `#616161` | Branco | flag toggle manual                                     |
-| `danger`      | `bg-danger text-white`    | `#ff3838` | Branco | lock de claim por outro usuário                        |
-| `initial`     | `bg-secondary text-white` | `#242222` | Branco | MaterialVerificationModal (default via `useRowStates`) |
+| Estado UI     | Classe Bootstrap          | Fundo     | Texto  | Origem                          |
+| ------------- | ------------------------- | --------- | ------ | ------------------------------- |
+| `to-do`       | `bg-secondary text-white` | `#242222` | Branco | `status: to_do`                 |
+| `working`     | `bg-primary text-white`   | `#ff6600` | Branco | `status: in_progress`           |
+| `finished`    | `bg-success text-white`   | `#26a126` | Branco | `status: done`                  |
+| `information` | `bg-tertiary text-white`  | `#616161` | Branco | flag toggle manual               |
+| `danger`      | `bg-danger text-white`    | `#ff3838` | Branco | lock de claim por outro usuário |
 
 A conversão `status → UI state` é feita por `useWorkStatusAccessor`: `in_progress → working`, `done → finished`, `to_do → to-do`. O lock é verificado via `listToUiState` (`claimedBy` de outro usuário → `danger`).
 
@@ -266,8 +262,8 @@ Todos os containers de conteúdo compartilham `.op-panel`; cada estágio compõe
 
 - **WorkTable** — tabela ordenável dark (`op-panel op-table`, `height: 400px`, scroll). `<motion.tbody>`/`<motion.tr>` com `layout` animam a inserção de rows e a reordenação "concluídos por último". Ordenação numérica ou `localeCompare`; ícones `BarsArrowDown`/`BarsArrowUp` (20px). Colunas sempre `text-center`, definidas por estágio em `WorkTable.columns.ts`.
 - **WorkGrid** — grid de cards (`op-panel`, `height: 400px`, `d-grid gap-4`, `repeat(n, 1fr)` default 3) com agrupamento opcional (`op-divider` entre grupos). **WorkGridItem** é um `<motion.button>` de `height: 70px`, `border-tertiary border-3`.
-- **WorkPanel** — painel de detalhes do item selecionado, com a borda laranja de `op-panel--accent`. Cada card é `<Card bg="dark" rounded-3 border-tertiary>` e exibe valores em três formas: `NormalValue`, `TaggedValue` (valor + tag) e `DoubleValue` (dois valores lado a lado). Vazio: "Select a row to view its details".
-- **WorkTabs** — toggle `all` / `working` (`d-flex gap-1 p-1 bg-dark rounded-3`, `role="tablist"`): aba ativa `bg-light text-dark`, inativa `bg-transparent text-light`.
+- **WorkPanel** — painel de detalhes do item selecionado, com a borda laranja de `op-panel--accent`. Cada card é `<Card bg="secondary" rounded-3 border-tertiary>` e exibe valores em três formas: `NormalValue`, `TaggedValue` (valor + tag) e `DoubleValue` (dois valores lado a lado). Vazio: "Select a row to view its details".
+- **WorkTabs** — toggle `all` / `working` (`d-flex gap-1 p-1 bg-secondary rounded-3`, `role="tablist"`): aba ativa `bg-light text-dark`, inativa `bg-transparent text-light`.
 - **ControlPanel** — `Card.op-panel` com busca (`InputGroup` + `DropdownButton` de campo + `MagnifyingGlassIcon` 23px) e botões de ação (`minHeight: 50px`, `border-3`) que variam por estágio: ações em `outline-light`, o "Next" em `primary`. Os campos buscáveis saem das colunas marcadas `searchable`.
 - **PDFViewer** — visor inline do isométrico (`op-panel overflow-hidden`, `height: 440px`), com estados de loading (`Spinner`), erro (`text-danger`), carregado (`<iframe>`) e vazio ("No isometric selected.").
 
@@ -279,7 +275,7 @@ Todos herdam de **BaseModal** — backdrop estático, título centralizado (`dis
 - **InputModal** — entrada única com display grande (heat number): input `text-center`, `fontSize: 2.5rem`, `letter-spacing: 0.5rem`. Enter confirma, Escape fecha; em loading, backdrop fixo e botões desabilitados.
 - **FormModal** — formulário multi-campo (dados de solda): `FormSelect`/`FormControl` em `form-*-lg bg-secondary text-light border-0`, labels `fs-5 fw-semibold` com asterisco `text-danger` nos obrigatórios; Alert `info` ("Loading options…") e estado vazio "No fields available".
 - **ComponentLabelModal** — readout de um valor grande (`display-1`, `letter-spacing: 25px`) sobre `op-readout`, com valores secundários num card `bg-secondary` abaixo.
-- **MaterialVerificationModal** — verificação de material multi-step (pipe length → fitting) na montagem: embute um `WorkTable` com `rowStates` `initial`→`bg-dark` e `finished`→`bg-success`, auto-scroll ao trocar de step, e footer que varia por step.
+- **MaterialVerificationModal** — verificação de material multi-step (pipe length → fitting) na montagem: embute um `WorkTable` com `rowStates` `to-do`→`bg-secondary` e `finished`→`bg-success`, auto-scroll ao trocar de step, e footer que varia por step.
 
 ## Animação
 
@@ -398,16 +394,16 @@ Posição: `bottom-center`, `ToastContainer` dentro de `p-3`. Toast: `bg="danger
 
 ## Padrões de botões
 
-| Padrão        | Variant                     | Texto   | Cor texto    | Bordas      | Uso                                    |
-| ------------- | --------------------------- | ------- | ------------ | ----------- | -------------------------------------- |
-| Confirm modal | `primary`                   | —       | `text-black` | `border-4`  | Confirmar ações                        |
-| Cancel modal  | `secondary`                 | —       | `text-white` | `border-4`  | Cancelar                               |
-| Action        | `outline-light`             | —       | —            | `border-3`  | ControlPanel (Isometric, Note, Report) |
-| Next          | `primary`                   | "Next"  | `text-black` | `border-3`  | Avançar no workflow                    |
-| Tab active    | `bg-light text-dark`        | —       | `text-dark`  | `rounded-2` | WorkTabs                               |
-| Tab inactive  | `bg-transparent text-light` | —       | `text-light` | `rounded-2` | WorkTabs                               |
-| Login submit  | `primary`                   | "Login" | —            | —           | `w-50 mx-auto fw-semibold`             |
-| Grid item     | `border-tertiary border-3`  | —       | `text-white` | `border-3`  | WorkGridItem                           |
+| Padrão        | Variant                     | Texto   | Bordas      | Uso                                    |
+| ------------- | --------------------------- | ------- | ----------- | -------------------------------------- |
+| Confirm modal | `primary`                   | —       | `border-4`  | Confirmar ações (Bootstrap computa texto) |
+| Cancel modal  | `outline-light`             | —       | `border-4`  | Cancelar / Previous                    |
+| Action        | `outline-light`             | —       | `border-3`  | ControlPanel (Isometric, Note, Report) |
+| Next          | `primary`                   | "Next"  | `border-3`  | Avançar no workflow                    |
+| Tab active    | `bg-light text-dark`        | —       | `rounded-2` | WorkTabs                               |
+| Tab inactive  | `bg-transparent text-light` | —       | `rounded-2` | WorkTabs                               |
+| Login submit  | `primary`                   | "Login" | —           | `w-50 mx-auto fw-semibold`             |
+| Grid item     | `border-tertiary border-3`  | —       | `border-3`  | WorkGridItem                           |
 
 Botões de modal: `btn-lg px-4`. Botões de ControlPanel: `fs-5`, `minHeight: 50px`.
 
@@ -424,7 +420,7 @@ Botões de modal: `btn-lg px-4`. Botões de ControlPanel: `fs-5`, `minHeight: 50
 | Arquivo                            | Papel                                                                           |
 | ---------------------------------- | ------------------------------------------------------------------------------- |
 | `src/app/globals.scss`             | Import das 3 folhas de estilo + `:root` com tokens + body font + reduced motion |
-| `src/styles/bootstrap-custom.scss` | 11 cores customizadas do Bootstrap                                              |
+| `src/styles/bootstrap-custom.scss` | `$accent` + 8 cores customizadas do Bootstrap                                   |
 | `src/styles/operator.scss`         | Estilos para telas de operador (cut/assembly/weld)                              |
 | `src/styles/roles.scss`            | Estilos para seletor de estação (`/roles`)                                      |
 | `src/constants/index.ts`           | `WORK_STATES` constant                                                          |

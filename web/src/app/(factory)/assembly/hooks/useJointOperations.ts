@@ -145,7 +145,7 @@ export function useJointOperations({
     "to-do": {
       className: isSubmitting
         ? "bg-secondary text-white"
-        : "bg-dark text-light",
+        : "bg-secondary text-light",
       onClick: async (item: WeldWithContext) => {
         if (!isSubmitting) await handleWeldClick(item);
       },

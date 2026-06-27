@@ -1,17 +1,16 @@
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 
+$accent: #ff6600;
+
 $custom-theme-colors: (
-  "primary": #ff6600,
+  "primary": $accent,
   "secondary": #242222,
   "tertiary": #616161,
   "success": #26a126,
   "danger": #ff3838,
   "info": #00bfff,
-  "note": #7084fb,
-  "complement": #fdce4f,
   "light": $light,
-  "dark": #242222,
   "surface": #dbdbdb,
 );
 

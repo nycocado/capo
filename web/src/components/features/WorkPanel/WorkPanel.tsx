@@ -40,7 +40,7 @@ export function WorkPanel({
           {cards.map((card, idx) => (
             <Card
               key={card.key ?? idx}
-              bg="dark"
+              bg="secondary"
               text="light"
               className={`${idx === 0 ? "mb-2" : idx === cards.length - 1 ? "mt-2" : "my-2"} rounded-3 border border-tertiary ${card.className || ""}`}
             >

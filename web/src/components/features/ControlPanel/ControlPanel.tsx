@@ -57,7 +57,7 @@ export function ControlPanel({
       <CardBody className="pb-2">
         <InputGroup className="mb-3 op-search">
           <DropdownButton
-            variant="dark"
+            variant="secondary"
             title={currentFieldLabel || "Field"}
             id="search-field"
           >
