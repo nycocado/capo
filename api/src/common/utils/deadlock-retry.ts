@@ -8,7 +8,10 @@ export async function withDeadlockRetry<T>(fn: () => Promise<T>): Promise<T> {
     try {
       return await fn();
     } catch (error) {
-      if (error instanceof DeadlockException && attempt < MAX_DEADLOCK_RETRIES) {
+      if (
+        error instanceof DeadlockException &&
+        attempt < MAX_DEADLOCK_RETRIES
+      ) {
         attempt++;
         await new Promise((resolve) => setTimeout(resolve, attempt * 50));
         continue;
