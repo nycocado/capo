@@ -1,4 +1,4 @@
-import { DiameterDto } from "./diameter.dto";
+import { DiameterDto } from "./shared-primitives.dto";
 
 export interface PortDto {
   number: number;

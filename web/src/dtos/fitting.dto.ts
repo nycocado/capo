@@ -1,5 +1,4 @@
-import { MaterialDto } from "./material.dto";
-import { FittingTypeDto } from "./fitting-type.dto";
+import { MaterialDto, FittingTypeDto } from "./shared-primitives.dto";
 import { PortDto } from "./port.dto";
 
 export interface FittingDto {

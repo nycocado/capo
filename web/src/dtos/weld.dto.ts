@@ -1,4 +1,4 @@
-import { FillerMaterialDto } from "./filler-material.dto";
+import { FillerMaterialDto } from "./shared-primitives.dto";
 import { WpsDto } from "./wps.dto";
 import { WeldStatus } from "./status.dto";
 

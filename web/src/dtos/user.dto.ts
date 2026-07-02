@@ -1,4 +1,4 @@
-import { RoleDto } from "./role.dto";
+import { RoleDto } from "./shared-primitives.dto";
 
 export interface UserDto {
   id: number;

@@ -87,7 +87,7 @@ export function ControlPanel({
             <Col key={idx} className="d-flex flex-column">
               <Button
                 variant={btn.variant}
-                className={`fs-5 ${btn.className || ""}`}
+                className={`fs-5 mb-2 border-3 ${btn.className || ""}`}
                 style={{ minHeight: "50px", ...btn.style }}
                 onClick={btn.onClick}
               >

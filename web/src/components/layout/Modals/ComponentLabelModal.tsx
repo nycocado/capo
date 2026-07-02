@@ -1,23 +1,10 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
 import React from "react";
 import { BaseModal } from "@components/layout/Modals/BaseModal";
-import {
-  TaggedValue,
-  TaggedValueConfig,
-} from "@components/features/WorkPanel/values/TaggedValue";
-import {
-  NormalValue,
-  NormalValueConfig,
-} from "@components/features/WorkPanel/values/NormalValue";
-import {
-  DoubleValue,
-  DoubleValueConfig,
-} from "@components/features/WorkPanel/values/DoubleValue";
-
-export type ValueConfig =
-  | TaggedValueConfig
-  | NormalValueConfig
-  | DoubleValueConfig;
+import { TaggedValue } from "@components/features/WorkPanel/values/TaggedValue";
+import { NormalValue } from "@components/features/WorkPanel/values/NormalValue";
+import { DoubleValue } from "@components/features/WorkPanel/values/DoubleValue";
+import { ValueConfig } from "@components/features/WorkPanel/WorkPanel";
 
 export interface ComponentLabelModalProps {
   show: boolean;

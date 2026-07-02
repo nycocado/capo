@@ -27,16 +27,7 @@ export function WorkGrid<T extends { id: number | string }>(
     renderGroupTitle,
   } = props;
   const groups = groupBy
-    ? (() => {
-        const m = new Map<string, T[]>();
-        items.forEach((item) => {
-          const key = groupBy(item);
-          const arr = m.get(key) ?? [];
-          if (!m.has(key)) m.set(key, arr);
-          arr.push(item);
-        });
-        return Array.from(m.values());
-      })()
+    ? (Object.values(Object.groupBy(items, groupBy)) as T[][])
     : [items];
 
   return (

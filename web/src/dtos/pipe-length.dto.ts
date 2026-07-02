@@ -1,5 +1,4 @@
-import { MaterialDto } from "./material.dto";
-import { DiameterDto } from "./diameter.dto";
+import { MaterialDto, DiameterDto } from "./shared-primitives.dto";
 import { PipeLengthStatus } from "./status.dto";
 
 export interface PipeLengthDto {
