@@ -1,9 +1,9 @@
 import { useCallback } from "react";
-import { useWeldListTable } from "./useWeldListTable";
 import { WeldListDto, UserDto } from "@dtos";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { useUIConfigurations } from "@hooks";
+import { columnsWeldList } from "@components/features/WorkTable/WorkTable.columns";
+import { useStageListTable, useUIConfigurations } from "@hooks";
 import { API_ROUTES, WS_EVENTS, WS_ROUTES } from "@/routes";
 import { useWeldGrid } from "./useWeldGrid";
 import { useWeldDataVerification } from "./useWeldDataVerification";
@@ -85,19 +85,20 @@ export const useWeldWorkflow = ({
     [claim, setActiveTab],
   );
 
-  const weldListTable = useWeldListTable(
+  const weldListTable = useStageListTable<WeldListDto>({
     items,
     search,
-    currentUser?.id,
-    {
-      onWeldListSelected: async (weldList) => {
+    searchField,
+    columns: columnsWeldList,
+    currentUserId: currentUser?.id,
+    callbacks: {
+      onSelected: async (weldList) => {
         if (weldList.progress === "done") openWorkingView(weldList);
         else await startWeldList(weldList.id);
       },
-      onWeldListClaim: async (id) => await startWeldList(id),
+      onClaim: async (id) => await startWeldList(id),
     },
-    searchField,
-  );
+  });
 
   const weldDataVerification = useWeldDataVerification({
     onWeldProcessed: (updatedWeld) => {

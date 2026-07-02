@@ -12,7 +12,7 @@ import { useInformationState } from "./useInformationState";
 import { listToUiState, useWorkStatusAccessor } from "./useWorkStatusAccessor";
 import { useFinishedItemsSorting } from "./useFinishedItemsSorting";
 
-type ListLike = {
+export type ListLike = {
   id: number;
   progress?: string;
   claimedBy?: { id: number } | null;

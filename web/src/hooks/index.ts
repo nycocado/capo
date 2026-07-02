@@ -5,3 +5,4 @@ export * from "./useModalState";
 export * from "./useUIConfigurations";
 export * from "./useInformationState";
 export * from "./useWorkTableBase";
+export * from "./useStageListTable";

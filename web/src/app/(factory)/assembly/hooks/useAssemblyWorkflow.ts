@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from "react";
-import { useAssemblyListTable } from "./useAssemblyListTable";
 import { useAssemblyMaterialVerification } from "./useAssemblyMaterialVerification";
 import { usePDFViewer } from "./usePDFViewer";
 import { AssemblyListDto, UserDto } from "@dtos";
 import { TAB_TYPES } from "@components/features/WorkTabs";
+import { columnsAssemblyList } from "@components/features/WorkTable/WorkTable.columns";
 import { useJointGrid } from "./useJointGrid";
-import { useUIConfigurations } from "@hooks";
+import { useStageListTable, useUIConfigurations } from "@hooks";
 import { assemblyButtonConfig } from "@components/features/ControlPanel";
 import { WS_EVENTS, WS_ROUTES } from "@/routes";
 import {
@@ -80,12 +80,14 @@ export const useAssemblyWorkflow = ({
 
   const materialVerification = useAssemblyMaterialVerification();
 
-  const assemblyListTable = useAssemblyListTable(
+  const assemblyListTable = useStageListTable<AssemblyListDto>({
     items,
     search,
-    currentUser?.id,
-    {
-      onAssemblyListSelected: async (assemblyList: AssemblyListDto) => {
+    searchField,
+    columns: columnsAssemblyList,
+    currentUserId: currentUser?.id,
+    callbacks: {
+      onSelected: async (assemblyList) => {
         try {
           const detail = await getAssemblyListById(assemblyList.id);
           await materialVerification.startVerification(detail, () => {
@@ -99,10 +101,9 @@ export const useAssemblyWorkflow = ({
           setErrorMsg("Failed to start material verification");
         }
       },
-      onAssemblyListClaim: async (id) => await startAssemblyList(id),
+      onClaim: async (id) => await startAssemblyList(id),
     },
-    searchField,
-  );
+  });
 
   const weldGrid = useJointGrid({
     assemblyList: selectedAssemblyList ?? null,
