@@ -2,10 +2,7 @@ import { useMemo } from "react";
 import { useCutOperations } from "./useCutOperations";
 import { useCutListTable } from "./useCutListTable";
 import { usePipeLengthTable } from "./usePipeLengthTable";
-import {
-  extractPipeLengthsFromCutList,
-  validateHeatNumber,
-} from "../utils/cutUtils";
+import { extractPipeLengthsFromCutList } from "../utils/cutUtils";
 import { CutListDto, UserDto } from "@dtos";
 import { PipeLengthWithContext } from "@interfaces";
 import {
@@ -155,7 +152,7 @@ export const useCutWorkflow = ({
   });
 
   const handleInputConfirm = async (inputHeatNumber: string) => {
-    if (!pendingItem || !validateHeatNumber(inputHeatNumber)) {
+    if (!pendingItem || inputHeatNumber.trim().length === 0) {
       setErrorMsg("Please enter a valid heat number");
       return;
     }

@@ -8,10 +8,5 @@ build
 .env.local
 .env.*.local
 npm-debug.log*
-.eslintcache
-coverage
-e2e
-playwright-report
-test-results
 Dockerfile
 .dockerignore

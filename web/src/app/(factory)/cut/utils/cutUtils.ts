@@ -28,6 +28,3 @@ export const extractPipeLengthsFromCutList = (
 
   return out;
 };
-
-export const validateHeatNumber = (value: string): boolean =>
-  value.trim().length > 0;

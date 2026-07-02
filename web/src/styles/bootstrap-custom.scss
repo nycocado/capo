@@ -10,8 +10,6 @@ $custom-theme-colors: (
   "success": #26a126,
   "danger": #ff3838,
   "info": #00bfff,
-  "light": $light,
-  "surface": #dbdbdb,
 );
 
 $theme-colors: map-merge($theme-colors, $custom-theme-colors);
