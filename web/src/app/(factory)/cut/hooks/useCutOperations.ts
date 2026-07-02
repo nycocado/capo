@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { PipeLengthDto } from "@dtos";
 import { createPipeLengthStatusEvent } from "@/lib/api";
 
@@ -11,51 +12,40 @@ export function useCutOperations({
   onSuccess,
   onError,
 }: UseCutOperationsProps = {}) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const pendingRef = useRef(false);
 
-  const performOperation = async (
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (operation: () => Promise<PipeLengthDto>) => operation(),
+    onSuccess: (item) => onSuccess?.(item),
+    onError: (error) =>
+      onError?.(error instanceof Error ? error.message : "Unexpected error"),
+  });
+
+  const run = async (
     operation: () => Promise<PipeLengthDto>,
-    errorContext = "performing operation",
   ): Promise<boolean> => {
     if (pendingRef.current) return false;
     pendingRef.current = true;
-    setIsSubmitting(true);
     try {
-      const updatedItem = await operation();
-      onSuccess?.(updatedItem);
+      await mutateAsync(operation);
       return true;
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : `Unexpected error ${errorContext}`;
-      onError?.(message);
+    } catch {
       return false;
     } finally {
       pendingRef.current = false;
-      setIsSubmitting(false);
     }
   };
 
-  const startWork = (
-    item: { id: number },
-    heatNumber: string,
-  ): Promise<boolean> =>
-    performOperation(
-      () =>
-        createPipeLengthStatusEvent(item.id, {
-          status: "in_progress",
-          heatNumber,
-        }),
-      "starting work",
+  const startWork = (item: { id: number }, heatNumber: string) =>
+    run(() =>
+      createPipeLengthStatusEvent(item.id, {
+        status: "in_progress",
+        heatNumber,
+      }),
     );
 
-  const finishWork = (item: { id: number }): Promise<boolean> =>
-    performOperation(
-      () => createPipeLengthStatusEvent(item.id, { status: "done" }),
-      "finishing work",
-    );
+  const finishWork = (item: { id: number }) =>
+    run(() => createPipeLengthStatusEvent(item.id, { status: "done" }));
 
-  return { startWork, finishWork, isSubmitting };
+  return { startWork, finishWork, isSubmitting: isPending };
 }

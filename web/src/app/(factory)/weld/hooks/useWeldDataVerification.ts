@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { WeldWithContext } from "@interfaces/weld-with-context.interface";
 import { useWeldFormData } from "./useWeldFormData";
 import { createWeldStatusEvent } from "@/lib/api";
@@ -15,11 +16,33 @@ export function useWeldDataVerification({
   const [showModal, setShowModal] = useState(false);
   const [currentWeld, setCurrentWeld] = useState<WeldWithContext | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const pendingRef = useRef(false);
 
   const { wpsOptions, fillerMaterialOptions, loading } = useWeldFormData({
     enabled: showModal,
+  });
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (vars: {
+      weld: WeldWithContext;
+      fillerMaterialId: number;
+      wpsId: number;
+    }) =>
+      createWeldStatusEvent(vars.weld.id, {
+        status: "done",
+        fillerMaterialId: vars.fillerMaterialId,
+        wpsId: vars.wpsId,
+      }),
+    onSuccess: (updated, vars) => {
+      onWeldProcessed?.({ ...updated, spoolInfo: vars.weld.spoolInfo });
+      setShowModal(false);
+      setCurrentWeld(null);
+      setFormValues({});
+    },
+    onError: (error) =>
+      onError?.(
+        error instanceof Error ? error.message : "Failed to process weld",
+      ),
   });
 
   const startVerification = useCallback((weld: WeldWithContext) => {
@@ -44,26 +67,14 @@ export function useWeldDataVerification({
 
     if (pendingRef.current) return;
     pendingRef.current = true;
-    setIsSubmitting(true);
     try {
-      const updated = await createWeldStatusEvent(currentWeld.id, {
-        status: "done",
-        fillerMaterialId,
-        wpsId,
-      });
-      onWeldProcessed?.({ ...updated, spoolInfo: currentWeld.spoolInfo });
-      setShowModal(false);
-      setCurrentWeld(null);
-      setFormValues({});
-    } catch (error) {
-      onError?.(
-        error instanceof Error ? error.message : "Failed to process weld",
-      );
+      await mutateAsync({ weld: currentWeld, fillerMaterialId, wpsId });
+    } catch {
+      return;
     } finally {
       pendingRef.current = false;
-      setIsSubmitting(false);
     }
-  }, [currentWeld, formValues, onWeldProcessed, onError]);
+  }, [currentWeld, formValues, mutateAsync, onError]);
 
   const handleCancel = useCallback(() => {
     setShowModal(false);
@@ -102,7 +113,7 @@ export function useWeldDataVerification({
     showModal,
     currentWeld,
     loading,
-    isSubmitting,
+    isSubmitting: isPending,
     modalFields,
     formValues,
     modalTitle: `Welding Details - ${currentWeld?.number || ""}`,

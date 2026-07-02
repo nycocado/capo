@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { JointDto } from "@dtos";
 import { createJointStatusEvent } from "@/lib/api";
 
@@ -13,8 +14,19 @@ export function useAssemblyOperations({
   onSuccess,
   onError,
 }: UseAssemblyOperationsProps = {}) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const pendingRef = useRef(false);
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (jointId: number) =>
+      createJointStatusEvent(jointId, { status: "done" }),
+    onSuccess: (updatedJoint) => onSuccess?.(updatedJoint),
+    onError: (error) =>
+      onError?.(
+        error instanceof Error
+          ? error.message
+          : "Unexpected error processing joint",
+      ),
+  });
 
   const processJoint = useCallback(
     async (jointId: number): Promise<boolean> => {
@@ -24,27 +36,17 @@ export function useAssemblyOperations({
       }
       if (pendingRef.current) return false;
       pendingRef.current = true;
-      setIsSubmitting(true);
       try {
-        const updatedJoint = await createJointStatusEvent(jointId, {
-          status: "done",
-        });
-        onSuccess?.(updatedJoint);
+        await mutateAsync(jointId);
         return true;
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Unexpected error processing joint";
-        onError?.(message);
+      } catch {
         return false;
       } finally {
         pendingRef.current = false;
-        setIsSubmitting(false);
       }
     },
-    [onSuccess, onError],
+    [mutateAsync, onError],
   );
 
-  return { processJoint, isSubmitting };
+  return { processJoint, isSubmitting: isPending };
 }

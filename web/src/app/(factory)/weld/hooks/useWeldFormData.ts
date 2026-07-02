@@ -1,45 +1,26 @@
-import { useState, useEffect } from "react";
-import { FillerMaterialDto, WpsDto } from "@dtos";
+import { useQuery } from "@tanstack/react-query";
 import { getAllFillerMaterials, getAllWps } from "@/lib/api";
+import { queryKeys } from "@/lib/query/keys";
 
 export interface UseWeldFormDataProps {
   enabled?: boolean;
 }
 
 export function useWeldFormData({ enabled = true }: UseWeldFormDataProps = {}) {
-  const [wpsOptions, setWpsOptions] = useState<WpsDto[]>([]);
-  const [fillerMaterialOptions, setFillerMaterialOptions] = useState<
-    FillerMaterialDto[]
-  >([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-
-      try {
-        const [wpsData, fillerMaterialData] = await Promise.all([
-          getAllWps(),
-          getAllFillerMaterials(),
-        ]);
-
-        setWpsOptions(wpsData);
-        setFillerMaterialOptions(fillerMaterialData);
-      } catch (err) {
-        console.error("Error fetching weld form data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [enabled]);
+  const wps = useQuery({
+    queryKey: queryKeys.wps(),
+    queryFn: getAllWps,
+    enabled,
+  });
+  const fillerMaterials = useQuery({
+    queryKey: queryKeys.fillerMaterials(),
+    queryFn: getAllFillerMaterials,
+    enabled,
+  });
 
   return {
-    wpsOptions,
-    fillerMaterialOptions,
-    loading,
+    wpsOptions: wps.data ?? [],
+    fillerMaterialOptions: fillerMaterials.data ?? [],
+    loading: wps.isLoading || fillerMaterials.isLoading,
   };
 }
