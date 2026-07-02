@@ -1,19 +1,17 @@
 import { CommandHandler, EventBus, ICommandHandler } from "@nestjs/cqrs";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Transactional } from "@mikro-orm/decorators/legacy";
-import { DeadlockException } from "@mikro-orm/core";
 import { JointEntity } from "@modules/joint/entities/joint.entity";
 import { JointRepository } from "@modules/joint/joint.repository";
 import { AssemblyListEntity } from "@modules/assembly-list/entities/assembly-list.entity";
 import { AssemblyListRepository } from "@modules/assembly-list/assembly-list.repository";
 import { UserEntity } from "@modules/user/entities/user.entity";
 import { ClaimControlPolicy } from "@common/domain";
+import { withDeadlockRetry } from "@common/utils/deadlock-retry";
 import {
   CreateJointStatusEventCommand,
   CreateJointStatusEventInput,
 } from "@modules/joint/application/commands";
-
-const MAX_DEADLOCK_RETRIES = 3;
 
 @CommandHandler(CreateJointStatusEventCommand)
 export class CreateJointStatusEventHandler implements ICommandHandler<CreateJointStatusEventCommand> {
@@ -27,21 +25,9 @@ export class CreateJointStatusEventHandler implements ICommandHandler<CreateJoin
   ) {}
 
   async execute({ data }: CreateJointStatusEventCommand): Promise<JointEntity> {
-    let attempt = 0;
-    while (true) {
-      try {
-        const joint = await this.apply(data);
-        this.eventBus.publishAll(joint.pullDomainEvents());
-        return joint;
-      } catch (error) {
-        if (error instanceof DeadlockException && attempt < MAX_DEADLOCK_RETRIES) {
-          attempt++;
-          await new Promise((resolve) => setTimeout(resolve, attempt * 50));
-          continue;
-        }
-        throw error;
-      }
-    }
+    const joint = await withDeadlockRetry(() => this.apply(data));
+    this.eventBus.publishAll(joint.pullDomainEvents());
+    return joint;
   }
 
   @Transactional()

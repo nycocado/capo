@@ -10,6 +10,7 @@ import { UserEntity } from "@modules/user/entities/user.entity";
 import { FillerMaterialEntity } from "@modules/filler-material/entities/filler-material.entity";
 import { WpsEntity } from "@modules/wps/entities/wps.entity";
 import { ClaimControlPolicy } from "@common/domain";
+import { withDeadlockRetry } from "@common/utils/deadlock-retry";
 import {
   CreateWeldStatusEventCommand,
   CreateWeldStatusEventInput,
@@ -27,7 +28,7 @@ export class CreateWeldStatusEventHandler implements ICommandHandler<CreateWeldS
   ) {}
 
   async execute({ data }: CreateWeldStatusEventCommand): Promise<WeldEntity> {
-    const weld = await this.apply(data);
+    const weld = await withDeadlockRetry(() => this.apply(data));
     this.eventBus.publishAll(weld.pullDomainEvents());
     return weld;
   }

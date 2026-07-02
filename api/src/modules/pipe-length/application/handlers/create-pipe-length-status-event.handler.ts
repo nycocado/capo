@@ -11,6 +11,7 @@ import { CutListEntity } from "@modules/cut-list/entities/cut-list.entity";
 import { CutListRepository } from "@modules/cut-list/cut-list.repository";
 import { UserEntity } from "@modules/user/entities/user.entity";
 import { ClaimControlPolicy } from "@common/domain";
+import { withDeadlockRetry } from "@common/utils/deadlock-retry";
 import {
   CreatePipeLengthStatusEventCommand,
   CreatePipeLengthStatusEventInput,
@@ -30,7 +31,7 @@ export class CreatePipeLengthStatusEventHandler implements ICommandHandler<Creat
   async execute({
     data,
   }: CreatePipeLengthStatusEventCommand): Promise<PipeLengthEntity> {
-    const pipeLength = await this.apply(data);
+    const pipeLength = await withDeadlockRetry(() => this.apply(data));
     this.eventBus.publishAll(pipeLength.pullDomainEvents());
     return pipeLength;
   }
