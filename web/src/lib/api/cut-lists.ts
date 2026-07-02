@@ -1,37 +1,13 @@
 import { API_ROUTES } from "@/routes";
 import { CutListDto } from "@dtos";
-import { browserApi, serverApi } from "./client";
+import { makeListApi } from "./make-list-api";
 
-export function getCutLists(token: string | undefined): Promise<CutListDto[]> {
-  return serverApi(token).get(API_ROUTES.cutLists.base).json<CutListDto[]>();
-}
+const api = makeListApi<CutListDto>(API_ROUTES.cutLists);
 
-export function fetchCutLists(): Promise<CutListDto[]> {
-  return browserApi.get(API_ROUTES.cutLists.base).json<CutListDto[]>();
-}
-
-export function getCutListById(id: number): Promise<CutListDto> {
-  return browserApi.get(API_ROUTES.cutLists.id(id)).json<CutListDto>();
-}
-
-export function getCutListsPendingCount(
-  token: string | undefined,
-): Promise<{ count: number }> {
-  return serverApi(token)
-    .get(API_ROUTES.cutLists.pendingCount)
-    .json<{ count: number }>();
-}
-
-export function fetchCutListsPendingCount(): Promise<{ count: number }> {
-  return browserApi
-    .get(API_ROUTES.cutLists.pendingCount)
-    .json<{ count: number }>();
-}
-
-export function claimCutList(id: number): Promise<CutListDto> {
-  return browserApi.post(API_ROUTES.cutLists.claim(id)).json<CutListDto>();
-}
-
-export function releaseCutList(id: number): Promise<CutListDto> {
-  return browserApi.delete(API_ROUTES.cutLists.claim(id)).json<CutListDto>();
-}
+export const getCutLists = api.getList;
+export const fetchCutLists = api.fetchList;
+export const getCutListById = api.getById;
+export const getCutListsPendingCount = api.getPendingCount;
+export const fetchCutListsPendingCount = api.fetchPendingCount;
+export const claimCutList = api.claim;
+export const releaseCutList = api.release;

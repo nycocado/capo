@@ -1,39 +1,13 @@
 import { API_ROUTES } from "@/routes";
 import { WeldListDto } from "@dtos";
-import { browserApi, serverApi } from "./client";
+import { makeListApi } from "./make-list-api";
 
-export function getWeldLists(
-  token: string | undefined,
-): Promise<WeldListDto[]> {
-  return serverApi(token).get(API_ROUTES.weldLists.base).json<WeldListDto[]>();
-}
+const api = makeListApi<WeldListDto>(API_ROUTES.weldLists);
 
-export function fetchWeldLists(): Promise<WeldListDto[]> {
-  return browserApi.get(API_ROUTES.weldLists.base).json<WeldListDto[]>();
-}
-
-export function getWeldListById(id: number): Promise<WeldListDto> {
-  return browserApi.get(API_ROUTES.weldLists.id(id)).json<WeldListDto>();
-}
-
-export function getWeldListsPendingCount(
-  token: string | undefined,
-): Promise<{ count: number }> {
-  return serverApi(token)
-    .get(API_ROUTES.weldLists.pendingCount)
-    .json<{ count: number }>();
-}
-
-export function fetchWeldListsPendingCount(): Promise<{ count: number }> {
-  return browserApi
-    .get(API_ROUTES.weldLists.pendingCount)
-    .json<{ count: number }>();
-}
-
-export function claimWeldList(id: number): Promise<WeldListDto> {
-  return browserApi.post(API_ROUTES.weldLists.claim(id)).json<WeldListDto>();
-}
-
-export function releaseWeldList(id: number): Promise<WeldListDto> {
-  return browserApi.delete(API_ROUTES.weldLists.claim(id)).json<WeldListDto>();
-}
+export const getWeldLists = api.getList;
+export const fetchWeldLists = api.fetchList;
+export const getWeldListById = api.getById;
+export const getWeldListsPendingCount = api.getPendingCount;
+export const fetchWeldListsPendingCount = api.fetchPendingCount;
+export const claimWeldList = api.claim;
+export const releaseWeldList = api.release;
