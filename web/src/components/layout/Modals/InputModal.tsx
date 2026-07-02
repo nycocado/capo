@@ -1,5 +1,5 @@
 import { Button, Form, Spinner } from "react-bootstrap";
-import React, { useState } from "react";
+import React from "react";
 import { BaseModal } from "./BaseModal";
 
 export interface InputModalProps {
@@ -9,9 +9,8 @@ export interface InputModalProps {
   title: string;
   label?: string;
   placeholder?: string;
-  initialValue?: string;
-  value?: string;
-  onValueChange?: (value: string) => void;
+  value: string;
+  onValueChange: (value: string) => void;
   inputType?: "text" | "number";
   confirmText?: string;
   cancelText?: string;
@@ -26,8 +25,7 @@ export function InputModal(props: InputModalProps) {
     title,
     label,
     placeholder,
-    initialValue = "",
-    value: externalValue,
+    value,
     onValueChange,
     inputType = "text",
     confirmText = "Confirm",
@@ -35,52 +33,19 @@ export function InputModal(props: InputModalProps) {
     isLoading = false,
   } = props;
 
-  const [internalValue, setInternalValue] = useState(initialValue);
-
-  const isControlled =
-    externalValue !== undefined && onValueChange !== undefined;
-  const currentValue = isControlled ? externalValue : internalValue;
-
-  const [wasShown, setWasShown] = useState(show);
-  if (show !== wasShown) {
-    setWasShown(show);
-    if (show && !isControlled) {
-      setInternalValue(initialValue);
-    }
-  }
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-
-    if (inputType === "number") {
-      if (/^\d*$/.test(val)) {
-        if (isControlled) {
-          onValueChange!(val);
-        } else {
-          setInternalValue(val);
-        }
-      }
-    } else {
-      if (isControlled) {
-        onValueChange!(val);
-      } else {
-        setInternalValue(val);
-      }
-    }
+    if (inputType === "number" && !/^\d*$/.test(val)) return;
+    onValueChange(val);
   };
 
   const handleConfirm = () => {
     if (isLoading) return;
-    onConfirm(currentValue);
+    onConfirm(value);
   };
 
   const handleClose = () => {
     if (isLoading) return;
-
-    if (!isControlled) {
-      setInternalValue(initialValue);
-    }
-
     onHide();
   };
 
@@ -94,7 +59,7 @@ export function InputModal(props: InputModalProps) {
     }
   };
 
-  const isConfirmDisabled = !currentValue.trim() || isLoading;
+  const isConfirmDisabled = !value.trim() || isLoading;
 
   return (
     <BaseModal
@@ -110,7 +75,7 @@ export function InputModal(props: InputModalProps) {
             <Form.Label className="fw-semibold">{label}</Form.Label>
             <Form.Control
               type="text"
-              value={currentValue}
+              value={value}
               onChange={handleInputChange}
               onKeyDown={handleKeyPress}
               placeholder={placeholder}

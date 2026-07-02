@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCutOperations } from "./useCutOperations";
 import { useCutListTable } from "./useCutListTable";
 import { usePipeLengthTable } from "./usePipeLengthTable";
@@ -10,7 +10,7 @@ import {
   columnsPipeLengthDto,
 } from "@components/features/WorkTable/WorkTable.columns";
 import { TAB_TYPES } from "@components/features/WorkTabs";
-import { filterBySearch, useModalState, useUIConfigurations } from "@hooks";
+import { filterBySearch, useUIConfigurations } from "@hooks";
 import { cutButtonConfig } from "@components/features/ControlPanel";
 import { cutCardConfigs } from "@components/features/WorkPanel/WorkPanel.cardConfigs";
 import { cutCompletionModalConfig } from "@components/layout/Modals/ComponentLabelModal.valueConfig";
@@ -70,19 +70,25 @@ export const useCutWorkflow = ({
     return extractPipeLengthsFromCutList(selectedCutList);
   }, [selectedCutList]);
 
-  const modal = useModalState<PipeLengthWithContext>();
-  const {
-    pendingItem,
-    setInputValue,
-    completedItem,
-    setPendingItem,
-    setIsEditing,
-    setInputShow,
-    setShowCompletionModal,
-    setCompletedItem,
-    resetModalState,
-    resetCompletionModal,
-  } = modal;
+  const [inputShow, setInputShow] = useState(false);
+  const [pendingItem, setPendingItem] =
+    useState<PipeLengthWithContext | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completedItem, setCompletedItem] =
+    useState<PipeLengthWithContext | null>(null);
+
+  const resetModalState = () => {
+    setInputShow(false);
+    setPendingItem(null);
+    setIsEditing(false);
+    setInputValue("");
+  };
+  const resetCompletionModal = () => {
+    setShowCompletionModal(false);
+    setCompletedItem(null);
+  };
 
   const openCutList = (cutList: CutListDto) => {
     setSelectedCutListId(cutList.id);
@@ -192,7 +198,15 @@ export const useCutWorkflow = ({
 
   return {
     state: { errorMsg, activeTab, search, setSearch, setErrorMsg },
-    modal,
+    modal: {
+      inputShow,
+      isEditing,
+      inputValue,
+      setInputValue,
+      showCompletionModal,
+      resetModalState,
+      resetCompletionModal,
+    },
     cutListTable,
     pipeLengthTable,
     selectedPipeLength,
