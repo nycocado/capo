@@ -13,7 +13,6 @@ export * from "./port.dto";
 export * from "./role.dto";
 export * from "./spool.dto";
 export * from "./status.dto";
-export * from "./status-event.dto";
 export * from "./user.dto";
 export * from "./weld-list.dto";
 export * from "./weld.dto";

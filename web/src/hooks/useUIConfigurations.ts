@@ -28,10 +28,6 @@ export const useUIConfigurations = <
     ) => CardConfig[];
     modalConfig?: (item: TCompleted | null) => TModal;
   },
-  options?: {
-    canEdit?: boolean;
-    onEditClick?: () => void;
-  },
 ) => {
   const { buttonConfig, cardConfigs, modalConfig } = configFactories;
 
@@ -42,14 +38,8 @@ export const useUIConfigurations = <
 
   const cards = useMemo(() => {
     if (!cardConfigs) return undefined;
-
-    const cardOptions =
-      options?.canEdit && options?.onEditClick
-        ? { onEditClick: options.onEditClick }
-        : undefined;
-
-    return cardConfigs(selectedItem, cardOptions);
-  }, [cardConfigs, selectedItem, options]);
+    return cardConfigs(selectedItem);
+  }, [cardConfigs, selectedItem]);
 
   const modalData = useMemo(() => {
     if (!modalConfig) return undefined;

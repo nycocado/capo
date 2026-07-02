@@ -40,21 +40,8 @@ export const useWeldEventHandlers = (
     if (todo) callbacks?.onWeldListClaim?.(todo.id);
   }, [activeTab, items, callbacks, rowStateAccessor, currentUserId]);
 
-  const areAllWorkingItemsFinished = useCallback(() => false, []);
-
-  const isItemInFocus = useCallback(
-    (item: WeldListDto | null): boolean => {
-      if (!item) return false;
-      const state = rowStateAccessor(item);
-      return state === WORK_STATES.WORKING || state === WORK_STATES.FINISHED;
-    },
-    [rowStateAccessor],
-  );
-
   return {
     handleRowClick,
     handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
   };
 };

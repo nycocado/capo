@@ -26,12 +26,7 @@ export function useWeldListTable(
     currentUserId,
   });
 
-  const {
-    handleRowClick,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
-  } = useWeldEventHandlers(
+  const { handleRowClick, handleNextWorkflow } = useWeldEventHandlers(
     TAB_TYPES.ALL,
     base.rowStateAccessor,
     weldLists,
@@ -48,8 +43,6 @@ export function useWeldListTable(
     selectedItem: base.selectedItem,
     handleRowClick,
     handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
     clearAllInformation: base.clearAllInformation,
   };
 }

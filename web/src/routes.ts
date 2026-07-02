@@ -17,24 +17,17 @@ export const ROUTES = {
 
 export const API_ROUTES = {
   auth: {
-    base: `${API_URL}/auth`,
     login: `${API_URL}/auth/login`,
     logout: `${API_URL}/auth/logout`,
     me: `${API_URL}/auth/me`,
   },
   pipeLengths: {
-    base: `${API_URL}/pipe-lengths`,
-    id: (id: number) => `${API_URL}/pipe-lengths/${id}`,
     statusEvents: (id: number) => `${API_URL}/pipe-lengths/${id}/status-events`,
   },
   joints: {
-    base: `${API_URL}/joints`,
-    id: (id: number) => `${API_URL}/joints/${id}`,
     statusEvents: (id: number) => `${API_URL}/joints/${id}/status-events`,
   },
   welds: {
-    base: `${API_URL}/welds`,
-    id: (id: number) => `${API_URL}/welds/${id}`,
     statusEvents: (id: number) => `${API_URL}/welds/${id}/status-events`,
   },
   cutLists: {
@@ -57,14 +50,11 @@ export const API_ROUTES = {
   },
   fillerMaterials: {
     base: `${API_URL}/filler-materials`,
-    id: (id: number) => `${API_URL}/filler-materials/${id}`,
   },
   wps: {
     base: `${API_URL}/wps`,
-    id: (id: number) => `${API_URL}/wps/${id}`,
   },
   documents: {
-    base: `${API_URL}/documents`,
     download: (section: string, filename: string) =>
       `${API_URL}/documents/${section}/${filename}`,
   },
@@ -78,10 +68,7 @@ export const WS_ROUTES = {
 
 export const WS_EVENTS = {
   default: {
-    connect: "connect",
-    disconnect: "disconnect",
     connect_error: "connect_error",
-    error: "error",
   },
   stage: {
     claimChanged: "claimChanged",

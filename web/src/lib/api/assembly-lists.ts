@@ -47,12 +47,3 @@ export function releaseAssemblyList(id: number): Promise<AssemblyListDto> {
     .delete(API_ROUTES.assemblyLists.claim(id))
     .json<AssemblyListDto>();
 }
-
-export function reassignAssemblyList(
-  id: number,
-  userId: number,
-): Promise<AssemblyListDto> {
-  return browserApi
-    .put(API_ROUTES.assemblyLists.claim(id), { json: { userId } })
-    .json<AssemblyListDto>();
-}

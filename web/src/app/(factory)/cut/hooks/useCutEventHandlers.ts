@@ -168,23 +168,9 @@ export const useCutEventHandlers = (
     );
   }, [activeTab, items]);
 
-  const isItemInFocus = useCallback(
-    (item: CutRow | null): boolean => {
-      if (!item) return false;
-      const state = rowStateAccessor(item);
-      return (
-        state === WORK_STATES.INFORMATION ||
-        state === WORK_STATES.WORKING ||
-        state === WORK_STATES.FINISHED
-      );
-    },
-    [rowStateAccessor],
-  );
-
   return {
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
-    isItemInFocus,
   };
 };

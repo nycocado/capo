@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { WeldDto, WeldStatus, StatusEventDto } from "@dtos";
+import { WeldDto, WeldStatus } from "@dtos";
 import { browserApi } from "./client";
 
 export interface CreateWeldStatusEvent {
@@ -16,10 +16,4 @@ export function createWeldStatusEvent(
   return browserApi
     .post(API_ROUTES.welds.statusEvents(id), { json: body })
     .json<WeldDto>();
-}
-
-export function getWeldStatusEvents(id: number): Promise<StatusEventDto[]> {
-  return browserApi
-    .get(API_ROUTES.welds.statusEvents(id))
-    .json<StatusEventDto[]>();
 }

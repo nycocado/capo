@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/routes";
-import { PipeLengthDto, PipeLengthStatus, StatusEventDto } from "@dtos";
+import { PipeLengthDto, PipeLengthStatus } from "@dtos";
 import { browserApi } from "./client";
 
 export interface CreatePipeLengthStatusEvent {
@@ -15,12 +15,4 @@ export function createPipeLengthStatusEvent(
   return browserApi
     .post(API_ROUTES.pipeLengths.statusEvents(id), { json: body })
     .json<PipeLengthDto>();
-}
-
-export function getPipeLengthStatusEvents(
-  id: number,
-): Promise<StatusEventDto[]> {
-  return browserApi
-    .get(API_ROUTES.pipeLengths.statusEvents(id))
-    .json<StatusEventDto[]>();
 }

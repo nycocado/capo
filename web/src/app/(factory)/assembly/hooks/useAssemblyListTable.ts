@@ -26,12 +26,7 @@ export function useAssemblyListTable(
     currentUserId,
   });
 
-  const {
-    handleRowClick,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
-  } = useAssemblyEventHandlers(
+  const { handleRowClick, handleNextWorkflow } = useAssemblyEventHandlers(
     TAB_TYPES.ALL,
     base.rowStateAccessor,
     assemblyLists,
@@ -48,8 +43,6 @@ export function useAssemblyListTable(
     selectedItem: base.selectedItem,
     handleRowClick,
     handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
     clearAllInformation: base.clearAllInformation,
   };
 }

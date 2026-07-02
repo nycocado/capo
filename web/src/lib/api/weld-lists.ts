@@ -37,12 +37,3 @@ export function claimWeldList(id: number): Promise<WeldListDto> {
 export function releaseWeldList(id: number): Promise<WeldListDto> {
   return browserApi.delete(API_ROUTES.weldLists.claim(id)).json<WeldListDto>();
 }
-
-export function reassignWeldList(
-  id: number,
-  userId: number,
-): Promise<WeldListDto> {
-  return browserApi
-    .put(API_ROUTES.weldLists.claim(id), { json: { userId } })
-    .json<WeldListDto>();
-}

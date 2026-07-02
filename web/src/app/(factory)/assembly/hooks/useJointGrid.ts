@@ -33,10 +33,6 @@ export function useJointGrid({
     await jointOperations.handleNextWeld(weldItems);
   }, [jointOperations, weldItems]);
 
-  const areAllWorkingItemsFinished = useCallback(() => {
-    return jointOperations.areAllJointsFinished(weldItems);
-  }, [jointOperations, weldItems]);
-
   return {
     weldItems,
     selectedWeld: jointOperations.selectedWeld,
@@ -44,7 +40,6 @@ export function useJointGrid({
     itemStates: jointOperations.itemStates,
     itemStateAccessor: jointOperations.itemStateAccessor,
     handleNextWorkflow,
-    areAllWorkingItemsFinished,
     isSubmitting: jointOperations.isSubmitting,
   };
 }

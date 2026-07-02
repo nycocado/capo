@@ -79,22 +79,18 @@ export function usePipeLengthTable(
     [selectedItem],
   ) as Dispatch<SetStateAction<Row | null>>;
 
-  const {
-    handleRowClick,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
-  } = useCutEventHandlers(
-    TAB_TYPES.WORKING,
-    informationIds,
-    toggleInformation,
-    clearAllInformation,
-    hasInformationItems,
-    rowStateAccessor,
-    setSelectedItemGeneric,
-    pipeLengths,
-    callbacks,
-  );
+  const { handleRowClick, handleNextWorkflow, areAllWorkingItemsFinished } =
+    useCutEventHandlers(
+      TAB_TYPES.WORKING,
+      informationIds,
+      toggleInformation,
+      clearAllInformation,
+      hasInformationItems,
+      rowStateAccessor,
+      setSelectedItemGeneric,
+      pipeLengths,
+      callbacks,
+    );
 
   const rowStates = useRowStates(TAB_TYPES.WORKING, handleRowClick);
 
@@ -121,7 +117,6 @@ export function usePipeLengthTable(
     proceedToWorking,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
-    isItemInFocus,
     clearAllInformation,
     clearSelection,
   };

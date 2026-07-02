@@ -35,12 +35,3 @@ export function claimCutList(id: number): Promise<CutListDto> {
 export function releaseCutList(id: number): Promise<CutListDto> {
   return browserApi.delete(API_ROUTES.cutLists.claim(id)).json<CutListDto>();
 }
-
-export function reassignCutList(
-  id: number,
-  userId: number,
-): Promise<CutListDto> {
-  return browserApi
-    .put(API_ROUTES.cutLists.claim(id), { json: { userId } })
-    .json<CutListDto>();
-}

@@ -41,23 +41,19 @@ export function useCutListTable(
   const rowStateAccessorUnion = (item: Row) =>
     base.rowStateAccessor(item as CutListDto);
 
-  const {
-    handleRowClick,
-    handleNextWorkflow,
-    areAllWorkingItemsFinished,
-    isItemInFocus,
-  } = useCutEventHandlers(
-    TAB_TYPES.ALL,
-    base.informationIds,
-    base.toggleInformation,
-    base.clearAllInformation,
-    base.hasInformationItems,
-    rowStateAccessorUnion,
-    base.setSelectedItem as Dispatch<SetStateAction<Row | null>>,
-    cutLists,
-    callbacks,
-    currentUserId,
-  );
+  const { handleRowClick, handleNextWorkflow, areAllWorkingItemsFinished } =
+    useCutEventHandlers(
+      TAB_TYPES.ALL,
+      base.informationIds,
+      base.toggleInformation,
+      base.clearAllInformation,
+      base.hasInformationItems,
+      rowStateAccessorUnion,
+      base.setSelectedItem as Dispatch<SetStateAction<Row | null>>,
+      cutLists,
+      callbacks,
+      currentUserId,
+    );
 
   const rowStates = useRowStates(TAB_TYPES.ALL, handleRowClick);
 
@@ -73,7 +69,6 @@ export function useCutListTable(
     handleRowClick,
     handleNextWorkflow,
     areAllWorkingItemsFinished,
-    isItemInFocus,
     clearAllInformation: base.clearAllInformation,
   };
 }

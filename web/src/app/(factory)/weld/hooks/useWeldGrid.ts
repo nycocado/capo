@@ -36,17 +36,11 @@ export function useWeldGrid({
     else onAllFinished?.();
   }, [weldItems, weldOps, handleWeldClick, onAllFinished]);
 
-  const areAllWorkingItemsFinished = useCallback(
-    () => weldOps.areAllWeldsFinished(weldItems),
-    [weldOps, weldItems],
-  );
-
   return {
     weldItems,
     handleItemClick,
     itemStates: weldOps.itemStates,
     itemStateAccessor: weldOps.itemStateAccessor,
     handleNextWorkflow,
-    areAllWorkingItemsFinished,
   };
 }
