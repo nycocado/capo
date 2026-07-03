@@ -376,51 +376,19 @@ ALTER TABLE weld_list
     ADD FOREIGN KEY (claimed_by_id) REFERENCES user (id) ON DELETE SET NULL;
 
 -- ============================================================
---  Índices (além dos criados implicitamente por PK/UNIQUE/FK)
+--  Índices (além dos implícitos de PK/UNIQUE/FK)
+--  FKs já são auto-indexadas pelo InnoDB — não repetir aqui.
 -- ============================================================
 
+-- discriminador da herança joined-table (part = pipe_length | fitting)
 CREATE INDEX idx_part_type ON part (type);
-CREATE INDEX idx_part_number ON part (number);
 
+-- status: baixa cardinalidade, reservado p/ filtros futuros por estado
 CREATE INDEX idx_pipe_length_status ON pipe_length (status);
-CREATE INDEX idx_pipe_length_heat_number ON pipe_length (heat_number);
-CREATE INDEX idx_pipe_length_material_id ON pipe_length (material_id);
-CREATE INDEX idx_pipe_length_diameter_id ON pipe_length (diameter_id);
-
-CREATE INDEX idx_fitting_heat_number ON fitting (heat_number);
-CREATE INDEX idx_fitting_material_id ON fitting (material_id);
-CREATE INDEX idx_fitting_fitting_type_id ON fitting (fitting_type_id);
-
-CREATE INDEX idx_port_fitting_id ON port (fitting_id);
-CREATE INDEX idx_port_diameter_id ON port (diameter_id);
-
-CREATE INDEX idx_project_name ON project (name);
-CREATE INDEX idx_project_client ON project (client);
-
-CREATE INDEX idx_isometric_project_id ON isometric (project_id);
-CREATE INDEX idx_spool_isometric_id ON spool (isometric_id);
-
 CREATE INDEX idx_joint_status ON joint (status);
-CREATE INDEX idx_joint_part1_id ON joint (part1_id);
-CREATE INDEX idx_joint_part2_id ON joint (part2_id);
-CREATE INDEX idx_joint_spool_id ON joint (spool_id);
-
 CREATE INDEX idx_weld_status ON weld (status);
-CREATE INDEX idx_weld_joint_id ON weld (joint_id);
-CREATE INDEX idx_weld_filler_material_id ON weld (filler_material_id);
-CREATE INDEX idx_weld_wps_id ON weld (wps_id);
 
+-- histórico de eventos: WHERE <item>_id ORDER BY created_at
 CREATE INDEX idx_pipe_length_status_event_composite ON pipe_length_status_event (pipe_length_id, created_at);
-CREATE INDEX idx_pipe_length_status_event_created_by ON pipe_length_status_event (created_by_id);
 CREATE INDEX idx_joint_status_event_composite ON joint_status_event (joint_id, created_at);
-CREATE INDEX idx_joint_status_event_created_by ON joint_status_event (created_by_id);
 CREATE INDEX idx_weld_status_event_composite ON weld_status_event (weld_id, created_at);
-CREATE INDEX idx_weld_status_event_created_by ON weld_status_event (created_by_id);
-
-CREATE INDEX idx_cut_list_claimed_by ON cut_list (claimed_by_id);
-CREATE INDEX idx_assembly_list_claimed_by ON assembly_list (claimed_by_id);
-CREATE INDEX idx_weld_list_claimed_by ON weld_list (claimed_by_id);
-
-CREATE INDEX idx_user_role_user_id ON user_role (user_id);
-CREATE INDEX idx_user_role_role_id ON user_role (role_id);
-CREATE INDEX idx_diameter_nominal_inch ON diameter (nominal_inch);

@@ -17,11 +17,11 @@ Os dados de progresso e gating são **derivados** — as listas (`cut_list`, `as
 
 ## Estrutura de ficheiros
 
-| Ficheiro             | Papel                                                                             |
-| -------------------- | --------------------------------------------------------------------------------- |
-| `01-create.sql`      | Schema completo — 23 `CREATE TABLE`, CONSTRAINTs (CHECK, FK, UNIQUE), 30+ índices |
-| `02-insert.sql`      | Seed — dados iniciais (10 users, 4 roles, 120 parts, 60 joints, 60 welds, …)      |
-| `99-drop-tables.sql` | Teardown manual — `DROP TABLE` com `FOREIGN_KEY_CHECKS = 0`                       |
+| Ficheiro             | Papel                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `01-create.sql`      | Schema completo — 23 `CREATE TABLE`, CONSTRAINTs (CHECK, FK, UNIQUE), 7 índices manuais (FKs auto-indexadas pelo InnoDB) |
+| `02-insert.sql`      | Seed — dados iniciais (10 users, 4 roles, 120 parts, 60 joints, 60 welds, …)                                             |
+| `99-drop-tables.sql` | Teardown manual — `DROP TABLE` com `FOREIGN_KEY_CHECKS = 0`                                                              |
 
 Reaplicar: `bun run docker:down` (dropa o volume) + `up`, ou `bun run docker:rebuild`.
 
@@ -129,23 +129,13 @@ Protege dados de referência — impede apagar `material`, `diameter`, `fitting_
 
 ## Índices
 
-Todos os índices manuais (excluindo PK/UNIQUE implícitos):
+Índices manuais (além dos implícitos de PK/UNIQUE/FK). O InnoDB **auto-indexa toda coluna FK**, então índices de FK não se repetem aqui; só ficam os que uma query realmente usa fora disso:
 
-| Tabela                   | Índices                                               |
-| ------------------------ | ----------------------------------------------------- |
-| `part`                   | `type`, `number`                                      |
-| `pipe_length`            | `status`, `heat_number`, `material_id`, `diameter_id` |
-| `fitting`                | `heat_number`, `material_id`, `fitting_type_id`       |
-| `port`                   | `fitting_id`, `diameter_id`                           |
-| `project`                | `name`, `client`                                      |
-| `isometric`              | `project_id`                                          |
-| `spool`                  | `isometric_id`                                        |
-| `joint`                  | `status`, `part1_id`, `part2_id`, `spool_id`          |
-| `weld`                   | `status`, `joint_id`, `filler_material_id`, `wps_id`  |
-| `*_status_event` (×3)    | composite `(entity_id, created_at)`, `created_by_id`  |
-| `cut/assembly/weld_list` | `claimed_by_id`                                       |
-| `user_role`              | `user_id`, `role_id`                                  |
-| `diameter`               | `nominal_inch`                                        |
+| Tabela                           | Índice                              | Porquê                                               |
+| -------------------------------- | ----------------------------------- | ---------------------------------------------------- |
+| `part`                           | `type`                              | discriminador da herança joined-table                |
+| `pipe_length` / `joint` / `weld` | `status`                            | baixa cardinalidade; reservado p/ filtros por estado |
+| `*_status_event` (×3)            | composite `(<item>_id, created_at)` | `WHERE <item>_id ORDER BY created_at` do histórico   |
 
 ## Seed data
 
