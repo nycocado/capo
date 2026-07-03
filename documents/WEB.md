@@ -57,7 +57,7 @@ Toda URL, namespace e nome de evento é centralizado aqui — nada hard-coded in
 - **`ROUTES`** — URLs de página (`/login`, `/roles`, `/cut`, `/assembly`, `/weld`, `/unauthorized`, …).
 - **`API_ROUTES`** — endpoints REST por recurso. Listas (`cutLists`, `assemblyLists`, `weldLists`) expõem `base`, `id`, `claim`, `pendingCount`; itens (`pipeLengths`, `joints`, `welds`) expõem `base`, `id`, `statusEvents`.
 - **`WS_ROUTES`** — namespaces Socket.IO (`/cut-list`, `/assembly-list`, `/weld-list`).
-- **`WS_EVENTS`** — eventos de conexão (`connect`, `disconnect`, …) e de estágio (`claimChanged`, `statusChanged`).
+- **`WS_EVENTS`** — evento de conexão (`connect_error`) e de estágio (`claimChanged`, `statusChanged`).
 
 ## Camada de dados (`src/lib/`)
 
@@ -75,7 +75,7 @@ Um módulo por recurso (`auth.ts`, `cut-lists.ts`, `joints.ts`, `welds.ts`, `wps
 
 ### `query/` — TanStack Query
 
-- `keys.ts` — factory de query keys (`queryKeys.cutLists()`, `queryKeys.currentUser()`, `queryKeys.wps()`, …), retornando arrays `as const`.
+- `keys.ts` — factory de query keys (`queryKeys.cutLists()`, `queryKeys.wps()`, `queryKeys.fillerMaterials()`, …), retornando arrays `as const`.
 - `provider.tsx` — `QueryProvider`, montado no layout raiz. Usa um `QueryClient` singleton no browser e um novo a cada request no servidor, para não vazar cache entre requisições no SSR.
 
 ### `ws/` — Socket.IO
@@ -84,7 +84,7 @@ Um módulo por recurso (`auth.ts`, `cut-lists.ts`, `joints.ts`, `welds.ts`, `wps
 
 ## DTOs e interfaces
 
-- **`src/dtos/`** — 20 DTOs que espelham as entidades da API (cut-list, joint, weld, isometric, spool, fitting, part, user, role, status-event, wps, …). São o contrato de tipagem com o back-end.
+- **`src/dtos/`** — DTOs que espelham as entidades da API (cut-list, joint, weld, isometric, spool, fitting, part, user, wps, …); os lookups pequenos (diameter, material, fitting-type, filler-material, role) ficam juntos em `shared-primitives.dto.ts`. São o contrato de tipagem com o back-end.
 - **`src/interfaces/`** — tipos para dados de detalhe enriquecido: `pipe-length-with-context` e `weld-with-context`.
 
 ## Work-Stage Engine (`src/features/work-stage/`)
@@ -142,13 +142,13 @@ Cada estágio tem um hook top-level `use<Stage>Workflow` que compõe o engine ba
 
 ### Por estágio (`src/app/(factory)/*/hooks/`)
 
-| Hook                      | Responsabilidade                                       |
-| ------------------------- | ------------------------------------------------------ |
-| `use<Stage>ListTable`     | Seleção, estados de linha, busca e navegação na lista  |
-| `use<Item>Table` / `Grid` | Itens em trabalho (pipe lengths, joints ou welds)      |
-| `use<Stage>Operations`    | Mutações de status event (iniciar / concluir trabalho) |
-| `use<Stage>EventHandlers` | Handlers dos eventos da UI                             |
-| `use<Stage>Workflow`      | Workflow top-level: compõe o engine + os hooks acima   |
+| Hook                      | Responsabilidade                                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `use<Stage>ListTable`     | Seleção, linha, busca, navegação — **cut** tem o seu; **assembly/weld** usam o genérico `useStageListTable` (compartilhado) |
+| `use<Item>Table` / `Grid` | Itens em trabalho (pipe lengths, joints ou welds)                                                                           |
+| `use<Stage>Operations`    | Mutações de status event via `useMutation` (iniciar / concluir trabalho)                                                    |
+| `useCutEventHandlers`     | Handlers de UI do cut (assembly/weld dobrados no `useStageListTable`)                                                       |
+| `use<Stage>Workflow`      | Workflow top-level: compõe o engine + os hooks acima                                                                        |
 
 ### Compartilhados (`src/hooks/`)
 
@@ -158,7 +158,7 @@ Cada estágio tem um hook top-level `use<Stage>Workflow` que compõe o engine ba
 | `useWorkStatusAccessor`   | Mapeia status do DB → estado de UI (`to-do`/`information`/`working`/`finished`) e detecta lock |
 | `useTableUtils`           | `sortFinishedLast`, `filterBySearch` (puras) + `useRowStates`                                  |
 | `useFinishedItemsSorting` | Deriva os IDs concluídos para reordenação                                                      |
-| `useModalState<T>`        | Estado genérico de modal                                                                       |
+| `useStageListTable`       | Lista genérica (assembly/weld): seleção, estados de linha, busca, navegação + claim            |
 | `useUIConfigurations`     | Factory de cards, botões e dados de modal a partir do item selecionado                         |
 | `useInformationState`     | Toggle do destaque "information"                                                               |
 

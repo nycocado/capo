@@ -47,18 +47,16 @@ A página `/roles` reexpõe esses tokens como aliases locais (`--line-*`) dentro
 
 `$accent: #ff6600` é declarado no topo do arquivo e alimenta tanto `primary` quanto `--accent` (via `#{$accent}` em `globals.scss`) e os `rgba()` em `operator.scss`/`roles.scss` — fonte única de verdade para o laranja.
 
-8 cores de tema customizadas fundidas sobre as defaults do Bootstrap via `map-merge`:
+6 cores de tema customizadas fundidas sobre as defaults do Bootstrap via `map-merge` (`light` usa a default do Bootstrap para tabs ativos — não é override):
 
-| Chave       | Valor             | Uso                                                                  |
-| ----------- | ----------------- | -------------------------------------------------------------------- |
-| `primary`   | `$accent`         | Botões confirm, ações primárias, links, badges.                      |
-| `secondary` | `#242222`         | Botões cancelar, estado `to-do` de rows, campos de formulário.       |
-| `tertiary`  | `#616161`         | Bordas de WorkPanel cards (`border-tertiary`), estado `information`. |
-| `success`   | `#26a126`         | Estado `finished`, rows confirmadas em MaterialVerificationModal.    |
-| `danger`    | `#ff3838`         | Error toast, alertas, lista bloqueada (`danger` state).              |
-| `info`      | `#00bfff`         | Loading alerts no FormModal.                                         |
-| `light`     | Bootstrap default | Superfície clara padrão (tabs ativos).                               |
-| `surface`   | `#dbdbdb`         | Superfície clara (cinza).                                            |
+| Chave       | Valor     | Uso                                                                  |
+| ----------- | --------- | -------------------------------------------------------------------- |
+| `primary`   | `$accent` | Botões confirm, ações primárias, links, badges.                      |
+| `secondary` | `#242222` | Botões cancelar, estado `to-do` de rows, campos de formulário.       |
+| `tertiary`  | `#616161` | Bordas de WorkPanel cards (`border-tertiary`), estado `information`. |
+| `success`   | `#26a126` | Estado `finished`, rows confirmadas em MaterialVerificationModal.    |
+| `danger`    | `#ff3838` | Error toast, alertas, lista bloqueada (`danger` state).              |
+| `info`      | `#00bfff` | Loading alerts no FormModal.                                         |
 
 **Componentes Bootstrap utilizados:** `Card`, `CardBody`, `Row`, `Col`, `Table`, `Form`, `Button`, `InputGroup`, `Dropdown`, `DropdownButton`, `Modal`, `Toast`, `Spinner`, `Alert`, `Navbar`, `Nav`, `FormControl`, `FormLabel`, `FormSelect`.
 
@@ -91,19 +89,19 @@ A escala usa as classes utilitárias do Bootstrap (`display-*`, `fs-*`) para tí
 
 ### Paleta semântica
 
-| Cor                | Hex       | Uso                                        |
-| ------------------ | --------- | ------------------------------------------ |
-| Near-black (fundo) | `#0d0c0c` | `--app-bg` — fundo de todas as telas       |
-| Painel escuro      | `#1c1a1a` | `--panel` — superfície de cards/painéis    |
-| Borda painel       | `#2c2929` | `--panel-edge` — borda hairline            |
-| Aço                | `#6f6f6f` | `--steel` — texto/ícone secundário         |
-| Texto claro        | `#ededed` | `--text` — texto primário                  |
-| Laranja (accent)   | `#ff6600` | `$accent`/`--accent` — ações, estados, marca |
+| Cor                | Hex       | Uso                                           |
+| ------------------ | --------- | --------------------------------------------- |
+| Near-black (fundo) | `#0d0c0c` | `--app-bg` — fundo de todas as telas          |
+| Painel escuro      | `#1c1a1a` | `--panel` — superfície de cards/painéis       |
+| Borda painel       | `#2c2929` | `--panel-edge` — borda hairline               |
+| Aço                | `#6f6f6f` | `--steel` — texto/ícone secundário            |
+| Texto claro        | `#ededed` | `--text` — texto primário                     |
+| Laranja (accent)   | `#ff6600` | `$accent`/`--accent` — ações, estados, marca  |
 | Secundário escuro  | `#242222` | Bootstrap `secondary` — cancelar, lock, to-do |
-| Terciário cinza    | `#616161` | Bootstrap `tertiary` — bordas, information |
-| Sucesso verde      | `#26a126` | Bootstrap `success` — concluído            |
-| Perigo vermelho    | `#ff3838` | Bootstrap `danger` — erro, bloqueado       |
-| Info azul          | `#00bfff` | Bootstrap `info` — loading                 |
+| Terciário cinza    | `#616161` | Bootstrap `tertiary` — bordas, information    |
+| Sucesso verde      | `#26a126` | Bootstrap `success` — concluído               |
+| Perigo vermelho    | `#ff3838` | Bootstrap `danger` — erro, bloqueado          |
+| Info azul          | `#00bfff` | Bootstrap `info` — loading                    |
 
 ### Metáfora de estado
 
@@ -114,7 +112,7 @@ Cada item de trabalho tem um estado que define a cor da linha/card:
 | `to-do`       | `bg-secondary text-white` | `#242222` | Branco | `status: to_do`                 |
 | `working`     | `bg-primary text-white`   | `#ff6600` | Branco | `status: in_progress`           |
 | `finished`    | `bg-success text-white`   | `#26a126` | Branco | `status: done`                  |
-| `information` | `bg-tertiary text-white`  | `#616161` | Branco | flag toggle manual               |
+| `information` | `bg-tertiary text-white`  | `#616161` | Branco | flag toggle manual              |
 | `danger`      | `bg-danger text-white`    | `#ff3838` | Branco | lock de claim por outro usuário |
 
 A conversão `status → UI state` é feita por `useWorkStatusAccessor`: `in_progress → working`, `done → finished`, `to_do → to-do`. O lock é verificado via `listToUiState` (`claimedBy` de outro usuário → `danger`).
@@ -265,8 +263,13 @@ Separador de grupos no grid: `<hr className="op-divider my-2">` — linha hairli
   overflow-y: scroll;
   scrollbar-color: var(--steel) transparent;
   scrollbar-width: thin;
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-thumb { background: var(--steel); border-radius: 3px; }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--steel);
+    border-radius: 3px;
+  }
 }
 ```
 
@@ -410,16 +413,16 @@ Posição: `bottom-center`, `ToastContainer` dentro de `p-3`. Toast: `bg="danger
 
 ## Padrões de botões
 
-| Padrão        | Variant                     | Texto   | Bordas      | Uso                                    |
-| ------------- | --------------------------- | ------- | ----------- | -------------------------------------- |
+| Padrão        | Variant                     | Texto   | Bordas      | Uso                                       |
+| ------------- | --------------------------- | ------- | ----------- | ----------------------------------------- |
 | Confirm modal | `primary`                   | —       | `border-4`  | Confirmar ações (Bootstrap computa texto) |
-| Cancel modal  | `outline-light`             | —       | `border-4`  | Cancelar / Previous                    |
-| Action        | `outline-light`             | —       | `border-3`  | ControlPanel (Isometric, Note, Report) |
-| Next          | `primary`                   | "Next"  | `border-3`  | Avançar no workflow                    |
-| Tab active    | `bg-light text-dark`        | —       | `rounded-2` | WorkTabs                               |
-| Tab inactive  | `bg-transparent text-light` | —       | `rounded-2` | WorkTabs                               |
-| Login submit  | `primary`                   | "Login" | —           | `w-50 mx-auto fw-semibold`             |
-| Grid item     | `border-tertiary border-3`  | —       | `border-3`  | WorkGridItem                           |
+| Cancel modal  | `outline-light`             | —       | `border-4`  | Cancelar / Previous                       |
+| Action        | `outline-light`             | —       | `border-3`  | ControlPanel (Isometric, Note, Report)    |
+| Next          | `primary`                   | "Next"  | `border-3`  | Avançar no workflow                       |
+| Tab active    | `bg-light text-dark`        | —       | `rounded-2` | WorkTabs                                  |
+| Tab inactive  | `bg-transparent text-light` | —       | `rounded-2` | WorkTabs                                  |
+| Login submit  | `primary`                   | "Login" | —           | `w-50 mx-auto fw-semibold`                |
+| Grid item     | `border-tertiary border-3`  | —       | `border-3`  | WorkGridItem                              |
 
 Botões de modal: `btn-lg px-4`. Botões de ControlPanel: `fs-5`, `minHeight: 50px`.
 
@@ -436,7 +439,7 @@ Botões de modal: `btn-lg px-4`. Botões de ControlPanel: `fs-5`, `minHeight: 50
 | Arquivo                            | Papel                                                                           |
 | ---------------------------------- | ------------------------------------------------------------------------------- |
 | `src/app/globals.scss`             | Import das 3 folhas de estilo + `:root` com tokens + body font + reduced motion |
-| `src/styles/bootstrap-custom.scss` | `$accent` + 8 cores customizadas do Bootstrap                                   |
+| `src/styles/bootstrap-custom.scss` | `$accent` + 6 cores customizadas do Bootstrap                                   |
 | `src/styles/operator.scss`         | Estilos para telas de operador (cut/assembly/weld)                              |
 | `src/styles/roles.scss`            | Estilos para seletor de estação (`/roles`)                                      |
 | `src/constants/index.ts`           | `WORK_STATES` constant                                                          |
